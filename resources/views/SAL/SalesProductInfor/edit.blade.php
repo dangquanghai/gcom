@@ -249,7 +249,7 @@ function LoadCostAndPriceOnAllChannel()
     });
 }
 LoadCostAndPriceOnAllChannel();
-
+/*
  $(document).on('change','select',function(){
         var column_name = "channel_id";
         var column_value =   $(this).val();
@@ -258,7 +258,7 @@ LoadCostAndPriceOnAllChannel();
         if(column_value != '')
         {
             $.ajax({
-                url:'{{route("SalesProductInforController.UpdateCostPrice")}}',
+                url:'{{route("SalesProductInforController.UpdateCostPrice")}}',//Chỉ update channel ID
                 method: "POST",
                 data: {column_name:column_name,column_value:column_value,id:id, _token:_token},
                 success:function(data)
@@ -276,12 +276,15 @@ LoadCostAndPriceOnAllChannel();
    
      $(document).on('blur','.column_name',function()
     {
+        var Cost = 0;
         var id = $(this).attr("id");
         var column_name = $(this).data('column_name');
         var column_value = $(this).text();
       
         if(column_name != "channel_id")
         {
+            if(column_name != "retail_price")
+
             $.ajax({
                 url:'{{route("SalesProductInforController.UpdateCostPrice")}}',
                 method: "POST",
@@ -296,6 +299,50 @@ LoadCostAndPriceOnAllChannel();
             $('#message').html("<div class='alert alert-danger'> Báo lỗi từ blur </div>");
         }
        
+    });
+*/
+
+
+$(document).on('blur','.column_name',function()
+    {
+        var retail_price = 0;
+        var per_cost = 0;
+        var cost = 0;
+        var id = $(this).attr("id");
+        var column_name = $(this).data('column_name');
+        var rest_obj;
+        if(column_name == "retail_price")
+        {
+            retail_price = $(this).text();
+            rest_obj =  this.nextElementSibling;
+            per_cost = $(rest_obj).text();
+            cost = $(rest_obj.nextElementSibling).text();
+
+        } else if (column_name == "per_cost")
+        {
+            per_cost = $(this).text();
+            rest_obj = this.previousElementSibling;
+            retail_price = $(rest_obj).text();
+            rest_obj = this.nextElementSibling;
+            cost = $(rest_obj).text();
+        }
+
+        if(column_name != "channel_id")
+        {
+            $.ajax({
+                url:'{{route("SalesProductInforController.UpdateCostPriceNew")}}',
+                method: "POST",
+                data: {retail_price:retail_price,per_cost:per_cost,cost:cost,id:id, _token:_token},
+                success:function(data)
+                {
+                   $('#message').html(data);
+                }
+            });
+        }else
+        {
+            $('#message').html("<div class='alert alert-danger'> Báo lỗi từ blur </div>");
+        }
+   
     });
 
 
@@ -317,8 +364,8 @@ LoadCostAndPriceOnAllChannel();
         CostObj = this.nextElementSibling;
         RetailPrice =$(RetailPriceObj).text();
         Cost = RetailPrice * PerCost /100;
-        $(CostObj).text('');  
-        CostObj.append(Cost);
+        $(CostObj).text(Cost);  
+        //CostObj.append(Cost);
       }
     else if(data_column_name =='retail_price')  
       {
@@ -328,8 +375,8 @@ LoadCostAndPriceOnAllChannel();
         PerCost = $( PerCostObj).text();
         RetailPrice =$(RetailPriceObj).text();
         Cost = RetailPrice * PerCost/100;
-        $(CostObj).text('');  
-        CostObj.append(Cost);
+        $(CostObj).text(Cost);  
+        //CostObj.append(Cost);
       }
       
 

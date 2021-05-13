@@ -48,11 +48,9 @@
       <a class="nav-link active" id="custom-tabs-one-salesproductinfor-tab" data-toggle="pill" href="#custom-tabs-one-salesproductinfor" role="tab" aria-controls="custom-tabs-one-salesproductinfor" aria-selected="false">sales product informations</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" id="custom-tabs-one-asin-tab" data-toggle="pill" href="#custom-tabs-one-asin" role="tab" aria-controls="custom-tabs-one-asin" aria-selected="false">Asin Management</a>
+      <a class="nav-link" id="custom-tabs-one-asin-tab" data-toggle="pill" href="#custom-tabs-one-asin" role="tab" aria-controls="custom-tabs-one-asin" aria-selected="false">Asin Management </a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" id="custom-tabs-one-promotiontracking-tab" data-toggle="pill" href="#custom-tabs-one-mpromotiontracking-" role="tab" aria-controls="custom-tabs-one-makepromotion" aria-selected="false">Promotion tracking</a>
-    </li>
+   
   </ul>
 </div>   <!-- /.card-header -->
 
@@ -81,7 +79,7 @@
 
 <div class="card-footer">
       <button type="submit" class="btn btn-primary">
-      <i class="fa fa-magic" ></i>
+      <i class="fa fa-plus-square" ></i>
     </button>
   </div>
 
@@ -137,7 +135,7 @@ var sColums =
           {title:'Channel Fee ($)',colspan:9,align: 'center'},
           {title:'Retail Price',colspan:9,align: 'center',visible:false},
           {title:'Cost Price ($)',colspan:9,align: 'center',visible:false},
-          {title:'Unit Profit',colspan:10,align: 'center',visible:false}
+          {title:'Unit Profit',colspan:9,align: 'center',visible:false}
         ],
         [
           {field:'id',title:'id',visible:false},
@@ -154,7 +152,7 @@ var sColums =
           // Tẻm payment
           {field: "per_deposit", title: "%deposit"},
           {field: "per_full_payment", title: "% full payment"},
-          {field: "partner_split", title: "% partner_split"},
+          {field: "per_rev_split_for_partner", title: "% partner_split"},
 
           // Logistic
           {field: "con20_capacity", title: "con20_capacity"},
@@ -165,15 +163,15 @@ var sColums =
 
           {field: "cosg_est", title: "COSG"},
 
-          {field: "per_mkt", title: "% MKT",visible:false},
-          {field: "per_promotion", title: "% Promotion",visible:false},
-          {field: "per_return", title: "% Return",visible:false},
-          {field: "selling_invoice", title: "% Selling Invoice",visible:false},
-          {field: "per_duty", title: "% Duty",visible:false},
-          {field: "sales_commision", title: "% Sales Commision",visible:false},
+          {field: "per_mkt", title: "% MKT"},
+          {field: "per_promotion", title: "% Promotion"},
+          {field: "per_return", title: "% Return"},
+          {field: "selling_invoice", title: "% Selling Invoice"},
+          {field: "per_duty", title: "% Duty"},
+          {field: "sales_commision", title: "% Sales Commision"},
 
-          {field: "per_wh_fee", title: "% wh_fee",visible:false},
-          {field: "per_handing_fee", title: "%Handing_fee",visible:false},
+          {field: "per_wh_fee", title: "% wh_fee"},
+          {field: "per_handing_fee", title: "%Handing_fee"},
 
           {field: "per_total_cost", title: "%Total Cost"},
 
@@ -192,15 +190,15 @@ var sColums =
           {field: "price_profit_max", title: "price_profit_max"},
           {field: "retail_price", title: "retail_price"},
 
-          {field: "per_fbm_fee", title: "% per_fbm_fee",visible:false},
-          {field: "per_avcds_fee", title: "% per_avcds_fee",visible:false},
-          {field: "per_avcwh_fee", title: "% avcwh_fee",visible:false},
-          {field: "per_wmdsv_fee", title: "% wmdsv_fee",visible:false},
-          {field: "per_wmmkp_fee", title: "%wmmkp_fee",visible:false},
-          {field: "per_ebay_fee", title: "%ebay_fee",visible:false},
-          {field: "per_local_fee", title: "%local_fee",visible:false},
-          {field: "per_website_fee", title: "%website_fee",visible:false},
-          {field: "per_way_fee", title: "%wayfair_fee",visible:false},
+          {field: "per_fbm_fee", title: "% per_fbm_fee"},
+          {field: "per_avcds_fee", title: "% per_avcds_fee"},
+          {field: "per_avcwh_fee", title: "% avcwh_fee"},
+          {field: "per_wmdsv_fee", title: "% wmdsv_fee"},
+          {field: "per_wmmkp_fee", title: "%wmmkp_fee"},
+          {field: "per_ebay_fee", title: "%ebay_fee"},
+          {field: "per_local_fee", title: "%local_fee"},
+          {field: "per_website_fee", title: "%website_fee"},
+          {field: "per_way_fee", title: "%wayfair_fee"},
 
           {field: "fbm_fee", title: "fbm_fee"},
           {field: "avcds_fee", title: "avcds_fee"},
@@ -214,35 +212,33 @@ var sColums =
 
           {field: "fbm_retail_price", title: "fbm_retail_price"},
           {field: "avcds_retail_price", title: "avcds_retail_price"},
-          {field: "avcwh_retail_price", title: "avcwh_retail_price_fee",visible:false},
+          {field: "avcwh_retail_price", title: "avcwh_retail_price_fee"},
           {field: "wmdsv_retail_price", title: "wmdsv_retail_price"},
           {field: "wmmkp_retail_price", title: "wmmkp_retail_price"},
           {field: "ebay_retail_price", title: "ebay_retail_price"},
           {field: "local_retail_price", title: "local_retail_price"},
           {field: "website_retail_price", title: "website_retail_price"},
-          {field: "wayfair_retail_price", title: "wayfair_retail_price",visible:false},
+          {field: "wayfair_retail_price", title: "wayfair_retail_price"},
 
-          {field: "fbm_cost", title: "fbm_cost",visible:false},
+          {field: "fbm_cost", title: "fbm_cost"},
           {field: "avcds_cost", title: "avcds_cost"},
           {field: "avcwh_cost", title: "avcwh_cost"},
           {field: "wmdsv_cost", title: "wmdsv_cost"},
-          {field: "wmmkp_cost", title: "wmmkp_cost",visible:false},
-          {field: "ebay_cost", title: "ebay_cost",visible:false},
-          {field: "local_cost", title: "local_cost",visible:false},
-          {field: "website_cost", title: "website_cost",visible:false},
-          {field: "wayfair_cost", title: "wayfair_cost",visible:false},
+          {field: "wmmkp_cost", title: "wmmkp_cost"},
+          {field: "ebay_cost", title: "ebay_cost"},
+          {field: "local_cost", title: "local_cost"},
+          {field: "website_cost", title: "website_cost"},
+          {field: "wayfair_cost", title: "wayfair_cost"},
 
-          {field: "fbm_profit", title: "fbm_profit"},
-          {field: "avcds_profit", title: "avcds_profit"},
-          {field: "avcwh_profit", title: "avcwh_profit"},
-          {field: "wmdsv_profit", title: "wmdsv_profit"},
-          {field: "wmmkp_profit", title: "wmmkp_profit"},
-          {field: "ebay_profit", title: "ebay_profit"},
-          {field: "local_profit", title: "local_profit"},
-          {field: "website_profit", title: "website_profit"},
-          {field: "wayfair_profit", title: "wayfair_profit"},
-          {field: "fba_profit", title: "fba_profit"},
-          
+          {field: "fbm_profit", title: "fbm_profit",formatter:colorFormatter},
+          {field: "avcds_profit", title: "avcds_profit",formatter:colorFormatter},
+          {field: "avcwh_profit", title: "avcwh_profit",formatter:colorFormatter},
+          {field: "wmdsv_profit", title: "wmdsv_profit",formatter:colorFormatter},
+          {field: "wmmkp_profit", title: "wmmkp_profit",formatter:colorFormatter},
+          {field: "ebay_profit", title: "ebay_profit",formatter:colorFormatter},
+          {field: "local_profit", title: "local_profit",formatter:colorFormatter},
+          {field: "website_profit", title: "website_profit",formatter:colorFormatter},
+          {field: "wayfair_profit", title: "wayfair_profit",formatter:colorFormatter}
         ]
       ] ;
 
@@ -325,7 +321,6 @@ function LinkToEbayFitnessListing(value,row,index)
 }
 
 
-
 function LinkToWMListing(value,row,index)
 {
   return[
@@ -335,12 +330,13 @@ function LinkToWMListing(value,row,index)
   ].join('')
 }
 
-function SetColorForFBMProfit(value,row,index)
-{
-    return {
-        classes: value < 0 ? 'negative_return' : 'ok_return'
+function colorFormatter(value, row, index) {
+    if (parseFloat(value) < 0 ) {
+      return '<div style="background-color:red" >' + value + '</div>';            
+    } else {
+      return '<div style="background-color:while" >' + value + '</div>'; 
     }
-}
+  }
 
 </script>
 @endsection

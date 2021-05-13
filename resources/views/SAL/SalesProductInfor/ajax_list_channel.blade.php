@@ -10,7 +10,7 @@
 <td contenteditable id="retail_price"> </td>
 <td contenteditable id="per_cost"> </td>
 <td contenteditable id="cost"> </td>
-<td> <button type= "button" class="btn btn-success btn-xs" id="add" disabled> Add </button> </td> 
+<td> <button id="Addbtn" type= "button" class="btn btn-success btn-xs" id="add" disabled> Add </button> </td> 
 </tr>
 
 @foreach($data as $item)

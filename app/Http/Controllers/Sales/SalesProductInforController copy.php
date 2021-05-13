@@ -277,9 +277,6 @@ class SalesProductInforController extends SysController
     //----------------------------------------------------
     public function index(Request $request)
     {
-      $PerSellingInvoice =2;// Tiền thu về sớm thfi chịu mất 2%
-      $PerSalesCommission = 1.5;// Tiền sales commission chiếm 1.5 %
-
       if($request->has('sku'))
         $Sku = $request->input('sku');
       else
@@ -296,149 +293,167 @@ class SalesProductInforController extends SysController
       $Brand = 0;
     $request->flash();
 
-    $sql = " select pi.id, p.title, p.product_sku as sku, br.brand_name,
-    p.length, p.width, p.height,p.weight, round(p.length * p.width * p.height) as cubic,
-    pi.per_deposit,pi.per_full_payment,pi.per_rev_split_for_partner,
-    pi.con20_capacity,pi.exw_vn,pi.fob_vn,pi.fob_cn, pi.fob_us, pi.cosg_est,
-    pi.per_mkt, per_promotion,per_return, 2 as selling_invoice,
-    pi.per_duty,1.5 as sales_commision, pi.per_wh_fee,pi.per_handing_fee,
+      $sql = " select pi.id, p.title, p.product_sku as sku, br.brand_name,
+      p.length, p.width, p.height,p.weight, round(p.length * p.width * p.height) as cubic,
+      pi.per_deposit,pi.per_full_payment,pi.per_rev_split_for_partner,
+      pi.con20_capacity,pi.exw_vn,pi.fob_vn,pi.fob_cn, pi.fob_us, pi.cosg_est,
+      pi.per_mkt, per_promotion,per_return, 0.02 as selling_invoice,
+      pi.per_duty, 0.015 as sales_commision, pi.per_wh_fee,pi.per_handing_fee,
 
-    round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty
-    + 1.5 + pi.per_wh_fee +	pi.per_handing_fee),2) as per_total_cost,
+      round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty
+      + 0.015 + pi.per_wh_fee +	pi.per_handing_fee),2) as per_total_cost,
 
-    round(
-     ( pi.per_wholesales_price_min  -
-     round(pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee,2)
-     )
-   ,2) as per_wholesales_gp_min,
+      round(
+       ( pi.per_wholesales_price_min  -
+       round(pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee,2)
+       )
+     ,2) as per_wholesales_gp_min,
 
-   round(
-                 ( pi.per_wholesales_price_max  -
-                 round(pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty +1.5+ pi.per_wh_fee + pi.per_handing_fee,2)
-                 )
-   ,2) as per_wholesales_gp_max,
+     round(
+                   ( pi.per_wholesales_price_max  -
+                   round(pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee,2)
+                   )
+     ,2) as per_wholesales_gp_max,
 
-   pi.shiping_fee_est,
-   round(
-     (round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty
-     + 1.5 + pi.per_wh_fee +	pi.per_handing_fee),2)* pi.retail_price - pi.shiping_fee_est)/ pi.retail_price
-     ,2) as per_retail_profit,
+     pi.shiping_fee_est,
+     round(
+       (round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty
+       + 0.015 + pi.per_wh_fee +	pi.per_handing_fee),2)* pi.retail_price - pi.shiping_fee_est)/ pi.retail_price
+       ,2) as per_retail_profit,
 
-   pi.per_wholesales_price_min,
-   pi.per_wholesales_price_max,
+     pi.per_wholesales_price_min,
+     pi.per_wholesales_price_max,
 
-   round(pi.shiping_fee_est*0.85,2) as dsv_shipping_fee,
+     round(pi.shiping_fee_est*0.85,2) as dsv_shipping_fee,
 
-   round((pi.retail_price - (pi.per_wholesales_price_max* pi.retail_price) - round(pi.shiping_fee_est*0.85,2))/pi.retail_price ,2)
-   as  price_profit_min,
+     round((pi.retail_price - (pi.per_wholesales_price_max* pi.retail_price) - round(pi.shiping_fee_est*0.85,2))/pi.retail_price ,2)
+     as  price_profit_min,
 
-   round((pi.retail_price - (pi.per_wholesales_price_min* pi.retail_price) - round(pi.shiping_fee_est*0.85,2))/pi.retail_price ,2)
-   price_profit_max,
+     round((pi.retail_price - (pi.per_wholesales_price_min* pi.retail_price) - round(pi.shiping_fee_est*0.85,2))/pi.retail_price ,2)
+     price_profit_max,
 
-   pi.shiping_fee_est,pi.retail_price,
+     pi.shiping_fee_est,pi.retail_price,
 
-   round(GetSalesChannelFee(10)*100,2) as per_fbm_fee,
-   round(GetSalesChannelFee(2)*100,2) as per_avcds_fee,
-   round(GetSalesChannelFee(1)*100,2) as per_avcwh_fee,
-   round(GetSalesChannelFee(4)*100,2) as per_wmdsv_fee,
-   round(GetSalesChannelFee(5)*100,2) as per_wmmkp_fee,
-   round(GetSalesChannelFee(6)*100,2) as per_ebay_fee,
-   round(GetSalesChannelFee(7)*100,2) as per_local_fee,
-   round(GetSalesChannelFee(8)*100,2) as per_website_fee,
-   round(GetSalesChannelFee(12)*100,2) as per_way_fee,
+     GetSalesChannelFee(10) as per_fbm_fee,
+     GetSalesChannelFee(2) as per_avcds_fee,
+     GetSalesChannelFee(1) as per_avcwh_fee,
+     GetSalesChannelFee(4) as per_wmdsv_fee,
+     GetSalesChannelFee(5) as per_wmmkp_fee,
+     GetSalesChannelFee(6) as per_ebay_fee,
+     GetSalesChannelFee(7) as per_local_fee,
+     GetSalesChannelFee(8) as per_website_fee,
+     GetSalesChannelFee(12) as per_way_fee,
 
-    round( GetRetailPrice(10,p.product_sku) * GetSalesChannelFee(10),2) as fbm_fee ,
+      round( GetRetailPrice(10,p.product_sku) * GetSalesChannelFee(10),2) as fbm_fee ,
 
-    round( GetCostPrice(2,p.product_sku) * GetSalesChannelFee(2),2) as avcds_fee,
-    round( GetCostPrice(1,p.product_sku) * GetSalesChannelFee(1),2) as avcwh_fee,
-    round( GetCostPrice(4,p.product_sku) * GetSalesChannelFee(4),2) as wmdsv_fee,
-    round( GetRetailPrice(5,p.product_sku) * GetSalesChannelFee(5),2) as wmmkp_fee,
-    round( GetRetailPrice(6,p.product_sku) * GetSalesChannelFee(6),2) as ebay_fee,
-    round( GetRetailPrice(7,p.product_sku) * GetSalesChannelFee(7),2) as local_fee,
-    round( GetRetailPrice(8,p.product_sku) * GetSalesChannelFee(8),2) as website_fee,
-    round( GetCostPrice(12,p.product_sku) * GetSalesChannelFee(12),2) as way_fee ,
+      round( GetRetailPrice(2,p.product_sku) * GetSalesChannelFee(2),2) as avcds_fee,
+      round( GetRetailPrice(1,p.product_sku) * GetSalesChannelFee(1),2) as avcwh_fee,
+      round( GetRetailPrice(4,p.product_sku) * GetSalesChannelFee(4),2) as wmdsv_fee,
+      round( GetRetailPrice(5,p.product_sku) * GetSalesChannelFee(5),2) as wmmkp_fee,
+      round( GetRetailPrice(6,p.product_sku) * GetSalesChannelFee(6),2) as ebay_fee,
+      round( GetRetailPrice(7,p.product_sku) * GetSalesChannelFee(7),2) as local_fee,
+      round( GetRetailPrice(8,p.product_sku) * GetSalesChannelFee(8),2) as website_fee,
+      round( GetRetailPrice(12,p.product_sku) * GetSalesChannelFee(12),2) as way_fee ,
 
-    GetRetailPrice(10,p.product_sku) as fbm_retail_price,
-    GetRetailPrice(2,p.product_sku) as avcds_retail_price,
-    GetRetailPrice(1,p.product_sku) as avcwh_retail_price,
-    GetRetailPrice(4,p.product_sku) as wmdsv_retail_price,
-    GetRetailPrice(5,p.product_sku) as wmmkp_retail_price,
-    GetRetailPrice(6,p.product_sku) as ebay_retail_price,
-    GetRetailPrice(7,p.product_sku) as local_retail_price,
-    GetRetailPrice(8,p.product_sku) as website_retail_price,
-    GetRetailPrice(12,p.product_sku) as wayfair_retail_price ,
+      GetRetailPrice(10,p.product_sku) as fbm_retail_price,
+      GetRetailPrice(2,p.product_sku) as avcds_retail_price,
+      GetRetailPrice(1,p.product_sku) as avcwh_retail_price,
+      GetRetailPrice(4,p.product_sku) as wmdsv_retail_price,
+      GetRetailPrice(5,p.product_sku) as wmmkp_retail_price,
+      GetRetailPrice(6,p.product_sku) as ebay_retail_price,
+      GetRetailPrice(7,p.product_sku) as local_retail_price,
+      GetRetailPrice(8,p.product_sku) as website_retail_price,
+      GetRetailPrice(12,p.product_sku) as wayfair_retail_price ,
 
-    GetCostPrice(10,p.product_sku) as fbm_cost,
-    GetCostPrice(2,p.product_sku) as avcds_cost,
-    GetCostPrice(1,p.product_sku) as avcwh_cost,
-    GetCostPrice(4,p.product_sku) as wmdsv_cost,
-    GetCostPrice(5,p.product_sku) as wmmkp_cost,
-    GetCostPrice(6,p.product_sku) as ebay_cost,
-    GetCostPrice(7,p.product_sku) as local_cost,
-    GetCostPrice(8,p.product_sku) as website_cost,
-    GetCostPrice(12,p.product_sku) as wayfair_cost,
+      GetCostPrice(10,p.product_sku) as fbm_cost,
+      GetCostPrice(2,p.product_sku) as avcds_cost,
+      GetCostPrice(1,p.product_sku) as avcwh_cost,
+      GetCostPrice(4,p.product_sku) as wmdsv_cost,
+      GetCostPrice(5,p.product_sku) as wmmkp_cost,
+      GetCostPrice(6,p.product_sku) as ebay_cost,
+      GetCostPrice(7,p.product_sku) as local_cost,
+      GetCostPrice(8,p.product_sku) as website_cost,
+      GetCostPrice(12,p.product_sku) as wayfair_cost,
 
-    case when GetRetailPrice(10,p.product_sku)> 0 then
-    round(
-            GetRetailPrice(10,p.product_sku) - (pi.fob_us + pi.shiping_fee_est) 
-            -( 
-              pi.per_mkt + pi.per_promotion + pi.per_return +2 + pi.per_duty + 1.5  + pi.per_wh_fee + pi.per_handing_fee  + GetSalesChannelFee(10) * 100 ) * GetRetailPrice(10,p.product_sku)/100  
-        ,2) else 0 end  as fbm_profit ,
+      case when GetRetailPrice(10,p.product_sku)> 0 then
+      round(
+              GetRetailPrice(10,p.product_sku)
+              - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) 
+              *  GetRetailPrice(10,p.product_sku)
+              - pi.shiping_fee_est
+              - round( GetRetailPrice(10,p.product_sku) * GetSalesChannelFee(10),2)
+          ,2) else 0 end  as fbm_profit ,
+     case when GetCostPrice(2,p.product_sku)> 0 then
+     round (
+             GetCostPrice(2,p.product_sku)
+             - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(2,p.product_sku)
+             - round(GetCostPrice(2,p.product_sku) * GetSalesChannelFee(2),2)
+             ,2) else 0 end as avcds_profit ,
+     case when  GetCostPrice(1,p.product_sku) > 0 then
+     round(
+            GetCostPrice(1,p.product_sku)
+            - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(1,p.product_sku)
+            - round(GetCostPrice(1,p.product_sku) * GetSalesChannelFee(1),2)
+            ,2) else 0 end as avcwh_profit ,
+     case when GetCostPrice(4,p.product_sku) > 0 then
+     round(
+            GetCostPrice(4,p.product_sku)
+            - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(4,p.product_sku)
+            - round(GetCostPrice(4,p.product_sku) * GetSalesChannelFee(4),2)
+           ,2) else 0 end as wmdsv_profit ,
 
+     case when GetRetailPrice(5,p.product_sku) > 0 then
+     round(
+           GetRetailPrice(5,p.product_sku)
+           - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(5,p.product_sku)
+           - round(GetRetailPrice(5,p.product_sku) * GetSalesChannelFee(5),2)
+           - pi.shiping_fee_est
+          ,2) else 0 end as wmmkp_profit ,
 
-   case when GetCostPrice(2,p.product_sku)> 0 then
-   round (
-           GetCostPrice(2,p.product_sku) - pi.fob_us 
-           -(pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee +  GetSalesChannelFee(2) * 100 ) * GetCostPrice(2,p.product_sku)/100
-           ,2) else 0 end as avcds_profit ,
+     case when GetRetailPrice(6,p.product_sku) > 0 then
+     round(
+           GetRetailPrice(6,p.product_sku)
+           - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(6,p.product_sku)
+           - round(GetRetailPrice(6,p.product_sku) * GetSalesChannelFee(6),2)
+           - pi.shiping_fee_est
+         ,2) else 0 end as ebay_profit ,
 
-   case when  GetCostPrice(1,p.product_sku) > 0 then
-   round(
-          GetCostPrice(1,p.product_sku) - pi.fob_us
-          -( pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty +1.5 + pi.per_wh_fee + pi.per_handing_fee + GetSalesChannelFee(1) * 100) * GetCostPrice(1,p.product_sku)/100  
-         ,2) else 0 end as avcwh_profit ,
-   
-   case when GetCostPrice(4,p.product_sku) > 0 then
-   round(
-          GetCostPrice(4,p.product_sku) -pi.fob_us 
-          -( pi.per_mkt + pi.per_promotion + pi.per_return +2+ pi.per_duty +1.5  + pi.per_wh_fee + pi.per_handing_fee +  GetSalesChannelFee(4) * 100) * GetCostPrice(4,p.product_sku)/100
-         ,2) else 0 end as wmdsv_profit ,
+     case when GetRetailPrice(7,p.product_sku) then
+     round(
+         GetRetailPrice(7,p.product_sku)
+         - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(7,p.product_sku)
+         - round(GetRetailPrice(7,p.product_sku) * GetSalesChannelFee(7),2)
+         - pi.shiping_fee_est
+         ,2) else 0 end  as local_profit ,
 
-   case when GetRetailPrice(5,p.product_sku) > 0 then
-   round(
-         GetRetailPrice(5,p.product_sku) -pi.fob_us -  pi.shiping_fee_est
-         - (pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee + GetSalesChannelFee(5) * 100) * GetRetailPrice(5,p.product_sku)/100
-        ,2) else 0 end as wmmkp_profit ,
+     case when GetRetailPrice(8,p.product_sku) > 0 then
+     round(
+         GetRetailPrice(8,p.product_sku)
+         - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(8,p.product_sku)
+         - round(GetRetailPrice(8,p.product_sku) * GetSalesChannelFee(8),2)
+         - pi.shiping_fee_est
+         ,2) else 0 end as website_profit ,
 
-   case when GetRetailPrice(6,p.product_sku) > 0 then
-   round(
-         GetRetailPrice(6,p.product_sku) - (pi.fob_us + pi.shiping_fee_est)
-         -( pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee +  GetSalesChannelFee(6) * 100)* GetRetailPrice(6,p.product_sku)/100 
-       ,2) else 0 end as ebay_profit ,
+     case when GetCostPrice(12,p.product_sku) > 0 then
+     round(
+          GetCostPrice(12,p.product_sku)
+          - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(12,p.product_sku)
+          - round(GetCostPrice(12,p.product_sku) * GetSalesChannelFee(12),2)
+          ,2) else 0 end as wayfair_profit,
 
-   case when GetRetailPrice(7,p.product_sku) then
-   round(
-       GetRetailPrice(7,p.product_sku) -  (pi.fob_us + pi.shiping_fee_est)
-       - (pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee + GetSalesChannelFee(7) *100) * GetRetailPrice(7,p.product_sku)/100
-       ,2) else 0 end  as local_profit ,
+          case when GetRetailPrice(9,p.product_sku) > 0 then
+          round(
+            GetRetailPrice(9,p.product_sku)
+               - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(9,p.product_sku)
+               - round(GetRetailPrice(9,p.product_sku) * GetSalesChannelFee(9),2)
+               - pi.shiping_fee_est
+               ,2) else 0 end as fba_profit
 
-   case when GetRetailPrice(8,p.product_sku) > 0 then
-   round(
-       GetRetailPrice(8,p.product_sku) - pi.fob_us -pi.shiping_fee_est
-       - ( pi.per_mkt + pi.per_promotion + pi.per_return +2 + pi.per_duty + 1.5  + pi.per_wh_fee + pi.per_handing_fee + GetSalesChannelFee(8) * 100) * GetRetailPrice(8,p.product_sku)/100 
-       ,2) else 0 end as website_profit ,
+     from prd_product p
+     inner join prd_brands br on p.brand_id = br.id
+     inner join sal_product_informations pi on p.product_sku = pi.sku
+     where p.company_id <>1 ";
 
-   case when GetCostPrice(12,p.product_sku) > 0 then
-   round(
-        GetCostPrice(12,p.product_sku) - pi.fob_us
-        - (pi.per_mkt + pi.per_promotion + pi.per_return +2  + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee +  GetSalesChannelFee(12) * 100 ) * GetCostPrice(12,p.product_sku)/100
-        ,2) else 0 end as wayfair_profit
-
-    from sal_product_informations pi 
-    left join prd_product p on pi.sku = p.product_sku
-    left join prd_brands br on p.brand_id = br.id
-    where ( 1 = 1 )";
-    
      $sqlFilter = '';
      if($Sku <> ''){ $sqlFilter =  $sqlFilter. " and p.product_sku = '$Sku' " ;}
      if($Title <> ''){ $sqlFilter =  $sqlFilter. " and p.title like  '%$Title%' " ;}
@@ -446,8 +461,7 @@ class SalesProductInforController extends SysController
 
      $sql = $sql . $sqlFilter . "order by br.brand_name,p.product_sku ";
      $SalesProductInfors =  DB::connection('mysql')->select($sql);
-    // print_r($sql);
-     //dd( $SalesProductInfors);
+    // print_r( $sql);
 
       $Sku = $request->input('sku');
       $Title  = $request->input('title');
@@ -474,9 +488,6 @@ class SalesProductInforController extends SysController
   //----------------------------------------------------
     public function LoadSalesProductList(Request $request)
     {
-      $PerSellingInvoice =2;// Tiền thu về sớm thfi chịu mất 2%
-      $PerSalesCommission = 1.5;// Tiền sales commission chiếm 1.5 %
-
       if($request->has('sku'))
         $Sku = $request->input('sku');
       else
@@ -492,150 +503,167 @@ class SalesProductInforController extends SysController
       else
         $Brand = 0;
 
+        $sql = " select pi.id, p.title, p.product_sku as sku, br.brand_name,
+        p.length, p.width, p.height,p.weight, round(p.length * p.width * p.height) as cubic,
+        pi.per_deposit,pi.per_full_payment,pi.per_rev_split_for_partner,
+        pi.con20_capacity,pi.exw_vn,pi.fob_vn,pi.fob_cn, pi.fob_us, pi.cosg_est,
+        pi.per_mkt, per_promotion,per_return, 0.02 as selling_invoice,
+        pi.per_duty, 0.015 as sales_commision, pi.per_wh_fee,pi.per_handing_fee,
+
+        round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty
+        + 0.015 + pi.per_wh_fee +	pi.per_handing_fee),2) as per_total_cost,
+
+        round(
+         ( pi.per_wholesales_price_min  -
+         round(pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee,2)
+         )
+       ,2) as per_wholesales_gp_min,
+
+       round(
+                     ( pi.per_wholesales_price_max  -
+                     round(pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee,2)
+                     )
+                   ,2) as per_wholesales_gp_max,
+
+       pi.shiping_fee_est,
+       round(
+         (round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty
+         + 0.015 + pi.per_wh_fee +	pi.per_handing_fee),2)* pi.retail_price - pi.shiping_fee_est)/ pi.retail_price
+         ,2) as per_retail_profit,
+
+       pi.per_wholesales_price_min,
+       pi.per_wholesales_price_max,
+
+       round(pi.shiping_fee_est*0.85,2) as dsv_shipping_fee,
+
+       round((pi.retail_price - (pi.per_wholesales_price_max* pi.retail_price) - round(pi.shiping_fee_est*0.85,2))/pi.retail_price ,2)
+       as  price_profit_min,
+
+       round((pi.retail_price - (pi.per_wholesales_price_min* pi.retail_price) - round(pi.shiping_fee_est*0.85,2))/pi.retail_price ,2)
+       price_profit_max,
+
+       pi.shiping_fee_est,pi.retail_price,
+
+       GetSalesChannelFee(10) as per_fbm_fee,
+       GetSalesChannelFee(2) as per_avcds_fee,
+       GetSalesChannelFee(1) as per_avcwh_fee,
+       GetSalesChannelFee(4) as per_wmdsv_fee,
+       GetSalesChannelFee(5) as per_wmmkp_fee,
+       GetSalesChannelFee(6) as per_ebay_fee,
+       GetSalesChannelFee(7) as per_local_fee,
+       GetSalesChannelFee(8) as per_website_fee,
+       GetSalesChannelFee(12) as per_way_fee,
+
+        round( GetRetailPrice(10,p.product_sku) * GetSalesChannelFee(10),2) as fbm_fee ,
+
+        round( GetRetailPrice(2,p.product_sku) * GetSalesChannelFee(2),2) as avcds_fee,
+        round( GetRetailPrice(1,p.product_sku) * GetSalesChannelFee(1),2) as avcwh_fee,
+        round( GetRetailPrice(4,p.product_sku) * GetSalesChannelFee(4),2) as wmdsv_fee,
+        round( GetRetailPrice(5,p.product_sku) * GetSalesChannelFee(5),2) as wmmkp_fee,
+        round( GetRetailPrice(6,p.product_sku) * GetSalesChannelFee(6),2) as ebay_fee,
+        round( GetRetailPrice(7,p.product_sku) * GetSalesChannelFee(7),2) as local_fee,
+        round( GetRetailPrice(8,p.product_sku) * GetSalesChannelFee(8),2) as website_fee,
+        round( GetRetailPrice(12,p.product_sku) * GetSalesChannelFee(12),2) as way_fee ,
+
+        GetRetailPrice(10,p.product_sku) as fbm_retail_price,
+        GetRetailPrice(2,p.product_sku) as avcds_retail_price,
+        GetRetailPrice(1,p.product_sku) as avcwh_retail_price,
+        GetRetailPrice(4,p.product_sku) as wmdsv_retail_price,
+        GetRetailPrice(5,p.product_sku) as wmmkp_retail_price,
+        GetRetailPrice(6,p.product_sku) as ebay_retail_price,
+        GetRetailPrice(7,p.product_sku) as local_retail_price,
+        GetRetailPrice(8,p.product_sku) as website_retail_price,
+        GetRetailPrice(12,p.product_sku) as wayfair_retail_price ,
+
+        GetCostPrice(10,p.product_sku) as fbm_cost,
+        GetCostPrice(2,p.product_sku) as avcds_cost,
+        GetCostPrice(1,p.product_sku) as avcwh_cost,
+        GetCostPrice(4,p.product_sku) as wmdsv_cost,
+        GetCostPrice(5,p.product_sku) as wmmkp_cost,
+        GetCostPrice(6,p.product_sku) as ebay_cost,
+        GetCostPrice(7,p.product_sku) as local_cost,
+        GetCostPrice(8,p.product_sku) as website_cost,
+        GetCostPrice(12,p.product_sku) as wayfair_cost,
+
+        case when GetRetailPrice(10,p.product_sku)> 0 then
+        round(
+                GetRetailPrice(10,p.product_sku)
+                - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(10,p.product_sku)
+                - pi.shiping_fee_est
+                - round( GetRetailPrice(10,p.product_sku) * GetSalesChannelFee(10),2)
+            ,2) else 0 end  as fbm_profit ,
+       case when GetCostPrice(2,p.product_sku)> 0 then
+       round (
+               GetCostPrice(2,p.product_sku)
+               - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(2,p.product_sku)
+               - round(GetCostPrice(2,p.product_sku) * GetSalesChannelFee(2),2)
+               ,2) else 0 end as avcds_profit ,
+       case when  GetCostPrice(1,p.product_sku) > 0 then
+       round(
+              GetCostPrice(1,p.product_sku)
+              - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(1,p.product_sku)
+              - round(GetCostPrice(1,p.product_sku) * GetSalesChannelFee(1),2)
+              ,2) else 0 end as avcwh_profit ,
+       case when GetCostPrice(4,p.product_sku) > 0 then
+       round(
+              GetCostPrice(4,p.product_sku)
+              - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(4,p.product_sku)
+              - round(GetCostPrice(4,p.product_sku) * GetSalesChannelFee(4),2)
+             ,2) else 0 end as wmdsv_profit ,
+
+       case when GetRetailPrice(5,p.product_sku) > 0 then
+       round(
+             GetRetailPrice(5,p.product_sku)
+             - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(5,p.product_sku)
+             - round(GetRetailPrice(5,p.product_sku) * GetSalesChannelFee(5),2)
+             - pi.shiping_fee_est
+            ,2) else 0 end as wmmkp_profit ,
+
+       case when GetRetailPrice(6,p.product_sku) > 0 then
+       round(
+             GetRetailPrice(6,p.product_sku)
+             - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(6,p.product_sku)
+             - round(GetRetailPrice(6,p.product_sku) * GetSalesChannelFee(6),2)
+             - pi.shiping_fee_est
+           ,2) else 0 end as ebay_profit ,
+
+       case when GetRetailPrice(7,p.product_sku) then
+       round(
+           GetRetailPrice(7,p.product_sku)
+           - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(7,p.product_sku)
+           - round(GetRetailPrice(7,p.product_sku) * GetSalesChannelFee(7),2)
+           - pi.shiping_fee_est
+           ,2) else 0 end  as local_profit ,
+
+       case when GetRetailPrice(8,p.product_sku) > 0 then
+       round(
+           GetRetailPrice(8,p.product_sku)
+           - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(8,p.product_sku)
+           - round(GetRetailPrice(8,p.product_sku) * GetSalesChannelFee(8),2)
+           - pi.shiping_fee_est
+           ,2) else 0 end as website_profit ,
+
+       case when GetCostPrice(12,p.product_sku) > 0 then
+       round(
+            GetCostPrice(12,p.product_sku)
+            - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(12,p.product_sku)
+            - round(GetCostPrice(12,p.product_sku) * GetSalesChannelFee(12),2)
+            ,2) else 0 end as wayfair_profit,
+
+      case when GetRetailPrice(9,p.product_sku) > 0 then
+      round(
+        GetRetailPrice(9,p.product_sku)
+            - round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 0.02 + pi.per_duty + 0.015 + pi.per_wh_fee + pi.per_handing_fee),2) *  GetRetailPrice(9,p.product_sku)
+            - round(GetRetailPrice(9,p.product_sku) * GetSalesChannelFee(9),2)
+            - pi.shiping_fee_est
+            ,2) else 0 end as fba_profit
+
+       from prd_product p
+       inner join prd_brands br on p.brand_id = br.id
+       inner join sal_product_informations pi on p.product_sku = pi.sku
+       where p.company_id <>1 ";
+
        
-    $sql = " select pi.id, p.title, p.product_sku as sku, br.brand_name,
-    p.length, p.width, p.height,p.weight, round(p.length * p.width * p.height) as cubic,
-    pi.per_deposit,pi.per_full_payment,pi.per_rev_split_for_partner,
-    pi.con20_capacity,pi.exw_vn,pi.fob_vn,pi.fob_cn, pi.fob_us, pi.cosg_est,
-    pi.per_mkt, per_promotion,per_return, 2 as selling_invoice,
-    pi.per_duty,1.5 as sales_commision, pi.per_wh_fee,pi.per_handing_fee,
-
-    round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty
-    + 1.5 + pi.per_wh_fee +	pi.per_handing_fee),2) as per_total_cost,
-
-    round(
-     ( pi.per_wholesales_price_min  -
-     round(pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee,2)
-     )
-   ,2) as per_wholesales_gp_min,
-
-   round(
-                 ( pi.per_wholesales_price_max  -
-                 round(pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty +1.5+ pi.per_wh_fee + pi.per_handing_fee,2)
-                 )
-   ,2) as per_wholesales_gp_max,
-
-   pi.shiping_fee_est,
-   round(
-     (round(( pi.fob_us/pi.retail_price + pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty
-     + 1.5 + pi.per_wh_fee +	pi.per_handing_fee),2)* pi.retail_price - pi.shiping_fee_est)/ pi.retail_price
-     ,2) as per_retail_profit,
-
-   pi.per_wholesales_price_min,
-   pi.per_wholesales_price_max,
-
-   round(pi.shiping_fee_est*0.85,2) as dsv_shipping_fee,
-
-   round((pi.retail_price - (pi.per_wholesales_price_max* pi.retail_price) - round(pi.shiping_fee_est*0.85,2))/pi.retail_price ,2)
-   as  price_profit_min,
-
-   round((pi.retail_price - (pi.per_wholesales_price_min* pi.retail_price) - round(pi.shiping_fee_est*0.85,2))/pi.retail_price ,2)
-   price_profit_max,
-
-   pi.shiping_fee_est,pi.retail_price,
-
-   round(GetSalesChannelFee(10)*100,2) as per_fbm_fee,
-   round(GetSalesChannelFee(2)*100,2) as per_avcds_fee,
-   round(GetSalesChannelFee(1)*100,2) as per_avcwh_fee,
-   round(GetSalesChannelFee(4)*100,2) as per_wmdsv_fee,
-   round(GetSalesChannelFee(5)*100,2) as per_wmmkp_fee,
-   round(GetSalesChannelFee(6)*100,2) as per_ebay_fee,
-   round(GetSalesChannelFee(7)*100,2) as per_local_fee,
-   round(GetSalesChannelFee(8)*100,2) as per_website_fee,
-   round(GetSalesChannelFee(12)*100,2) as per_way_fee,
-
-    round( GetRetailPrice(10,p.product_sku) * GetSalesChannelFee(10),2) as fbm_fee ,
-
-    round( GetCostPrice(2,p.product_sku) * GetSalesChannelFee(2),2) as avcds_fee,
-    round( GetCostPrice(1,p.product_sku) * GetSalesChannelFee(1),2) as avcwh_fee,
-    round( GetCostPrice(4,p.product_sku) * GetSalesChannelFee(4),2) as wmdsv_fee,
-    round( GetRetailPrice(5,p.product_sku) * GetSalesChannelFee(5),2) as wmmkp_fee,
-    round( GetRetailPrice(6,p.product_sku) * GetSalesChannelFee(6),2) as ebay_fee,
-    round( GetRetailPrice(7,p.product_sku) * GetSalesChannelFee(7),2) as local_fee,
-    round( GetRetailPrice(8,p.product_sku) * GetSalesChannelFee(8),2) as website_fee,
-    round( GetCostPrice(12,p.product_sku) * GetSalesChannelFee(12),2) as way_fee ,
-
-    GetRetailPrice(10,p.product_sku) as fbm_retail_price,
-    GetRetailPrice(2,p.product_sku) as avcds_retail_price,
-    GetRetailPrice(1,p.product_sku) as avcwh_retail_price,
-    GetRetailPrice(4,p.product_sku) as wmdsv_retail_price,
-    GetRetailPrice(5,p.product_sku) as wmmkp_retail_price,
-    GetRetailPrice(6,p.product_sku) as ebay_retail_price,
-    GetRetailPrice(7,p.product_sku) as local_retail_price,
-    GetRetailPrice(8,p.product_sku) as website_retail_price,
-    GetRetailPrice(12,p.product_sku) as wayfair_retail_price ,
-
-    GetCostPrice(10,p.product_sku) as fbm_cost,
-    GetCostPrice(2,p.product_sku) as avcds_cost,
-    GetCostPrice(1,p.product_sku) as avcwh_cost,
-    GetCostPrice(4,p.product_sku) as wmdsv_cost,
-    GetCostPrice(5,p.product_sku) as wmmkp_cost,
-    GetCostPrice(6,p.product_sku) as ebay_cost,
-    GetCostPrice(7,p.product_sku) as local_cost,
-    GetCostPrice(8,p.product_sku) as website_cost,
-    GetCostPrice(12,p.product_sku) as wayfair_cost,
-
-    case when GetRetailPrice(10,p.product_sku)> 0 then
-    round(
-            GetRetailPrice(10,p.product_sku) - (pi.fob_us + pi.shiping_fee_est) 
-            -( 
-              pi.per_mkt + pi.per_promotion + pi.per_return +2 + pi.per_duty + 1.5  + pi.per_wh_fee + pi.per_handing_fee  + GetSalesChannelFee(10) * 100 ) * GetRetailPrice(10,p.product_sku)/100  
-        ,2) else 0 end  as fbm_profit ,
-
-
-   case when GetCostPrice(2,p.product_sku)> 0 then
-   round (
-           GetCostPrice(2,p.product_sku) - pi.fob_us 
-           -(pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee +  GetSalesChannelFee(2) * 100 ) * GetCostPrice(2,p.product_sku)/100
-           ,2) else 0 end as avcds_profit ,
-
-   case when  GetCostPrice(1,p.product_sku) > 0 then
-   round(
-          GetCostPrice(1,p.product_sku) - pi.fob_us
-          -( pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty +1.5 + pi.per_wh_fee + pi.per_handing_fee + GetSalesChannelFee(1) * 100) * GetCostPrice(1,p.product_sku)/100  
-         ,2) else 0 end as avcwh_profit ,
-   
-   case when GetCostPrice(4,p.product_sku) > 0 then
-   round(
-          GetCostPrice(4,p.product_sku) -pi.fob_us 
-          -( pi.per_mkt + pi.per_promotion + pi.per_return +2+ pi.per_duty +1.5  + pi.per_wh_fee + pi.per_handing_fee +  GetSalesChannelFee(4) * 100) * GetCostPrice(4,p.product_sku)/100
-         ,2) else 0 end as wmdsv_profit ,
-
-   case when GetRetailPrice(5,p.product_sku) > 0 then
-   round(
-         GetRetailPrice(5,p.product_sku) -pi.fob_us -  pi.shiping_fee_est
-         - (pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee + GetSalesChannelFee(5) * 100) * GetRetailPrice(5,p.product_sku)/100
-        ,2) else 0 end as wmmkp_profit ,
-
-   case when GetRetailPrice(6,p.product_sku) > 0 then
-   round(
-         GetRetailPrice(6,p.product_sku) - (pi.fob_us + pi.shiping_fee_est)
-         -( pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee +  GetSalesChannelFee(6) * 100)* GetRetailPrice(6,p.product_sku)/100 
-       ,2) else 0 end as ebay_profit ,
-
-   case when GetRetailPrice(7,p.product_sku) then
-   round(
-       GetRetailPrice(7,p.product_sku) -  (pi.fob_us + pi.shiping_fee_est)
-       - (pi.per_mkt + pi.per_promotion + pi.per_return + 2 + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee + GetSalesChannelFee(7) *100) * GetRetailPrice(7,p.product_sku)/100
-       ,2) else 0 end  as local_profit ,
-
-   case when GetRetailPrice(8,p.product_sku) > 0 then
-   round(
-       GetRetailPrice(8,p.product_sku) - pi.fob_us -pi.shiping_fee_est
-       - ( pi.per_mkt + pi.per_promotion + pi.per_return +2 + pi.per_duty + 1.5  + pi.per_wh_fee + pi.per_handing_fee + GetSalesChannelFee(8) * 100) * GetRetailPrice(8,p.product_sku)/100 
-       ,2) else 0 end as website_profit ,
-
-   case when GetCostPrice(12,p.product_sku) > 0 then
-   round(
-        GetCostPrice(12,p.product_sku) - pi.fob_us
-        - (pi.per_mkt + pi.per_promotion + pi.per_return +2  + pi.per_duty + 1.5 + pi.per_wh_fee + pi.per_handing_fee +  GetSalesChannelFee(12) * 100 ) * GetCostPrice(12,p.product_sku)/100
-        ,2) else 0 end as wayfair_profit
-
-   from sal_product_informations pi 
-   left join prd_product p on pi.sku = p.product_sku
-   left join prd_brands br on p.brand_id = br.id
-   where ( 1 = 1 )";
-
        $sqlFilter = '';
        if($Sku <> ''){ $sqlFilter =  $sqlFilter. " and p.product_sku = '$Sku' " ;}
        if($Title <> ''){ $sqlFilter =  $sqlFilter. " and p.title like  '%$Title%' " ;}
@@ -643,6 +671,7 @@ class SalesProductInforController extends SysController
   
        $sql = $sql . $sqlFilter . "order by br.brand_name,p.product_sku ";
 
+      //print_r($sql);
       
        $SalesProductInfors =  DB::connection('mysql')->select($sql);
   
@@ -899,13 +928,7 @@ class SalesProductInforController extends SysController
           print_r ( '<br>');
           for($i=$RowBegin; $i <= $RowEnd; $i++)
           {
-           $title = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1,$i)->getValue();
            $sku = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(2,$i)->getValue();
-           $the_length= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(4,$i)->getValue();
-           $the_width= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5,$i)->getValue();
-           $the_height= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(6,$i)->getValue();
-           $the_weight = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(7,$i)->getValue();
-
            $per_deposit = 100 * $spreadsheet->getActiveSheet()->getCellByColumnAndRow(9,$i)->getValue();
            if($per_deposit == ''){$per_deposit=0;}
            $per_full_payment= 100 * $spreadsheet->getActiveSheet()->getCellByColumnAndRow(10,$i)->getValue();
@@ -1005,11 +1028,6 @@ class SalesProductInforController extends SysController
                DB::connection('mysql')->table('sal_product_informations')->insert(
                [
                  'sku'=>$sku,
-                 'title'=>$title, 
-                 'the_length'=>$the_length,
-                 'the_width'=>$the_width,
-                 'the_height'=>$the_height,
-                 'the_weight'=>$the_weight,
                  'per_deposit' =>$per_deposit,
                  'per_full_payment' =>$per_full_payment,
                  'per_rev_split_for_partner' =>$per_rev_split_for_partner,

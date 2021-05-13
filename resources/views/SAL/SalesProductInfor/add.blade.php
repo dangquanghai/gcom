@@ -20,13 +20,13 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="sku">SKU</label>
-                                <input type="text" class="form-control" name="sku" id="sku" enable="false" value="{{$SPIs->sku}}" disabled>
+                                <input type="text" class="form-control" name="sku" id="sku" enable="false" value="{{$SPIs->sku}}" >
                             </div>
                         </div>
                         <div class="col-md-9">
                             <div class="form-group">
                                 <label for="title">Product Name</label>
-                                <input type="text" class="form-control" name="title"id="title" value="{{$dsProduct->title}} " disabled>
+                                <input type="text" class="form-control" name="title"id="title" value="{{$dsProduct->title}} " >
                             </div>
                         </div>
                     </div>
@@ -34,19 +34,19 @@
                         <div class="col-sm-3">
                             <div class="form-group">
                                 <label for="height">Height</label>
-                                <input type="text" class="form-control" name="height" id="height" value="{{$dsProduct->height}} " disabled>
+                                <input type="text" class="form-control" name="height" id="height" value="{{$dsProduct->height}} " >
                             </div>
                         </div>
                         <div class="col-sm-3">
                             <div class="form-group">
                                 <label for="width">Width</label>
-                                <input type="text" class="form-control" name="width" id="width" value="{{$dsProduct->width}} " disabled >
+                                <input type="text" class="form-control" name="width" id="width" value="{{$dsProduct->width}} "  >
                             </div>
                         </div>
                         <div class="col-sm-3">
                             <div class="form-group">
                                 <label for="length">Length</label>
-                                <input type="text" class="form-control" name="length" id="length" value="{{$dsProduct->length}} " disabled>
+                                <input type="text" class="form-control" name="length" id="length" value="{{$dsProduct->length}} " >
                             </div>
                         </div>
                         <div class="col-sm-3">
@@ -258,7 +258,7 @@ LoadCostAndPriceOnAllChannel();
         if(column_value != '')
         {
             $.ajax({
-                url:'{{route("SalesProductInforController.UpdateCostPrice")}}',
+                url:'{{route("SalesProductInforController.UpdateCostPrice")}}',//Chỉ update channel ID
                 method: "POST",
                 data: {column_name:column_name,column_value:column_value,id:id, _token:_token},
                 success:function(data)
@@ -276,12 +276,15 @@ LoadCostAndPriceOnAllChannel();
    
      $(document).on('blur','.column_name',function()
     {
+        var Cost = 0;
         var id = $(this).attr("id");
         var column_name = $(this).data('column_name');
         var column_value = $(this).text();
       
         if(column_name != "channel_id")
         {
+            if(column_name != "retail_price")
+
             $.ajax({
                 url:'{{route("SalesProductInforController.UpdateCostPrice")}}',
                 method: "POST",
@@ -297,6 +300,7 @@ LoadCostAndPriceOnAllChannel();
         }
        
     });
+
 
     $(document).on('input','#cost_price_list > tbody > tr > td',function(){
     
@@ -316,8 +320,8 @@ LoadCostAndPriceOnAllChannel();
         CostObj = this.nextElementSibling;
         RetailPrice =$(RetailPriceObj).text();
         Cost = RetailPrice * PerCost /100;
-        $(CostObj).text('');  
-        CostObj.append(Cost);
+        $(CostObj).text(Cost);  
+        //CostObj.append(Cost);
       }
     else if(data_column_name =='retail_price')  
       {
@@ -327,8 +331,8 @@ LoadCostAndPriceOnAllChannel();
         PerCost = $( PerCostObj).text();
         RetailPrice =$(RetailPriceObj).text();
         Cost = RetailPrice * PerCost/100;
-        $(CostObj).text('');  
-        CostObj.append(Cost);
+        $(CostObj).text(Cost);  
+        //CostObj.append(Cost);
       }
       
 
