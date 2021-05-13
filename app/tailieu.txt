@@ -1,0 +1,17 @@
+I. Cài Quản lý file
+    1. Link: viblo
+
+==========================================================
+II. Tạo file helper.php để viết các hàm dùng chung
+    1. Tạo file helper.php ngay trong thư mục app
+    2. Vào file composer.json cập nhật vào vùng autoload như sau
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files":[
+            "app/helper.php"
+        ],
+    3. Chạy composer dump-autoload trong cửa sổ terminal để hệ thống auto load file mới thêm vào
+==========================================================
+III.

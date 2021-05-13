@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"	content="width=device-width,	initial-scale=1,shrink-to-fit=no">
+<title>
+	load data from json file into a bootstrap table
+</title>
+<!-- Include Bootstrap for styling -->
+<link rel="stylesheet" href= "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<!-- Include the Bootstrap Table CSS for the table -->
+<!-- Include jQuery and other required  files for Bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js">  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js">  </script>
+  <script src= "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js">   </script>
+  <!-- Include the JavaScript file  for Bootstrap table -->
+<script src = "https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js">   </script>
+<link href="https://unpkg.com/bootstrap-table@1.18.0/dist/bootstrap-table.min.css" rel="stylesheet">
+<script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+<script src="https://unpkg.com/tableexport.jquery.plugin/libs/jsPDF/jspdf.min.js"></script>
+<script src="https://unpkg.com/tableexport.jquery.plugin/libs/jsPDF-AutoTable/jspdf.plugin.autotable.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.18.0/dist/bootstrap-table.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.18.0/dist/extensions/export/bootstrap-table-export.min.js"></script>
+</head>
+<style>
+    #toolbar {
+        margin: 0;
+    }
+</style>
+<body>
+    <div id="toolbar" class="select">
+        <select class="form-control">
+          <option value="">Export Basic</option>
+          <option value="all">Export All</option>
+          <option value="selected">Export Selected</option>
+        </select>
+      </div>
+      <table id="table"
+        data-show-export="true"
+        data-pagination="true"
+        data-side-pagination="server"
+        data-click-to-select="true"
+        data-toolbar="#toolbar"
+        data-show-columns="true">
+    </table>
+    <option value="AB">Alberta</option>
+    <select id="locality-dropdown" name="locality">
+    </select>
+
+<script>
+//======================================================
+var ds = [{"sku":"AX59","promotion":2464.000036716461,"sem":1478.399966955185},{"sku":"SSRS","promotion":3035.500045232475,"sem":1821.2999592907727},{"sku":"DHSR","promotion":2203.5000328347087,"sem":1322.0999704487622},{"sku":"MBHD","promotion":3419.00005094707,"sem":2051.399954147637},{"sku":"WUQT","promotion":3458.0000515282154,"sem":2074.799953624606},{"sku":"HW95","promotion":500.0000074505806,"sem":299.99999329447746},{"sku":"E2G5","promotion":490.000007301569,"sem":293.9999934285879},{"sku":"EV18","promotion":94.3000014051795,"sem":56.57999873533845},{"sku":"FKNG","promotion":2.3000000342726707,"sem":1.3799999691545963},{"sku":"GLSM","promotion":36.80000054836273,"sem":22.07999950647354},{"sku":"ZX66","promotion":3165.000047162175,"sem":1898.9999575540423},{"sku":"KGWK","promotion":1635.0000243633986,"sem":980.9999780729413},{"sku":"X33P","promotion":279.40000416338444,"sem":167.639996252954},{"sku":"HZJM","promotion":302.40000450611115,"sem":181.43999594449997},{"sku":"MGB4","promotion":261.25000389292836,"sem":156.74999649636447},{"sku":"WU1S","promotion":310.00000461935997,"sem":185.99999584257603},{"sku":"SN43","promotion":240.50000358372927,"sem":144.29999677464366},{"sku":"AERW","promotion":273.000004068017,"sem":163.7999963387847},{"sku":"AZU4","promotion":225.00000335276127,"sem":134.99999698251486},{"sku":"H4GZ","promotion":227.20000338554382,"sem":136.31999695301056},{"sku":"X4PB","promotion":220.40000328421593,"sem":132.23999704420567},{"sku":"NTVP","promotion":254.10000378638506,"sem":152.45999659225345},{"sku":"GLT8","promotion":204.00000303983688,"sem":122.3999972641468},{"sku":"YT6C","promotion":663.0000098794699,"sem":397.7999911084771},{"sku":"WY1R","promotion":1209.0000180155039,"sem":725.3999837860465},{"sku":"SVDD","promotion":247.00000368058681,"sem":98.79999779164791},{"sku":"ER6C","promotion":127.50000189989805,"sem":50.99999886006117},{"sku":"TXSW","promotion":483.00000719726086,"sem":193.1999956816435},{"sku":"U0WR","promotion":73.50000109523535,"sem":29.39999934285879},{"sku":"RFYA","promotion":282.7500042133033,"sem":113.099997472018},{"sku":"P468","promotion":180.5000026896596,"sem":72.19999838620424},{"sku":"DQNM","promotion":342.0000050961971,"sem":136.79999694228172},{"sku":"Y00Q","promotion":212.75000317022204,"sem":85.09999809786677},{"sku":"WT0D","promotion":80.0000011920929,"sem":31.999999284744263},{"sku":"T0SK","promotion":108.50000161677599,"sem":43.399999029934406},{"sku":"KHBY","promotion":486.00000724196434,"sem":194.3999956548214},{"sku":"Q1SY","promotion":286.0000042617321,"sem":114.39999744296074},{"sku":"A9KU","promotion":0,"sem":0},{"sku":"YSPY","promotion":34.50000051409006,"sem":13.799999691545963},{"sku":"BKM8","promotion":480.0000071525574,"sem":191.99999570846558},{"sku":"KY7W","promotion":263.500003926456,"sem":105.39999764412642},{"sku":"NE6D","promotion":0,"sem":0},{"sku":"F2KE","promotion":0,"sem":0},{"sku":"CHV2","promotion":175.0000026077032,"sem":69.99999843537807},{"sku":"RZV9","promotion":0,"sem":0},{"sku":"NREK","promotion":0,"sem":0},{"sku":"UHRS","promotion":0,"sem":0},{"sku":"LJYP","promotion":0,"sem":0},{"sku":"FXN9","promotion":0,"sem":0},{"sku":"C1HA","promotion":0,"sem":0},{"sku":"ZQF4","promotion":0,"sem":0},{"sku":"XZFD","promotion":0,"sem":0},{"sku":"MXYG","promotion":0,"sem":0},{"sku":"YLEM","promotion":0,"sem":0},{"sku":"T18D","promotion":1960.000029206276,"sem":1175.9999737143517},{"sku":"CQGH","promotion":2100.0000312924385,"sem":1259.9999718368053},{"sku":"EXGK","promotion":0,"sem":0},{"sku":"RR66","promotion":215.00000320374966,"sem":128.9999971166253},{"sku":"CVHZ","promotion":0,"sem":0},{"sku":"L2TV","promotion":0,"sem":0},{"sku":"UXT5","promotion":0,"sem":0},{"sku":"BWLQ","promotion":0,"sem":0},{"sku":"D299","promotion":0,"sem":0},{"sku":"H10H","promotion":0,"sem":0},{"sku":"Q1H3","promotion":0,"sem":0},{"sku":"KTCR","promotion":0,"sem":0},{"sku":"BH0D","promotion":0,"sem":0},{"sku":"VQ1Q","promotion":0,"sem":0},{"sku":"NM43","promotion":0,"sem":0},{"sku":"L0SG","promotion":0,"sem":0},{"sku":"YY3E","promotion":0,"sem":0},{"sku":"VRX1","promotion":0,"sem":0},{"sku":"PJ93","promotion":0,"sem":0}];
+ var ColWitdh = 85;
+ var $table = $('#table');
+
+$(function() {
+  $('#toolbar').find('select').change(function () {
+    $table.bootstrapTable('destroy').bootstrapTable({
+      exportDataType: $(this).val(),
+      exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf'],
+      data:ds,
+      columns: [
+        {
+          field: 'state',
+          checkbox: true,
+          visible: $(this).val() === 'selected'
+        },
+        { field: 'sku', title: 'SKU' },
+        { field: 'promotion',title: 'promotion'},
+        { field: 'sem',title: 'sem'}
+      ]
+    })
+  }).trigger('change')
+})
+</script>
+</body>
+</html>

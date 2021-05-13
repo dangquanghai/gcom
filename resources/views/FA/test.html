@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="https://demos.telerik.com/kendo-ui/grid/multicolumnheaders">
+    <style>html { font-size: 14px; font-family: Arial, Helvetica, sans-serif; }</style>
+    <title></title>
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2020.1.219/styles/kendo.default-v2.min.css" />
+
+    <script src="https://kendo.cdn.telerik.com/2020.1.219/js/jquery.min.js"></script>
+
+
+    <script src="https://kendo.cdn.telerik.com/2020.1.219/js/kendo.all.min.js"></script>
+
+</head>
+<body>
+    <div id="grid"></div>
+
+</body>
+<script>
+  var ds = [{"des":"1. Net Revenue - Amazon","account":"51111-01","grant_total_total":23423,
+  "grant_total_xl":234,"grant_total_tc":234,"grant_total_wel":234,"mot_total":234,"mot_xl":2354,
+  "mot_tc":235,"mot_wel":235},
+  {"des":"2. Net Revenue - Ebay","account":"52112-02","grant_total_total":23423,"grant_total_xl":234,
+  "grant_total_tc":234,"grant_total_wel":234,"mot_total":234,"mot_xl":2354,"mot_tc":235,"mot_wel":235}];
+
+  $("#grid").kendoGrid({
+        dataSource: {
+                            data: ds,
+                            schema: {
+                                model: {
+                                    fields: {
+                                        des: { type: "string" },
+                                        account : { type: "string" },
+                                        grant_total_total: { type: "number" },
+                                        grant_total_xl: { type: "number" },
+                                        grant_total_tc: { type: "number" },
+                                        grant_total_wel: { type: "number" },
+
+                                        mot_total: { type: "number" },
+                                        mot_xl: { type: "number" },
+                                        mot_tc: { type: "number" },
+                                        mot_wel: { type: "number" }
+                                    }
+                                }
+                            },
+                            pageSize: 20
+                        },
+
+                        columns:
+                        [
+                            {
+                                title: "Description",
+                                field: "des",
+                                width:300
+                            },
+                            {
+                                title: "Account",
+                                field: "Account",
+                                width:100
+                            },
+                            {
+                            title: "Grant Total",
+                                    columns:
+                                    [
+                                        { field: "grant_total_total", title: "Total",width:80},
+                                        { field: "grant_total_xl", title: "XL",width:80},
+                                        { field: "grant_total_tc", title: "Thường Châu",width:120},
+                                        { field: "grant_total_wel", title: "WEL",width:80}
+                                    ]
+                            },
+                            {   //------------------ Q1 ---------------
+                            title: "01",
+                                    columns:
+                                    [
+                                        { field: "mot_total", title: "Total",width:80},
+                                        { field: "mot_xl", title: "XL",width:80},
+                                        { field: "mot_tc", title: "Thường Châu",width:120},
+                                        { field: "mot_wel", title: "WEL",width:80}
+                                    ]
+                            }
+                        ],
+                        scrollable: true,
+                        width: 'auto'
+    });
+
+</script>
+</html>

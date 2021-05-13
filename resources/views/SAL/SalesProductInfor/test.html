@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Highcharts Example</title>
+
+
+        <link rel="stylesheet" href= "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <!-- Include the Bootstrap Table CSS for the table -->
+        <!-- Include jQuery and other required  files for Bootstrap -->
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js">  </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js">  </script>
+        <script src= "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js">   </script>
+        <!-- Include the JavaScript file  for Bootstrap table -->
+
+        <link href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" rel="stylesheet">
+        <link href="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/fixed-columns/bootstrap-table-fixed-columns.min.css" rel="stylesheet">
+        <script src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
+        <script src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/fixed-columns/bootstrap-table-fixed-columns.min.js"></script>
+    </head>
+    <body>
+        <table id="table"></table>
+    </body>
+ <script type="text/javascript">
+ var $table = $('#table')
+var ds = [{"id":2,"title":"Universal Hammock Stand Steel Frame - Blue","sku":"AX59","brand_name":"Transquillo","length":49.29,"width":8.39,"height":6.14,"weight":25.35,"cubic":2539,"per_deposit":0.3,"per_full_payment":0.7,"per_rev_split_for_partner":0,"con20_capacity":750,"exw_vn":22.99,"fob_vn":0,"fob_cn":0,"fob_us":32.4433,"cosg_est":33.248,"per_mkt":0.03,"per_promotion":0.05,"per_return":0.05,"selling_invoice":"0.02","per_duty":0.035,"sales_commision":"0.015","per_wh_fee":0.01,"per_handing_fee":0.01,"per_total_cost":0.45,"per_wholesales_gp_min":0.15,"per_wholesales_gp_max":0.4,"shiping_fee_est":43.65,"per_retail_profit":0.14,"per_wholesales_price_min":0.6,"per_wholesales_price_max":0.85,"dsv_shipping_fee":37.1,"price_profit_min":-0.12,"price_profit_max":0.13,"retail_price":140,"per_fbm_fee":0.15,"per_avcds_fee":0.08,"per_avcwh_fee":0.2,"per_wmdsv_fee":0,"per_wmmkp_fee":0.15,"per_ebay_fee":0.168,"per_local_fee":0,"per_website_fee":0.029,"per_way_fee":0.04,"fbm_fee":18.9,"avcds_fee":11.6,"avcwh_fee":29,"wmdsv_fee":0,"wmmkp_fee":18.9,"ebay_fee":24.86,"local_fee":0,"website_fee":0,"way_fee":5.8,"fbm_retail_price":125.99,"avcds_retail_price":145,"avcwh_retail_price":145,"wmdsv_retail_price":133.75,"wmmkp_retail_price":125.99,"ebay_retail_price":147.99,"local_retail_price":0,"website_retail_price":0,"wayfair_retail_price":145,"fbm_cost":0,"avcds_cost":92,"avcwh_cost":92,"wmdsv_cost":113.688,"wmmkp_cost":0,"ebay_cost":0,"local_cost":0,"website_cost":0,"wayfair_cost":123.25,"fbm_profit":6.74,"avcds_profit":19.39,"avcwh_profit":8.35,"wmdsv_profit":53.5,"wmmkp_profit":6.74,"ebay_profit":12.88,"local_profit":0,"website_profit":0,"wayfair_profit":53.07}]
+var sColums =
+        [
+          {field:'id',title:'id'},
+          {field:'title',title:'Product Name', Width:700},
+          {field:'sku',title:'sku'},
+          {field:'brand_name',title:'Brand Name'},
+
+          // paking
+          {field: "length", title: "Length"},
+          {field: "width", title: "Width"},
+          {field: "height", title: "Height"},
+          {field: "weight", title: "Weight"},
+          {field: "cubic", title: "Cubic"},
+
+          // Tẻm payment
+          {field: "per_deposit", title: "per_deposit"},
+          {field: "per_full_payment", title: "per_full_payment"},
+          {field: "partner_split", title: "partner_split"},
+
+          // Logistic
+          {field: "con20_capacity", title: "con20_capacity"},
+          {field: "exw_vn", title: "exw_vn"},
+          {field: "fob_vn", title: "fob_vn"},
+          {field: "fob_cn", title: "fob_cn"},
+          {field: "fob_us", title: "fob_us"},
+
+          {field: "cosg_est", title: "COSG"},
+
+          {field: "per_mkt", title: "% MKT"},
+          {field: "per_promotion", title: "% Promotion"},
+          {field: "per_return", title: "% Return"},
+          {field: "selling_invoice", title: "% Selling Invoice"},
+          {field: "per_duty", title: "% Duty"},
+          {field: "sales_commision", title: "% Sales Commision"},
+
+          {field: "per_wh_fee", title: "% wh_fee"},
+          {field: "per_handing_fee", title: "%Handing_fee"},
+
+          {field: "per_total_cost", title: "%Total Cost"},
+
+          {field: "per_wholesales_gp_min", title: "% wholesales_gp_min"},
+          {field: "per_wholesales_gp_max", title: "% wholesales_gp_max"},
+
+          {field: "shiping_fee_est", title: "shiping_fee_est"},
+
+          {field: "per_retail_profit", title: "% Retail_profit"},
+
+          // price
+          {field: "per_wholesales_price_min", title: "% per_wholesales_price_min"},
+          {field: "per_wholesales_price_max", title: "% per_wholesales_price_max"},
+          {field: "dsv_shipping_fee", title: "dsv_shipping_fee"},
+          {field: "price_profit_min", title: "price_profit_min"},
+          {field: "price_profit_max", title: "price_profit_max"},
+          {field: "retail_price", title: "retail_price"},
+
+          {field: "per_fbm_fee", title: "% per_fbm_fee"},
+          {field: "per_avcds_fee", title: "% per_avcds_fee"},
+          {field: "per_avcwh_fee", title: "per_avcwh_fee"},
+          {field: "per_wmdsv_fee", title: "per_wmdsv_fee"},
+          {field: "per_wmmkp_fee", title: "per_wmmkp_fee"},
+          {field: "per_ebay_fee", title: "per_ebay_fee"},
+          {field: "per_local_fee", title: "per_local_fee"},
+          {field: "per_website_fee", title: "per_website_fee"},
+          {field: "per_way_fee", title: "per_wayfair_fee"},
+
+          {field: "fbm_fee", title: "fbm_fee"},
+          {field: "avcds_fee", title: "avcds_fee"},
+          {field: "avcwh_fee", title: "avcwh_fee"},
+          {field: "wmdsv_fee", title: "wmdsv_fee"},
+          {field: "wmmkp_fee", title: "wmmkp_fee"},
+          {field: "ebay_fee", title: "ebay_fee"},
+          {field: "local_fee", title: "local_fee"},
+          {field: "website_fee", title: "website_fee"},
+          {field: "way_fee", title: "way_fee"},
+
+          {field: "fbm_retail_price", title: "fbm_retail_price"},
+          {field: "avcds_retail_price", title: "avcds_retail_price"},
+          {field: "avcwh_retail_price", title: "avcwh_retail_price_fee"},
+          {field: "wmdsv_retail_price", title: "wmdsv_retail_price"},
+          {field: "wmmkp_retail_price", title: "wmmkp_retail_price"},
+          {field: "ebay_retail_price", title: "ebay_retail_price"},
+          {field: "local_retail_price", title: "local_retail_price"},
+          {field: "website_retail_price", title: "website_retail_price"},
+          {field: "wayfair_retail_price", title: "wayfair_retail_price"},
+
+          {field: "fbm_cost", title: "fbm_cost"},
+          {field: "avcds_cost", title: "avcds_cost"},
+          {field: "avcwh_cost", title: "avcwh_cost"},
+          {field: "wmdsv_cost", title: "wmdsv_cost"},
+          {field: "wmmkp_cost", title: "wmmkp_cost"},
+          {field: "ebay_cost", title: "ebay_cost"},
+          {field: "local_cost", title: "local_cost"},
+          {field: "website_cost", title: "website_cost"},
+          {field: "wayfair_cost", title: "wayfair_cost"},
+
+          {field: "fbm_profit", title: "fbm_profit"},
+          {field: "avcds_profit", title: "avcds_profit"},
+          {field: "avcwh_profit", title: "avcwh_profit"},
+          {field: "wmdsv_profit", title: "wmdsv_profit"},
+          {field: "wmmkp_profit", title: "wmmkp_profit"},
+          {field: "ebay_profit", title: "ebay_profit"},
+          {field: "local_profit", title: "local_profit"},
+          {field: "website_profit", title: "website_profit"},
+          {field: "wayfair_profit", title: "wayfair_profit"}
+        ];
+    $table.bootstrapTable('destroy').bootstrapTable({
+    height: 400,
+    columns: sColums,
+    data: ds,
+    search: true,
+    fixedColumns: true,
+    fixedNumber: 2
+})
+</script>
+</html>

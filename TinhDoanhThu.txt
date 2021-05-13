@@ -1,0 +1,7 @@
+select podt.sku, sum(podt.quantity),GetForecast(podt.sku,FromDate, ToDate) 
+from pu_po_estimates po 
+inner join pu_po_estimate_details as podt  on po.id = podt.po_estimate_id
+
+
+where po.start_selling_date
+and po.end_selling_date

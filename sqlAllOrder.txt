@@ -1,0 +1,21 @@
+select o.amazon_order_id,o.purchased_date,o.status_text, odt.seller_sku, odt.quantity_ordered, odt.item_price, (odt.quantity_ordered * odt.item_price) as amount, p.appotion_price as cogs_unit, (p.appotion_price * odt.quantity_ordered) AS cogs_total, 10 as sales_channel from amazon_orders o inner join amazon_order_details odt on o.id = odt.amazon_order_id inner join products p on odt.product_id = p.id where p.company_id <> 1 and o.purchased_date >= '2020-09-23' and o.purchased_date <= '2020-10-08' 
+union all 
+select o.amazon_order_id,o.order_placed_date ,o.status, p.product_sku, odt.quantity, round(odt.cost/odt.quantity) as price, odt.cost as amount, p.appotion_price as cogs_unit, (p.appotion_price * odt.quantity) AS cogs_total, 2 as sales_channel from amazon_dropship_orders o inner join amazon_dropship_order_details odt on o.id = odt.order_id inner join products p on odt.product_id = p.id where p.company_id <> 1 and o.order_placed_date >= '2020-09-23' and o.order_placed_date <= '2020-10-08' 
+union all 
+select o.ebay_extended_order_id,o.order_time ,o.order_status, p.product_sku, odt.quantity_purchased, odt.transaction_price as price,odt.quantity_purchased * odt.transaction_price as amount, p.appotion_price as cogs_unit, (p.appotion_price * odt.quantity_purchased) AS cogs_total, 6 as sales_channel from ebay_order o inner join ebay_order_detail odt on o.id = odt.ebay_order_id inner join products p on odt.product_id = p.id where p.company_id <> 1 and o.order_time >= '2020-09-23' and o.order_time <= '2020-10-08' 
+union all 
+select o.order_id,o.order_processing_date ,o.status , p.product_sku, odt.ordered_quantity, odt.cost as price , odt.cost * odt.ordered_quantity as amount, p.appotion_price as cogs_unit, (p.appotion_price * odt.ordered_quantity) AS cogs_total, 4 as sales_channel from walmart_dropship_orders o inner join walmart_dropship_order_details odt on o.id = odt.order_id inner join products p on odt.product_id = p.id where p.company_id <> 1 and o.order_processing_date >= '2020-09-23' and o.order_processing_date <= '2020-10-08'
+union 
+all select o.purchase_order_id, o.order_date ,odt.status , p.product_sku, odt.order_quantity, odt.charge_amount/odt.order_quantity as price , odt.charge_amount as amount, p.appotion_price as cogs_unit, (p.appotion_price * odt.order_quantity) AS cogs_total, 5 as sales_channel from walmart_order o inner join walmart_order_details odt on o.id = odt.wm_order_id inner join products p on odt.product_id = p.id where p.company_id <> 1 and o.order_date >= '2020-09-23' and o.order_date <= '2020-10-08' 
+union 
+all select o.magento_order_id, o.create_date ,o.status_value , p.product_sku, odt.quantity, odt.product_price as price, (product_price * quantity) as amount, p.appotion_price as cogs_unit, (p.appotion_price * odt.quantity) AS cogs_total, 8 as sales_channel from magento_orders o inner join magento_order_details odt ON odt.magento_order_id = o.magento_order_id 
+inner join products p on odt.product_id = p.id where p.company_id <> 1 and o.create_date >= '2020-09-23' and o.create_date <= '2020-10-08' 
+
+
+union all 
+select o.po_number,o.po_date,o.status, p.product_sku,odt.quantity,odt.wholesale_price as price, (wholesale_price * quantity) as amount, p.appotion_price AS cogs_unit, (p.appotion_price * odt.quantity) AS cogs_total, 12 as sales_channel from wayfair_orders o inner join wayfair_order_details odt ON o.id = odt.order_id inner join products p on odt.product_id = p.id where p.company_id <> 1 and o.po_date >= '2020-09-23' and o.po_date <= '2020-10-08'
+
+
+union all 
+select o.craigslist_order_id, o.order_date ,'Completed' AS status, p.product_sku, (odt.quantity - odt.used_quantity) AS quantity, odt.total_price/odt.quantity as price, ((odt.total_price/odt.quantity) * (odt.quantity - odt.used_quantity)) as amount, p.appotion_price as cogs_unit, (p.appotion_price * odt.quantity) AS cogs_total, 7 as sales_channel 
+from craigslist_order o inner join craigslist_order_details odt ON odt.order_id = o.id inner join products p on odt.product_id = p.id where p.company_id <> 1 and o.order_date >= '2020-09-23' and o.order_date <= '2020-10-08'
