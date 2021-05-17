@@ -83,20 +83,20 @@ class ProductController extends SysController
       set_time_limit(15000);
 
       $ProductLifeCircles = ProductLifeCircle::all();
-/*
-      $strSKU = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      $Sku ='';
-      $Continue = true;
-      while($Continue)
-      {
-        $Sku = substr(str_shuffle($strSKU),0,4);
-        $sql = " select count(sku) as MyCount from prd_products where sku = '$Sku' ";
-        if($this->IsExist('mysql',$sql))
-          {$Continue = false; }
+      /*
+            $strSKU = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $Sku ='';
+            $Continue = true;
+            while($Continue)
+            {
+              $Sku = substr(str_shuffle($strSKU),0,4);
+              $sql = " select count(sku) as MyCount from prd_products where sku = '$Sku' ";
+              if($this->IsExist('mysql',$sql))
+                {$Continue = false; }
 
-      }
-*/
-return view('prd.product.create',compact(['ProductLifeCircles']));
+            }
+      */
+      return view('prd.product.create',compact(['ProductLifeCircles']));
 
       //return view('prd.product.createNew',compact(['ProductLifeCircles','Sku']));
       //return view('PRD.Product.Create');

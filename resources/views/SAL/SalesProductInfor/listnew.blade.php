@@ -78,10 +78,10 @@
 </div>
 
 <div class="card-footer">
-      <button type="submit" class="btn btn-primary">
-      <i class="fa fa-plus-square" ></i>
-    </button>
-  </div>
+    <div class="card-tools">
+        <a href="{{route('SalesProductInforController.create')}}"><i class="fa fa-plus-square"></i></a>
+    </div>
+</div>
 
 </div>
     </div>

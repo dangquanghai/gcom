@@ -675,9 +675,8 @@ class SalesProductInforController extends SysController
      */
     public function create()
     {
-        //
+     return view('SAL.SalesProductInfor.add');
     }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -686,60 +685,35 @@ class SalesProductInforController extends SysController
      */
     public function store(Request $request)
     {
-        try
-        {
-            $data = $request->data;
+      if(SalesProductInfor::create($request->all()))
+      {
+        $id = 0;
+        $sql = " SELECT id FROM sal_product_informations ORDER BY id DESC LIMIT 1" ;
+        
+        $ids = DB::connection('mysql')->select($sql);
+        foreach($ids as $id ){$id = $id->id;}
 
-            $per_deposit = $data['per_deposit'];
-            $per_full_payment = $data['per_full_payment'];
-            $per_rev_split_for_partner = $data['per_rev_split_for_partner'];
-            $con20_capacity = $data['con20_capacity'];
-            $exw_vn = $data['exw_vn'];
+        DB::connection('mysql')->select('call SAL_CreateChannelCostAndPrice(?)',[$id]);
 
-            $fob_vn =$data['fob_vn'];
-            $fob_cn = $data['fob_cn'];
-            $fob_us = $data['fob_us'];
-            $cosg_est = $data['cosg_est'];
-            $per_mkt = $data['per_mkt'];
-            $per_promotion = $data['per_promotion'];
-            $per_return = $data['per_return'];
-            $per_duty = $data['per_duty'];
-            $per_wh_fee = $data['per_wh_fee'];
-            $per_handing_fee = $data['per_handing_fee'];
-            $shiping_fee_est = $data['shiping_fee_est'];
-            $retail_price = $data['retail_price'];
-            $per_wholesales_price_min = $data['per_wholesales_price_min'];
-            $per_wholesales_price_max = $data['per_wholesales_price_max'];
 
-            DB::beginTransaction();
-            $spi = new SalesProductInfor();
-            $spi->per_deposit = $per_deposit;
-            $spi->per_full_payment = $per_full_payment;
-            $spi->per_rev_split_for_partner = $per_rev_split_for_partner;
-            $spi->con20_capacity = $con20_capacity;
-            $spi->exw_vn = $exw_vn;
-            $spi->fob_vn = $fob_vn;
-            $spi->fob_cn = $fob_cn;
-            $spi->fob_us = $fob_us;
-            $spi->cosg_est = $cosg_est;
-            $spi->cosg_est = $per_mkt;
-            $spi->per_promotion = $per_promotion;
-            $spi->per_return = $per_return;
-            $spi->per_duty = $per_duty;
-            $spi->per_wh_fee = $per_wh_fee;
-            $spi->per_handing_fee = $per_handing_fee;
-            $spi->shiping_fee_est = $shiping_fee_est;
-            $spi->retail_price = $retail_price;
-            $spi->per_wholesales_price_min = $per_wholesales_price_min;
-            $spi->per_wholesales_price_max = $per_wholesales_price_max;
-            $spi->save();
-	    DB::commit();
-	}catch(Exception $ex)
-        {
-            dd($ex.message());
-            DB::rollback();
-            return 0;
-        }
+
+        $dsProduct = SalesProductInfor::find($id);
+        $Sku  = $dsProduct->sku;
+
+        $sql = " select pp.id, channel_id,sc.name, cost,retail_price
+        from sal_product_channel_price pp inner join sal_channels sc
+        on pp.channel_id = sc.id
+        where sku = '$Sku'";
+        $ProductCostPrices = DB::connection('mysql')->select($sql);
+        foreach($ProductCostPrices as $ProductCostPrice )
+
+
+        $sql_channel = " select id, name from sal_channels " ;
+        $dsChannels = DB::connection('mysql')->select($sql_channel);
+        
+        return view('SAL.SalesProductInfor.edit',compact(['id','dsProduct','ProductCostPrice','dsChannels']));
+      }
+      
     }
 
     /**
@@ -780,37 +754,37 @@ class SalesProductInforController extends SysController
      * @return \Illuminate\Http\Response
      */
     //nó vô hàm này trước phải ko anh uh
+  
+    // ------------------------------------------------------------------------
     public function edit($id)
     {
-        $Sku = '';
+       
+        $dsProduct = SalesProductInfor::find($id);
+        $Sku  = $dsProduct->sku;
 
-        $sql = "select 	p.title  , p.product_sku as sku , p.length, p.width, p.height  from prd_product  p
-        inner join sal_product_informations  spi on p.product_sku = spi.sku
-        where spi.id = $id ";
-        $dsProducts = DB::connection('mysql')->select($sql);
-        foreach($dsProducts as $dsProduct ){$Sku = $dsProduct->sku;}
-
-        $SPIs = SalesProductInfor::find($id);
-              
         $sql = " select pp.id, channel_id,sc.name, cost,retail_price
         from sal_product_channel_price pp inner join sal_channels sc
         on pp.channel_id = sc.id
         where sku = '$Sku'";
         $ProductCostPrices = DB::connection('mysql')->select($sql);
-        foreach($ProductCostPrices as $ProductCostPrice ){$Sku = $dsProduct->sku;}
+        foreach($ProductCostPrices as $ProductCostPrice )
+
 
         $sql_channel = " select id, name from sal_channels " ;
         $dsChannels = DB::connection('mysql')->select($sql_channel);
         
-        return view('SAL.SalesProductInfor.edit',compact(['id','dsProduct','SPIs','ProductCostPrice','dsChannels']));
+        return view('SAL.SalesProductInfor.edit',compact(['id','dsProduct','ProductCostPrice','dsChannels']));
     }
 
     public function LoadCostAndPriceOnAllChannel($sku)
     {
+      
+      DB::connection('mysql')->select('call SAL_PrepareEstprofit(?)',[$sku]);
+      
       $sql_channel = " select id, name from sal_channels " ;
       $dsChannels = DB::connection('mysql')->select($sql_channel);
 
-      $sql = " select pp.id, channel_id,sc.name as channel_name, retail_price, per_cost, cost
+      $sql = " select pp.id, sc.name as channel_name,channel_id,retail_price, per_cost, cost,some_fee,per_other_fee,est_profit
       from sal_product_channel_price pp inner join sal_channels sc
       on pp.channel_id = sc.id
       where  sku = '$sku' ";
@@ -828,6 +802,9 @@ class SalesProductInforController extends SysController
      */
     public function update(Request $request, $id)
     {
+      $SalesProductInfor = SalesProductInfor::find($id);
+      $SalesProductInfor->update($request->all()); 
+      /*
      $spi = SalesProductInfor::find($id);
      if( $spi)
      {
@@ -861,6 +838,7 @@ class SalesProductInforController extends SysController
        return redirect()->route('SalesProductInforController.index')->with(['error'=>'Update sản phẩm không thành công']);
       //return 'Thất bại';
       }
+      */
     }
     /**
      * Remove the specified resource from storage.
