@@ -120,22 +120,22 @@ var sColums =
           {title:'Logistic',colspan:5,align: 'center'},
           {title:'COGS',align:'center',valign: 'middle'},
 
-          {title:'',colspan:6,align: 'center'},
+          {title:'Sales Fees',colspan:6,align: 'center'},
 
           {title:'Operation Fees',colspan:2,align: 'center'},
           {title:'Total Cost',align: 'center',valign: 'middle'},
 
           {title:'GP (Wholesales)',colspan:2,align: 'center'},
 
-          {title:'Retail Shipping',align: 'center',valign: 'middle'},
+          {title:'Shipping Fee',colspan:2, align: 'center',valign: 'middle'},
           {title:'%GP(Retail)',align: 'center',valign: 'middle'},
 
           {title:'Price',colspan:6,align: 'center'},
-          {title:'Channel Fee(%)',colspan:9,align: 'center'},
-          {title:'Channel Fee ($)',colspan:9,align: 'center'},
-          {title:'Retail Price',colspan:9,align: 'center',visible:false},
-          {title:'Cost Price ($)',colspan:9,align: 'center',visible:false},
-          {title:'Unit Profit',colspan:9,align: 'center',visible:false}
+          {title:'Channel Fee(%)',colspan:11,align: 'center'},
+          {title:'Channel Fee ($)',colspan:11,align: 'center'},
+          {title:'Retail Price',colspan:11,align: 'center',visible:false},
+          {title:'Cost Price ($)',colspan:11,align: 'center',visible:false},
+          {title:'Unit Profit',colspan:11,align: 'center',visible:false}
         ],
         [
           {field:'id',title:'id',visible:false},
@@ -143,10 +143,10 @@ var sColums =
           {field:'sku',title:'sku'},
           {field:'brand_name',title:'Brand Name'},
           // paking
-          {field: "length", title: "Length"},
-          {field: "width", title: "Width"},
-          {field: "height", title: "Height"},
-          {field: "weight", title: "Weight"},
+          {field: "the_length", title: "Length"},
+          {field: "the_width", title: "Width"},
+          {field: "the_height", title: "Height"},
+          {field: "the_weight", title: "Weight"},
           {field: "cubic", title: "Cubic"},
 
           // Tẻm payment
@@ -179,6 +179,7 @@ var sColums =
           {field: "per_wholesales_gp_max", title: "% wholesales_gp_max"},
 
           {field: "shiping_fee_est", title: "shiping_fee_est"},
+          {field: "fba_shipping_est", title: "fba_shipping_est"},
 
           {field: "per_retail_profit", title: "% Retail_profit"},
 
@@ -190,54 +191,66 @@ var sColums =
           {field: "price_profit_max", title: "price_profit_max"},
           {field: "retail_price", title: "retail_price"},
 
-          {field: "per_fbm_fee", title: "% per_fbm_fee"},
-          {field: "per_avcds_fee", title: "% per_avcds_fee"},
           {field: "per_avcwh_fee", title: "% avcwh_fee"},
+          {field: "per_avcds_fee", title: "% per_avcds_fee"},
+          {field: "per_avcdi_fee", title: "% per_avcdi_fee"},
           {field: "per_wmdsv_fee", title: "% wmdsv_fee"},
           {field: "per_wmmkp_fee", title: "%wmmkp_fee"},
           {field: "per_ebay_fee", title: "%ebay_fee"},
           {field: "per_local_fee", title: "%local_fee"},
           {field: "per_website_fee", title: "%website_fee"},
+          {field: "per_fba_fee", title: "% per_fba_fee"},
+          {field: "per_fbm_fee", title: "% per_fbm_fee"},
           {field: "per_way_fee", title: "%wayfair_fee"},
 
-          {field: "fbm_fee", title: "fbm_fee"},
-          {field: "avcds_fee", title: "avcds_fee"},
+          
           {field: "avcwh_fee", title: "avcwh_fee"},
+          {field: "avcds_fee", title: "avcds_fee"},
+          {field: "avcdi_fee", title: "avcdi_fee"},
           {field: "wmdsv_fee", title: "wmdsv_fee"},
           {field: "wmmkp_fee", title: "wmmkp_fee"},
           {field: "ebay_fee", title: "ebay_fee"},
           {field: "local_fee", title: "local_fee"},
           {field: "website_fee", title: "website_fee"},
+          {field: "fba_fee", title: "fba_fee"},
+          {field: "fbm_fee", title: "fbm_fee"},
           {field: "way_fee", title: "way_fee"},
 
-          {field: "fbm_retail_price", title: "fbm_retail_price"},
-          {field: "avcds_retail_price", title: "avcds_retail_price"},
+          
           {field: "avcwh_retail_price", title: "avcwh_retail_price_fee"},
+          {field: "avcds_retail_price", title: "avcds_retail_price"},
+          {field: "avcdi_retail_price", title: "avcdi_retail_price_fee"},
           {field: "wmdsv_retail_price", title: "wmdsv_retail_price"},
           {field: "wmmkp_retail_price", title: "wmmkp_retail_price"},
           {field: "ebay_retail_price", title: "ebay_retail_price"},
           {field: "local_retail_price", title: "local_retail_price"},
           {field: "website_retail_price", title: "website_retail_price"},
+          {field: "fba_retail_price", title: "fba_retail_price"},
+          {field: "fbm_retail_price", title: "fbm_retail_price"},
           {field: "wayfair_retail_price", title: "wayfair_retail_price"},
 
-          {field: "fbm_cost", title: "fbm_cost"},
-          {field: "avcds_cost", title: "avcds_cost"},
           {field: "avcwh_cost", title: "avcwh_cost"},
+          {field: "avcds_cost", title: "avcds_cost"},
+          {field: "avcdi_cost", title: "avcdi_cost"},
           {field: "wmdsv_cost", title: "wmdsv_cost"},
           {field: "wmmkp_cost", title: "wmmkp_cost"},
           {field: "ebay_cost", title: "ebay_cost"},
           {field: "local_cost", title: "local_cost"},
           {field: "website_cost", title: "website_cost"},
+          {field: "fba_cost", title: "fba_cost"},
+          {field: "fbm_cost", title: "fbm_cost"},
           {field: "wayfair_cost", title: "wayfair_cost"},
 
-          {field: "fbm_profit", title: "fbm_profit",formatter:colorFormatter},
-          {field: "avcds_profit", title: "avcds_profit",formatter:colorFormatter},
           {field: "avcwh_profit", title: "avcwh_profit",formatter:colorFormatter},
+          {field: "avcds_profit", title: "avcds_profit",formatter:colorFormatter},
+          {field: "avcdi_profit", title: "avcdi_profit",formatter:colorFormatter},
           {field: "wmdsv_profit", title: "wmdsv_profit",formatter:colorFormatter},
           {field: "wmmkp_profit", title: "wmmkp_profit",formatter:colorFormatter},
           {field: "ebay_profit", title: "ebay_profit",formatter:colorFormatter},
           {field: "local_profit", title: "local_profit",formatter:colorFormatter},
           {field: "website_profit", title: "website_profit",formatter:colorFormatter},
+          {field: "fba_profit", title: "fba_profit",formatter:colorFormatter},
+          {field: "fbm_profit", title: "fbm_profit",formatter:colorFormatter},
           {field: "wayfair_profit", title: "wayfair_profit",formatter:colorFormatter}
         ]
       ] ;

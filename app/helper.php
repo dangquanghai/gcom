@@ -1,5 +1,5 @@
 <?php
-//tương tự cái này anh nè uh va
+
 function getList($Items,$ItemDefault)
 {
     $Result = '';
