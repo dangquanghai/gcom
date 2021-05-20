@@ -237,6 +237,7 @@ $(document).on('change','#channel_name_select',function(){
 });
 
 
+
 $(document).on('blur','.column_name',function()
     {
         var retail_price = 0;
@@ -283,7 +284,7 @@ $(document).on('blur','.column_name',function()
 
 $(document).on('click','#Addbtn',function(){
 var TheSku =  document.getElementById("sku").value;
-//console.log(TheSku);
+console.log(TheSku);
     if(gTheChannelID != 0)
     {
         $.ajax({    url:'{{route("SalesProductInforController.SaveNewChannelCostAndPrice")}}',
@@ -291,19 +292,19 @@ var TheSku =  document.getElementById("sku").value;
                     data: {sku:TheSku,channel_id:gTheChannelID, _token:_token},
                     success:function(data)
                     {
-                        $('#message').html(data);
+                        $('#message').html("<div class='aleart aleart-success'>insert OK</div>");
                     }
-                   
+                    else
+                    {
+                         $('#message').html("<div class='aleart aleart-success'>insert OK</div>"); 
+                    }
                 });
-    } else
-    {
-        $('#message').html("<div class='alert alert-danger'> Select a channel </div>");
     }
      LoadCostAndPriceOnAllChannel();
 });
 
 
-
+/*
 
  $(document).on('change','select',function(){
         var column_name = "channel_id";
@@ -329,7 +330,7 @@ var TheSku =  document.getElementById("sku").value;
         
     });
   
-   
+   */
 
 
 
@@ -447,7 +448,6 @@ var TheSku =  document.getElementById("sku").value;
         }
         
     });
-  
 });
 </script>
 @endsection

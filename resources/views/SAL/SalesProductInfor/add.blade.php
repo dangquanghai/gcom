@@ -27,27 +27,27 @@
                         <div class="col-sm-3">
                             <div class="form-group">
                                 <label for="height">Height</label>
-                                <input type="text" class="form-control" name="height" id="height" >
+                                <input type="text" class="form-control" name="the_height" id="the_height" >
                             </div>
                         </div>
                         <div class="col-sm-3">
                             <div class="form-group">
                                 <label for="width">Width</label>
-                                <input type="text" class="form-control" name="width" id="width" >
+                                <input type="text" class="form-control" name="the_width" id="the_width" >
                             </div>
                         </div>
                         
                         <div class="col-sm-3">
                             <div class="form-group">
                                 <label for="length">Length</label>
-                                <input type="text" class="form-control" name="length" id="length"  >
+                                <input type="text" class="form-control" name="the_length" id="the_length"  >
                             </div>
                         </div>
 
                         <div class="col-sm-3">
                             <div class="form-group">
                                 <label for="length">Weight</label>
-                                <input type="text" class="form-control" name="weight" id="the_weight"  >
+                                <input type="text" class="form-control" name="the_weight" id="the_weight"  >
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,3 @@
-
 <tr>
 <td  id="id_add" style="display:none;"></td>
 <td  id="channel_name_add" contenteditable > 

@@ -245,13 +245,8 @@ class SalesProductInforController extends SysController
     public function LoadSalesProductInforDetail($id)
     {
       $SPIs = SalesProductInfor::find($id);
-      $ProductName ='';
-      $sql =" select 	title from prd_product  p
-      inner join sal_product_informations  spi on p.product_sku = spi.sku
-      where spi.id = $id ";
-      $ds = DB::connection('mysql')->select($sql);
-      foreach( $ds as $d ){$ProductName = $d->title;}
-      return view('SAL.SalesProductInfor.edit',compact(['id','SPIs','ProductName']));
+      dd($SPIs);
+      //return view('SAL.SalesProductInfor.edit',compact(['id','SPIs']));
     }
     //----------------------------------------------------
     public function index(Request $request)
@@ -728,8 +723,8 @@ class SalesProductInforController extends SysController
         foreach($ProductCostPrices as $ProductCostPrice )
 
 
-        $sql_channel = " select id, name from sal_channels " ;
-        $dsChannels = DB::connection('mysql')->select($sql_channel);
+        $sql = " select id, name from sal_channels " ;
+        $dsChannels = DB::connection('mysql')->select($sql);
         
         return view('SAL.SalesProductInfor.edit',compact(['id','dsProduct','ProductCostPrice','dsChannels']));
         
@@ -782,7 +777,8 @@ class SalesProductInforController extends SysController
        
         $dsProduct = SalesProductInfor::find($id);
         $Sku  = $dsProduct->sku;
-
+        //dd($dsProduct);
+        
         $sql = " select pp.id, channel_id,sc.name, cost,retail_price
         from sal_product_channel_price pp inner join sal_channels sc
         on pp.channel_id = sc.id
@@ -790,16 +786,37 @@ class SalesProductInforController extends SysController
         $ProductCostPrices = DB::connection('mysql')->select($sql);
         foreach($ProductCostPrices as $ProductCostPrice )
 
-        $sql_channel = " select id, name from sal_channels " ;
-        $dsChannels = DB::connection('mysql')->select($sql_channel);
+        $sql = " select id, name from sal_channels " ;
+        $dsChannels = DB::connection('mysql')->select($sql);
         
         return view('SAL.SalesProductInfor.edit',compact(['id','dsProduct','ProductCostPrice','dsChannels']));
+        
     }
 
     public function SaveNewChannelCostAndPrice(Request $request)
     {
-      dd($request);
-     
+      $sql = " select id as MyCount from sal_product_channel_price where channel_id  = $request->channel_id and sku ='$request->sku'";
+      if(!$this->IsExist('mysql', $sql))
+      {
+          //dd($request);
+        $data = array(
+          'sku'=> $request->sku,
+          'channel_id'=> $request->channel_id
+        );
+        $id = DB::table('sal_product_channel_price')->insert($data);
+        if($id>0)
+        {
+          echo "<div class = 'alert alert-success'> Insert OK </div>";
+        }
+        else
+        {
+          echo "<div class = 'alert alert-danger'> Loi insert</div>";
+        }
+     }else
+     {
+      echo "<div class='alert alert-danger'> SKU này đã có giá trên Sales channel </div>";
+     }
+    
     }
 
     public function LoadCostAndPriceOnAllChannel($sku)
@@ -807,8 +824,8 @@ class SalesProductInforController extends SysController
       
       DB::connection('mysql')->select('call SAL_PrepareEstprofit(?)',[$sku]);
       
-      $sql_channel = " select id, name from sal_channels " ;
-      $dsChannels = DB::connection('mysql')->select($sql_channel);
+      $sql = " select id, name from sal_channels " ;
+      $dsChannels = DB::connection('mysql')->select($sql);
 
       $sql = " select pp.id, sc.name as channel_name,channel_id,retail_price, per_cost, cost,some_fee,per_other_fee,est_profit
       from sal_product_channel_price pp inner join sal_channels sc
@@ -830,11 +847,19 @@ class SalesProductInforController extends SysController
     {
       $SalesProductInfor = SalesProductInfor::find($id);
       $SalesProductInfor->update($request->all()); 
+      return redirect()->route('SalesProductInforController.index')->with(['success'=>'Update sản phẩm thành công']);
       /*
      $spi = SalesProductInfor::find($id);
      if( $spi)
      {
-   
+      $spi->sku = $request->input('sku');
+      $spi->title = $request->input('title');
+      $spi->the_height = $request->input('the_height');
+      $spi->the_width = $request->input('the_width');
+      $spi->the_length = $request->input('the_length');
+      $spi->the_weight = $request->input('the_weight');
+      
+
       $spi->per_deposit = $request->input('per_deposit');
       $spi->per_full_payment = $request->input('per_full_payment');
       $spi->per_rev_split_for_partner = $request->input('per_rev_split_for_partner');
@@ -854,17 +879,17 @@ class SalesProductInforController extends SysController
       $spi->retail_price = $request->input('retail_price'); 
       $spi->per_wholesales_price_min = $request->input('per_wholesales_price_min'); 
       $spi->per_wholesales_price_max = $request->input('per_wholesales_price_max'); 
+      $spi->fba_shipping_est = $request->input('fba_shipping_est'); 
+
 
       $spi->save();
-      // $spi->update($request->all());
-      //return 'Thành công';
+      
       return redirect()->route('SalesProductInforController.index')->with(['success'=>'Update sản phẩm thành công']);
       }else
       {
        return redirect()->route('SalesProductInforController.index')->with(['error'=>'Update sản phẩm không thành công']);
-      //return 'Thất bại';
       }
-      */
+     */ 
     }
     /**
      * Remove the specified resource from storage.

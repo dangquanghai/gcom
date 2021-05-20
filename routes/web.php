@@ -119,9 +119,9 @@ Route::post('/sal.import.sales.product.infor','Sales\SalesProductInforController
 
 Route::get('/SalesProductInforController.LoadCostAndPriceOnAllChannel/{sku}','Sales\SalesProductInforController@LoadCostAndPriceOnAllChannel')->name('SalesProductInforController.LoadCostAndPriceOnAllChannel');
 
-Route::post('/SalesProductInforController.UpdateCostPrice','Sales\SalesProductInforController@UpdateCostPrice')->name('SalesProductInforController.UpdateCostPrice');
-
 Route::post('/SalesProductInforController.SaveNewChannelCostAndPrice','Sales\SalesProductInforController@SaveNewChannelCostAndPrice')->name('SalesProductInforController.SaveNewChannelCostAndPrice');
+
+Route::post('/SalesProductInforController.UpdateCostPrice','Sales\SalesProductInforController@UpdateCostPrice')->name('SalesProductInforController.UpdateCostPrice');
 
 Route::get('/SalesProductInforController.Sales.Promotion.Management','Sales\SalesProductInforController@LoadPromotionsDefault')->name('Sales.Promotion.Management');
 Route::post('/SalesProductInforController.Sales.Promotion.Management','Sales\SalesProductInforController@LoadPromotions')->name('Sales.Promotion.Management');
