@@ -16,7 +16,7 @@ class SysController extends Controller
         $ds= DB::connection($sConnection)->select($sql);
         foreach($ds as $d) {$MyCount  = $this->iif(is_null($d->MyCount),0,$d->MyCount);    }
         if($MyCount == 0){ $Result = false;}
-        else{$Result=true;}
+        else{$Result = true;}
         return $Result;
     }
     //---------------------------------------------------
@@ -25,10 +25,13 @@ class SysController extends Controller
       return  date('Y-m-d',strtotime( $TheDate. '+'.  $Days  .'days'));
     }
     //---------------------------------------------------
-    public function GetFirtDateOfMonth($Year,$Month)
-     {
-      return  date('Y-m-d', strtotime( (string)$Year . '-'. (string)$Month. '-01'));
-     }
+    public function GetFirstDateOfMonth($TheYear,$TheMonth)
+    {
+     // $s = date("Y",strtotime($TheDate)) .'-' .  date("m",strtotime($TheDate)) .'-01';
+      $s = $TheYear . '-'. $TheMonth .'-01';
+      return date("Y-m-d",strtotime( $s));
+    }
+    
     //---------------------------------------------------
     public function GetLastDateOfMonth($Year,$Month)
     {

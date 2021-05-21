@@ -79,8 +79,8 @@ class ProductController extends SysController
      */
     public function create()
     {
-      ini_set('memory_limit','2548M');
-      set_time_limit(15000);
+     // ini_set('memory_limit','2548M');
+     // set_time_limit(15000);
 
       $ProductLifeCircles = ProductLifeCircle::all();
       /*

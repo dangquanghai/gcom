@@ -123,11 +123,14 @@ Route::post('/SalesProductInforController.SaveNewChannelCostAndPrice','Sales\Sal
 
 Route::post('/SalesProductInforController.UpdateCostPrice','Sales\SalesProductInforController@UpdateCostPrice')->name('SalesProductInforController.UpdateCostPrice');
 
-Route::get('/SalesProductInforController.Sales.Promotion.Management','Sales\SalesProductInforController@LoadPromotionsDefault')->name('Sales.Promotion.Management');
-Route::post('/SalesProductInforController.Sales.Promotion.Management','Sales\SalesProductInforController@LoadPromotions')->name('Sales.Promotion.Management');
+//Route::get('/SalesProductInforController.Sales.Promotion.Management','Sales\SalesProductInforController@LoadPromotionsDefault')->name('Sales.Promotion.Management');
+//Route::post('/SalesProductInforController.Sales.Promotion.Management','Sales\SalesProductInforController@LoadPromotions')->name('Sales.Promotion.Management');
+
+Route::get('/SalesProductInforController.Sales.Promotion.Management','Sales\PromotionController@index')->name('Sales.Promotion.Management');
+Route::post('/SalesProductInforController.Sales.Promotion.Management','Sales\PromotionController@index')->name('Sales.Promotion.Management');
 
 
-
+Route::resource('/Promotion','Sales\PromotionController');
 
 //Route::get('/sal.product.infor','Sales\SalesProductInforController@LoadSalesProductListDefault')->name('sal.product.infor');
 //Route::post('/sal.product.infor','Sales\SalesProductInforController@LoadSalesProductList')->name('sal.product.infor');

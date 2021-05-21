@@ -54,7 +54,7 @@
                                 <select class="form-control" name ="life_circle" id="life_circle">
                                     {!! getList($ProductLifeCircles,$Product->life_circle) !!}
                                 </select>
-                              </div>
+                            </div>
                         </div>
                     </div>
                     <div class ="row">

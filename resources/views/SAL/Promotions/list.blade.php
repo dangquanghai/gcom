@@ -77,6 +77,9 @@
   <div class="col-md-10" style="padding-left:0px">
       <div class="card card-primary">
               <div class="card-header">
+              <div class="card-tools">
+                  <a href="{{route('Promotion.create')}}"><i class="fa fa-plus-square"></i></a>
+              </div>
                 <h3 class="card-title">Data</h3>
               </div>
           <div class="card-body">
@@ -154,6 +157,19 @@ function totalUnitSold(data) {
     var num = '$' + sumVal.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
     return num;
   }
+  
+  function EditPromotion(value,row,index)
+{
+  let url = "{{route('Promotion.edit', ':id') }}";
+  url = url.replace(':id', row.id);
+  url = '<a href="' + url + '">' + value +  '</a>';
+  
+  return[
+    url
+  ].join('')
+}
+
+
 $(function() {
   $('#toolbar').find('select').change(function () {
     $table.bootstrapTable('destroy').bootstrapTable({
@@ -162,13 +178,14 @@ $(function() {
       exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf'],
       data:ds,
       exportOptions: {
-            fileName: 'WM DSV Product MNG',
+            fileName: 'Promotion mng',
             preventInjection: false
           },
       columns: 
       [
+        {field:'id',title:'id',formatter: EditPromotion},
         {field:'asin',title:'asin',footerFormatter: SetTotalCaption},
-        {field:'sku',title:'sku'},
+        {field:'sku',title:'sku' },
         {field:'title',title:'Product Name ---------'},
         {field:'promotion_type',title:'promotion type'},
         {field:'channel',title:'channel'},

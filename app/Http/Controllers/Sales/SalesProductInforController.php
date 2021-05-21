@@ -18,13 +18,6 @@ class SalesProductInforController extends SysController
      *
      * @return \Illuminate\Http\Response
      */
-    public function GetFirstDateOfMonth($TheYear,$TheMonth)
-    {
-     // $s = date("Y",strtotime($TheDate)) .'-' .  date("m",strtotime($TheDate)) .'-01';
-      $s = $TheYear . '-'. $TheMonth .'-01';
-      return date("Y-m-d",strtotime( $s));
-    }
- 
   // --------------------------------------------------------------------
   public function UpdateCostPrice(Request $request)
   {
