@@ -120,8 +120,12 @@ class PromotionController extends SysController
       $sql = " select id, name from sal_channels ";
       $dsChannels = DB::connection('mysql')->select($sql);
 
-      return view('SAL.Promotions.add',compact(['dsTypes','dsStatuses','dsChannels']));
-      //return view('SAL.Promotions.add');
+      $sql = " select id, product_sku as sku from prd_product where company_id <>1
+      order by product_sku ";
+      $dsSkus = DB::connection('mysql')->select($sql);
+
+      return view('SAL.Promotions.add',compact(['dsTypes','dsStatuses','dsChannels','dsSkus']));
+      
     }
 
     /**
@@ -155,7 +159,7 @@ class PromotionController extends SysController
     public function edit($id)
     {
       $dsPromotion = Promotion::find($id);
-      return view('SAL.SalesProductInfor.edit',compact(['id','dsPromotion','ProductCostPrice','dsChannels']));
+      return view('SAL.promotion.edit',compact(['id','dsPromotion']));
     }
     /**
      * Update the specified resource in storage.

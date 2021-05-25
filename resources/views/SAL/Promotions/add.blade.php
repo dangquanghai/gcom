@@ -1,10 +1,6 @@
 @extends('layouts.admin')
 @section('content')
-
-<form role="form" method="post" action="">
-    {{ csrf_field() }}
-    <input type="hidden" name ="_method" value ="PUT">
-    
+  
     <div class="col-md-8" style="padding-right:0px">
         <div class="card card-primary">
             <div class="card-header">
@@ -62,31 +58,53 @@
                 </div>
         </div>
     </div>
-
     <div class="col-md-8"  style="padding-right:0px" >
             <div class="card card-primary">
                 <div class="card-header">
                     <h3 class="card-title"> Promotion Detail </h3>
+                    <div class="card-tools">
+                    <div class="input-group" style="height: 35px;width:550px">
+                        <input type="text" id="search-pro-box" name="search"
+                            placeholder="Input SKU or Product name"
+                            class="form-control"
+                            style="height: 35px;border-radius: 15px 0 0 15px;border-right: 0;background-color: #f2f4f6;"
+                        >
+                        <div class="input-group-append">
+                            <span class="input-group-text"
+                                style="background-color: #f2f4f6;border-left: 0px;border-radius: 0px 15px 15px 0px;">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
                 </div>
                 <div class="card-body">
                 <div id="message"></div>
-                <table  id="promotion_detail" class="table table-bordered table-hover" >
-                    <thead>
-                        <tr>
-                        <th style="display:none;">ID</th>
-                        <th>Promotion ID</th>
-                        <th>ASIN</th>
-                        <th>SKU</th>
-                        <th>%Funding</th>
-                        <th>Unit Sold</th>
-                        <th>Amount Spent</th>
-                        <th>Revenue</th>
-                        <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                <table id="table_promotion_dt"
+                        class="table table-head-fixed table-hover table-bordered table-striped text-nowrap">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Promotion ID</th>
+                                <th>Product ID</th>
+                                <th>Product SKU </th>
+                                <th>%Funding</th>
+                                <th>Funding</th>
+                                <th>Unit Sold</th>
+                                <th>Amoutn Spend</th>
+                                <th>Revenue</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="list_promotion_dt" id="list_promotion_dt">
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="8" style="text-align: right;font-weight: bold;">Total:</td>
+                                <td colspan="1"><span id="total" class="total">0</span></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary">
@@ -95,10 +113,13 @@
                 </div>
             </div>
     </div> 
-</form>
-
 @endsection
 @section('scripts')
-<script type= "text/javascript">
+<script src="{{asset('plugins/jquery-ui/jquery-ui.min.js')}}"></script>
+<script src="{{asset('js/Sales/Promotions.js') }}"></script>
+
+<script>
+  
 </script>
+
 @endsection

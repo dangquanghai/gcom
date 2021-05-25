@@ -199,7 +199,7 @@
                             <th>Action</th>
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="list_products" id="list_products">>
                          
                         </tbody>
                     </table>
@@ -212,8 +212,9 @@
     </div>
 </form>
 @endsection
-
 @section('scripts')
-<script type= "text/javascript">
+
+<script>
+   
 </script>
 @endsection

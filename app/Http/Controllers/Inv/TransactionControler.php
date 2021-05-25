@@ -31,7 +31,7 @@ class TransactionControler extends SysController
         if($request->has('from_date'))
             $FromDate =   $request->input('from_date');
         else
-           $FromDate = $this->GetFirtDateOfMonth(date("Y"),date("M"));
+           $FromDate = $this->GetFirstDateOfMonth(date("Y"),date("M"));
 
         if($request->has('to_date'))
            $ToDate =   $request->input('to_date');
@@ -49,7 +49,7 @@ class TransactionControler extends SysController
           $VendorID = 0;
 
         $sql = " select t.id, t.no,t.the_date,v.vendor_name,t.description, sum(td.amount) as amount
-        from inv_transactions t inner join inv_transaction_detail td
+        from inv_transactions t inner join inv_transaction_dt td
         on t.id = td.transaction_id
         left join pu_vendors v on t.vendor_id = v.id
         where date(t.the_date) >= '$FromDate' and date(t.the_date) <= '$ToDate' ";
@@ -230,7 +230,7 @@ class TransactionControler extends SysController
         {
             $prs = Product::Where('sku',$sku)->first();
             if($prs)
-                return json_encode($prs->id) ;//view('transaction.ajax_search_complete',compact('prs'));
+                return json_encode($prs->id) ;
             else
                 return 0;
         }

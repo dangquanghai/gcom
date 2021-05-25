@@ -1199,7 +1199,7 @@ class SalesProductInforController extends SysController
                 values('$sku',12, $way_fair_cost,$wayfair_retail_price,$per_wayfair)";
               }else{
                 $sql= " update sal_product_channel_price set cost = $way_fair_cost,
-                retail_price = $wayfair_retail_price, per_cost  = $per_wayfair)
+                retail_price = $wayfair_retail_price, per_cost  = $per_wayfair
                 where sku = '$sku'  and channel_id = 12";
               }DB::connection('mysql')->select($sql);
            }// end if sku <>''
@@ -1262,7 +1262,7 @@ class SalesProductInforController extends SysController
            $EndDate = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(7,$i)->getFormattedValue();
            $Funding = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(8,$i)->getValue();
            $UnitSold = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(10,$i)->getValue();
-           $AmountSpent= 0;//$spreadsheet->getActiveSheet()->getCellByColumnAndRow(11,$i)->getFormattedValue();
+           $AmountSpent= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(11,$i)->getFormattedValue();
            $Revenue = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(12,$i)->getValue();
            $Channel= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(13,$i)->getValue();
 
@@ -1294,10 +1294,10 @@ class SalesProductInforController extends SysController
            if( $StatusName =='Running'){$StatusID =3;}
            if( $StatusName =='Finished'){$StatusID =4;}
            if( $StatusName =='Canceled'){$StatusID =5;}
-           if( $StatusName =='Canceled'){$StatusID =6;}
-          
-
-           if($Channel=='AVC-DS'){$Channel=1;}
+           if( $StatusName =='ERROR'){$StatusID =6;}
+           
+                     
+           if($Channel=='AVC-DS'){$Channel=2;}
            if( $PromotionNo <> '' )
            {
             $sql = " select count(id)as MyCount from  sal_promotions where  promotion_no = '$PromotionNo'";
@@ -1307,27 +1307,28 @@ class SalesProductInforController extends SysController
               [ 'promotion_no' => $PromotionNo,'Promotion_type'=>$PromotionTypeID,'promotion_status'=>$StatusID,
               'from_date'=>$StartDate, 'to_date'=>$EndDate,'channel' =>$Channel ]);
             
-              $id = DB::table('sal_promotions_dt')->insert(
+              DB::table('sal_promotions_dt')->insert(
               ['promotion_id' =>$id,'asin'=>$AmzAsin,'sku'=>$Sku,
               'per_funding'=>$PerFunding, 'funding'=>$Funding,'unit_sold' =>$UnitSold,'amount_spent'=>$AmountSpent,'revenue'=>$Revenue ]);
 
               print_r ('Unit Sold '. $UnitSold . ' amount spent' . $AmountSpent . ' revenue ' . $Revenue );
               print_r ( '<br>');
             }
-            else
+            else// master đã tồn tại
             {
-              $sql = " select count(id)as MyCount from  sal_promotions_dt where  promotion_id = $id and  sku = ' $Sku'";
-              if(!$this->IsExist('mysql', $sql)) 
-                {
-                  print_r ('Unit Sold '. $UnitSold . ' amount spent' . $AmountSpent . ' revenue ' . $Revenue );
-                  print_r ( '<br>');
-                  DB::table('sal_promotions_dt')->insert(
-                  ['promotion_id' =>$id,'asin'=>$AmzAsin,'sku'=>$Sku,
-                  'per_funding'=>$PerFunding, 'funding'=>$Funding,'unit_sold' =>$UnitSold,'amount_spent'=>$AmountSpent,'revenue'=>$Revenue ]);
-                }
+              $sql = " select id  from  sal_promotions where  promotion_no = '$PromotionNo'";
+              $ds = DB::connection('mysql')->select($sql);
+              foreach( $ds as $d ){ $id = $d->id;}
+                    
+              DB::table('sal_promotions_dt')->insert(
+              ['promotion_id' =>$id,'asin'=>$AmzAsin,'sku'=>$Sku,
+              'per_funding'=>$PerFunding, 'funding'=>$Funding,'unit_sold' =>$UnitSold,'amount_spent'=>$AmountSpent,'revenue'=>$Revenue ]);
+               
             }
           }
+          
         }//For
+        
        }//  if($validator->passes())
      }
 }

@@ -101,6 +101,7 @@ function enter_event_search_pro_box()
  * @param id product
  */
 function select_product(id) {
+    console.log("Hello world!");
     if ($('tbody#list_products tr').length != 0) {//trường hợp đã chọn ít nhất 1 sp vào danh sách rồi
         var flag = 0;//muốn tách dòng không
         // truong hop ko tach dong khi chon cung sp

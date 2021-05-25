@@ -169,4 +169,17 @@ class ProductController extends SysController
     {
       dd($id);
     }
+
+    public function autocompleteProduct(Request $request)
+    {
+        // $key = $request->key;
+        $key = $_GET['term'];// trong jquery-ui  đặt tên biến này
+        if($key)
+        {
+          $sql = " select id, sku, title from prd_product where (sku like '%$key%' or title  like '%$key%' ) ";
+          $prs = DB::connection('mysql')->select($sql);
+         // $prs = Product::where('name','like',"%$key%")->orWhere('sku','like',"%$key%")->get();
+          return json_encode($prs) ;
+        }
+    }
 }
