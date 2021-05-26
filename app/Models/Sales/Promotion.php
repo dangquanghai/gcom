@@ -8,7 +8,7 @@ class Promotion extends Model
 {
   //use Hasfactory;
   protected $table ='sal_promotions';
-  protected $fillable = ['id','promotion_no','promotion_type','promotion_status','from_date','to_date','channel'];
+  protected $fillable = ['id','promotion_no','promotion_type','promotion_status','channel_id','from_date','to_date'];
   public $timestamps =false;
 
   public function PromotionDetail()// Khai báo mối quan hệ với model Promtotipn Detail

@@ -8,6 +8,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 use App\Models\Sales\Promotion;
+use App\Models\Sales\PromotionDetail;
 use Validator;
 use DateTime;
 use GuzzleHttp\Client;
@@ -41,9 +42,9 @@ class PromotionController extends SysController
           $title = $request->input('title');
         else{$title='';}
         
-        if($request->has('promotion_id'))
-          $promotion_id = $request->input('promotion_id');
-        else{$promotion_id='';}
+        if($request->has('promotion_no'))
+          $promotion_no = $request->input('promotion_no');
+        else{$promotion_no='';}
         
         if($request->has('promotion_type'))
           $promotion_type = $request->input('promotion_type');
@@ -53,8 +54,8 @@ class PromotionController extends SysController
           $promotion_status = $request->input('promotion_status');
         else $promotion_status= 0;
         
-        if($request->has('channel'))
-          $channel = $request->input('channel');
+        if($request->has('channel_id'))
+          $channel = $request->input('channel_id');
         else $channel = 0;
   
         if($request->has('brand'))
@@ -69,13 +70,13 @@ class PromotionController extends SysController
       left join sal_promotion_types protype on pro.Promotion_type = protype.id
       left join sal_promotion_status prostatus on pro.promotion_status = prostatus.id
       left join prd_brands on p.brand_id = prd_brands.id
-      left join sal_channels c on pro.channel = c.id
+      left join sal_channels c on pro.channel_id = c.id
       where (1 = 1)  ";
   
       if($sku <>'') {$sqlFilter =   $sqlFilter .  " and (prodt.sku like '%". $sku. "%')";}
       if($asin <>'') {$sqlFilter =   $sqlFilter .  " and (prodt.asin like '%". $asin . "%') ";}
       if($title <>''){$sqlFilter =   $sqlFilter .  " and (p.title like '%". $title . "%') ";}
-      if($promotion_id <>''){ $sqlFilter =   $sqlFilter .  " and (pro.promotion_no like'%". $promotion_id. "%') ";}
+      if($promotion_no <>''){ $sqlFilter =   $sqlFilter .  " and (pro.promotion_no like'%". $promotion_no. "%') ";}
       if($promotion_type <> 0 ){ $sqlFilter =   $sqlFilter .  " and (pro.promotion_type = " . $promotion_type ." )";}
       if($promotion_status <> 0 ){ $sqlFilter =   $sqlFilter .  " and (pro.promotion_status = " .  $promotion_status. ")";}
       if($channel <> 0){ $sqlFilter =   $sqlFilter .  " and (c.id = " . $channel .")";}
@@ -100,7 +101,7 @@ class PromotionController extends SysController
       $Brands = DB::connection('mysql')->select($sql);
   
       return view('SAL.Promotions.list',compact(['dsPromotions','PromotionStatuses','PromotionTypes','Channels','Brands','sku','asin',
-      'title','promotion_id','promotion_type','promotion_status','channel','brand','from_date','to_date']));
+      'title','promotion_no','promotion_type','promotion_status','channel','brand','from_date','to_date']));
      
     }
 
@@ -136,7 +137,61 @@ class PromotionController extends SysController
      */
     public function store(Request $request)
     {
-        //
+      //dd($request->data);
+      $data = 0;
+      try
+      {
+          $data = $request->data;
+          $promotion_no = $data['promotion_no'];
+          $promotion_type = $data['promotion_type'];
+          $promotion_status = $data['promotion_status'];
+          $channel_id = $data['channel_id'];
+          $from_date = $data['from_date'];
+          $to_date = $data['to_date'];
+
+          $details = $data['detail_input'];
+
+          DB::beginTransaction();
+          $pro = new Promotion();
+          $pro->promotion_no = $promotion_no;
+          $pro->promotion_type = $promotion_type;
+          $pro->promotion_status = $promotion_status;
+          $pro->channel_id =$channel_id;
+          $pro->from_date = $from_date;
+          $pro->to_date =$to_date;
+          $pro->save();
+
+          if(count($details)>0 && $pro->promotion_no)
+          {
+              foreach($details as $item)
+              {
+                  $product_id = $item['product_id'];
+                  $per_funding = $item['per_funding'];
+                  $funding = $item['funding'];
+                  $unit_sold = $item['unit_sold'];
+                  $amount_spent = $item['amount_spent'];
+                  $revenue = $item['revenue'];
+
+                  $pro_details = new PromotionDetail();
+                  $pro_details->promotion_id =$pro->id;
+                  $pro_details->product_id = $product_id;
+                  $pro_details->per_funding = $per_funding ;
+                  $pro_details->unit_sold = $unit_sold;
+                  $pro_details->amount_spent = $amount_spent;
+                  $pro_details->revenue = $revenue;
+                  $pro_details->save();
+              }
+          }
+          DB::commit();
+      }
+      catch(Exception $ex)
+      {
+          //dd($ex.message());
+          DB::rollback();
+          //return $ex.message();
+          return = 0;
+      }
+      
     }
 
     /**

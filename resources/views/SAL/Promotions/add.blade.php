@@ -2,6 +2,15 @@
 @section('content')
   
     <div class="col-md-8" style="padding-right:0px">
+    <div class="alert alert-dange ajax-error" role="alert">
+            <span style="font-weight: bold; font-size: 18px;">Thông báo!</span><br>
+            <div class="ajax-error-ct"></div>
+        </div>
+        <div class="alert ajax-success" role="alert" style="width: 350px;background: rgba(92,130,79,0.9); display:none; color: #fff;"><span
+                style="font-weight: bold; font-size: 18px;">Thông báo!</span>
+            <br>
+            <div class="ajax-success-ct"></div>
+        </div>
         <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title"> Promotion </h3>
@@ -17,7 +26,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="life_circle">Promotion Type</label>
-                            <select class="form-control" name ="	promotion_type" id="promotion_type" required>
+                            <select class="form-control" name ="promotion_type" id="promotion_type" required>
                                 {!! getList($dsTypes,0) !!}
                             </select>
                         </div>
@@ -47,8 +56,8 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="promotion_status">Channel</label>
-                            <select class="form-control" name ="channel" id="channel"required>
-                                    {!! getList($dsChannels,0) !!}
+                            <select class="form-control" name ="channel_id" id="channel_id" required>
+                                    {!! getList($dsChannels,2) !!}
                             </select>
                         </div>
                     </div>
@@ -65,7 +74,7 @@
                     <div class="card-tools">
                     <div class="input-group" style="height: 35px;width:550px">
                         <input type="text" id="search-pro-box" name="search"
-                            placeholder="Input SKU or Product name"
+                            placeholder="Input ASIN or Product name"
                             class="form-control"
                             style="height: 35px;border-radius: 15px 0 0 15px;border-right: 0;background-color: #f2f4f6;"
                         >
@@ -84,30 +93,32 @@
                         class="table table-head-fixed table-hover table-bordered table-striped text-nowrap">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Promotion ID</th>
-                                <th>Product ID</th>
-                                <th>Product SKU </th>
-                                <th>%Funding</th>
-                                <th>Funding</th>
-                                <th>Unit Sold</th>
-                                <th>Amoutn Spend</th>
-                                <th>Revenue</th>
-                                <th>Action</th>
+                                <th style="width:10px;">#</th>
+                                <th style="display:none;">ID</th>
+                                <th style="display:none;">Promotion ID</th>
+                                <th style="display:none;">Product ID</th>
+                                <th  style="width:40px;">ASIN </th>
+                                <th style="width:150px;">Product Name </th>
+                                <th  style="width:40px;">%Funding</th>
+                                <th  style="width:40px;">Funding</th>
+                                <th  style="width:40px;">Unit Sold</th>
+                                <th style="width:40px;">Amoutn Spend</th>
+                                <th  style="width:40px;">Revenue</th>
+                                <th  style="width:20px;">Action</th>
                             </tr>
                         </thead>
                         <tbody class="list_promotion_dt" id="list_promotion_dt">
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="8" style="text-align: right;font-weight: bold;">Total:</td>
+                                <td colspan="7" style="text-align: right;font-weight: bold;">Total:</td>
                                 <td colspan="1"><span id="total" class="total">0</span></td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" onclick="save_promotion()">
                         <i class="fa fa-save"></i>
                     </button>
                 </div>
@@ -119,7 +130,18 @@
 <script src="{{asset('js/Sales/Promotions.js') }}"></script>
 
 <script>
-  
+$(document).ready(function() {
+    $('.promotion_type').select2({
+    theme: 'bootstrap4'
+    })
+    $('.promotion_status').select2({
+    theme: 'bootstrap4'
+    })
+
+    $('.channel_id').select2({
+    theme: 'bootstrap4'
+    })
+});
 </script>
 
 @endsection

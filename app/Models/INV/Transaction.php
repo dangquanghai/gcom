@@ -11,7 +11,7 @@ class Transaction extends Model
    protected $fillable = ['id','no','the_date','vendor_id','note'];
    public $timestamps =false;
 
-   public function TransactionDetails()// Khai báo mối quan hệ với model Product
+   public function TransactionDetails()// Khai báo mối quan hệ với transaction detail
     {
       return $this->hasMany('App\Models\inv\TransactionDetails','transaction_id');
     }

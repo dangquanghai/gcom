@@ -12,7 +12,7 @@ class TransactionDetails extends Model
     protected $fillable = ['id','transaction_id','product_id','unit_id','quantity','price','amount','note'];
     public $timestamps = false;
 
-    public function transaction()
+    public function transaction()// mối quan hệ với transaction
     {
         return $this->belongsTo('App\Models\Transaction');
     }

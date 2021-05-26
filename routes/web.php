@@ -109,16 +109,16 @@ Route::resource('/ProductLifeCircle','Prd\ProductLifeCircleController');
 Route::resource('/Transaction','Inv\TransactionControler');
 
 Route::get('ajax_pro/search','Inv\TransactionControler@autocompleteProduct');
-
-Route::get('ajax_pro/search_product','Prd\ProductController@autocompleteProduct');
-
 Route::POST('ajax_pro/check_sku/{sku}','Inv\TransactionControler@checkSku');
-
-Route::POST('ProductNew/check_sku/{sku}','Prd\ProductNew@checkSku');
-
 Route::POST('ajax_pro/select','Inv\TransactionControler@selectProduct');
 
+
+Route::get('ProductNew/search','Prd\ProductControllerNew@autocompleteProduct');
+Route::POST('ProductNew/check_asin/{asin}','Prd\ProductControllerNew@checkAsin');
 Route::POST('ProductNew/select','Prd\ProductControllerNew@selectProduct');
+
+
+
 
 Route::resource('/SalesProductInforController','Sales\SalesProductInforController');
 

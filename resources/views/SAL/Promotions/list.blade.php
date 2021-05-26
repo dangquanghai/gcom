@@ -26,8 +26,8 @@
           </div>
           
           <div class="form-group">
-            <label for="promotion_id">Promo ID</label>
-            <input type="text" class="form-control" id="promotion_id" name="promotion_id" value="{{$promotion_id}}">
+            <label for="promotion_no">Promo ID</label>
+            <input type="text" class="form-control" id="promotion_no" name="promotion_no" value="{{$promotion_no}}">
           </div>
         
           <div class="form-group">
@@ -54,7 +54,7 @@
           </div>
           <div class="form-group">
             <label for="channel">Channel</label>
-            <select class="form-control" name="channel" id="channel" >
+            <select class="form-control" name="channel_id" id="channel_id" >
             {!! getList($Channels,$channel) !!}
           </select>
           </div>
