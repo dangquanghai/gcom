@@ -36,56 +36,7 @@ class ProductControllerNew extends SysController
      */
     public function store(Request $request)
     {
-        try
-        {
-            $data = $request->data;
-            $type = $data['type'];
-
-            $promotion_no = $data['promotion_no'];
-            $promotion_type = $data['promotion_type'];
-            $promotion_status = $data['promotion_status'];
-            $channel_id = $data['channel_id'];
-            $from_date = $data['from_date'];
-            $to_date = $data['to_date'];
-
-            $details = $data['detail_input'];
-
-            DB::beginTransaction();
-            $tran = new Transaction();
-            $tran->no = $no;
-            $tran->the_date = $date;
-            $tran->description = $description;
-            $tran->vendor_id =$vendor_id;
-            $tran->type_id = $type;
-            $tran->save();
-
-            if(count($details)>0 && $tran->id)
-            {
-                foreach($details as $item)
-                {
-                    $product_id = $item['product_id'];
-                    $price = $item['price'];
-                    $quantity = $item['quantity'];
-                    $note_item = $item['note'];
-
-                    $tran_details = new TransactionDetails();
-                    $tran_details->product_id = $product_id;
-                    $tran_details->transaction_id = $tran->id;
-                    $tran_details->price = $price;
-                    $tran_details->quantity = $quantity;
-                    $tran_details->amount = $price * $quantity;
-                    $tran_details->note = $note_item;
-                    $tran_details->save();
-                }
-            }
-            DB::commit();
-        }
-        catch(Exception $ex)
-        {
-            dd($ex.message());
-            DB::rollback();
-            return 0;
-        }
+      
     }
 
     /**
@@ -139,15 +90,11 @@ class ProductControllerNew extends SysController
         $key = $_GET['term'];// trong jquery-ui  đặt tên biến này
         if($key)
         {
-        //   $sql = " select id, product_sku as sku, title from prd_product where (product_sku like '%$key%' or title  like '%$key%' )
-        //   order by product_sku ";
-
-          $sql = "  select p.id, pas.amz_asin as asin, p.title 
-          from sal_propduct_asins pas left join prd_product p 
-          on pas.sku =  p.product_sku 
-          where  (p.company_id <> 1) and (pas.amz_asin <>'') and (pas.amz_asin is not null)
-          and (pas.amz_asin<>'x')
-          and (pas.amz_asin like '%$key%' or p.title  like '%$key%' )  order by  pas.amz_asin ";
+          $sql = "  select p.id, pas.asin, p.title 
+          from prd_product p  inner join sal_propduct_asins pas 
+          on p.id = pas.product_id   
+          where  (p.company_id <> 1) and (pas.market_place = 1) and (pas.asin is not null ) and (pas.asin <> '' )
+          and (pas.asin like '%$key%' or p.title  like '%$key%' )  order by  pas.asin ";
 
           $prs = DB::connection('mysql')->select($sql);
          // $prs = Product::where('name','like',"%$key%")->orWhere('sku','like',"%$key%")->get();
@@ -160,8 +107,8 @@ class ProductControllerNew extends SysController
     {
         if($Asin)
         {
-            $sql = "  select p.id  from sal_propduct_asins pas left join prd_product p 
-            on pas.sku =  p.product_sku     where  (p.company_id <> 1)  and (pas.amz_asin = '$Asin')"   ;
+            $sql = "  select p.id  from  prd_product p   inner join sal_propduct_asins a
+            on p.id =a.product_id  where  (p.company_id <> 1)  and (a.asin  = '$Asin') and (market_place =1) " ;
             $prs = DB::connection('mysql')->select($sql);
             if($prs)
                 return json_encode($prs->id) ;
@@ -176,10 +123,9 @@ class ProductControllerNew extends SysController
         $seq = $request->seq;
         $product_id = $request->id;
         
-        $sql = "  select p.id, pas.amz_asin as asin, p.title 
-        from sal_propduct_asins pas left join prd_product p 
-        on pas.sku =  p.product_sku 
-        where p.id =  $product_id ";
+        $sql = "  select p.id,  a.asin, p.title 
+        from  prd_product p  inner join sal_propduct_asins a
+        where a.market_place =1 and  p.id =  $product_id ";
 
         $products = DB::connection('mysql')->select($sql);
         foreach($products as $product )

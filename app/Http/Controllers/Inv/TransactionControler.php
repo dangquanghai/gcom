@@ -22,7 +22,7 @@ class TransactionControler extends SysController
     {
       $this->middleware('auth');
       $sql = " select 0 as id , 'All' as name union
-      select id,vendor_name as name from pu_vendors where is_active = 1 ";
+      select id,name as name from pu_vendors where is_active = 1 ";
       $this->Vendors =  DB::connection('mysql')->select($sql);
     }
 
@@ -159,7 +159,10 @@ class TransactionControler extends SysController
     public function edit($id)
     {
         $tran = Transaction::find($id);
-        $Vendors= $this->Vendors;
+        $sql = " select id, name from pu_vendors ";
+        $Vendors = DB::connection('mysql')->select($sql);
+        //foreach($Vendors as $Vendors ){$id = $id->id;}
+        //$Vendors= $this->Vendors;
         return view('INV.Transaction.Edit',compact(['tran','Vendors']));
     }
     /**

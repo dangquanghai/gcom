@@ -105,10 +105,7 @@ var sAsinColums =[
   {field:'ebay_inc',title:'ebay_inc',formatter:LinkToEbayIncListing},
   {field:'ebay_fitness',title:'ebay_fitness',formatter:LinkToEbayFitnessListing},
   {field:'wm_item_id',title:'wm_item_id',formatter:LinkToWMListing},
-
-  {field:'wayfair_asin',title:'wayfair_asin'},
-  {field:'local',title:'local'},
-  {field:'di',title:'DI ---- '}
+  {field:'wayfair_asin',title:'wayfair_asin'}
 ];
 
 var sColums =

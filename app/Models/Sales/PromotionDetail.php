@@ -16,8 +16,8 @@ class PromotionDetail extends Model
      return $this->belongto('App\Models\Sales\Promotion');
     }
 
-    public function Product()
+    public function product()
     {
-        return $this->belongsTo('App\Models\inv\ProductMew','product_id');
+        return $this->belongsTo('App\Models\PRD\ProductNew','product_id');
     }
 }

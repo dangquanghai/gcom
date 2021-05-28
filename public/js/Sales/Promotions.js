@@ -38,7 +38,6 @@ function _ajax($param) {
         async: true,
         success: $param.callback
     });
-
 }
 /**
  * autocomplete theo jquery-ui
@@ -174,6 +173,84 @@ function select_product(id) {
 }
 
 function save_promotion() {
+    var fd = new Date();
+    var td = new Date();
+    
+    if ($('tbody#list_promotion_dt tr').length == 0) {
+        $('.ajax-error-ct').html('Xin vui lòng chọn ít nhất 1 sản phẩm. Xin cảm ơn!').parent().fadeIn().delay(2000).fadeOut('slow');
+    }else if( $('#promotion_no').val() =='' ){
+        $('.ajax-error-ct').html('Xin vui lòng điền Promotion id').parent().fadeIn().delay(2000).fadeOut('slow');
+    }else if( $('#from_date').val()==''){
+            $('.ajax-error-ct').html('Xin vui lòng điền from date').parent().fadeIn().delay(2000).fadeOut('slow');
+    }else if( $('#to_date').val()==''){
+        $('.ajax-error-ct').html('Xin vui lòng điền to date').parent().fadeIn().delay(2000).fadeOut('slow');
+    }/*
+    else if( $('#from_date').val() != '' && $('#to_date').val() != '' ){
+      
+        fd = $('#from_date').val();
+        td = $('#to_date').val();
+        if( fd > td) {  $('.ajax-error-ct').html('From Date phải <= To date').parent().fadeIn().delay(2000).fadeOut('slow');  }
+    }*/
+    else {
+        $('.btn-save').attr("disabled","disabled");
+        $promotion_no = $('#promotion_no').val();
+        $promotion_type = $('#promotion_type').val();
+        $promotion_status = $('#promotion_status').val();
+        $channel_id = $('#channel_id').val();
+        $from_date = $('#from_date').val();
+        $to_date = $('#to_date').val();
+        $detail = [];
+        $('tbody#list_promotion_dt tr').each(function () {
+            $product_id = $(this).attr('data-id');
+            $per_funding = $(this).find("[name ='per_funding']").val();
+            if($per_funding==''){$per_funding=0;}
+            $funding =  $(this).find("[name ='funding']").val();
+            if($funding==''){$funding=0;}
+            $unit_sold =  $(this).find("[name ='unit_sold']").val();
+            if($unit_sold==''){$unit_sold=0;}
+            $amount_spent =  $(this).find("[name='amount_spent']").val();
+            if($amount_spent==''){$amount_spent=0;}
+            $revenue =$(this).find("[name='revenue']").val();
+            if($revenue==''){$revenue=0;}
+
+            $detail.push(
+                {product_id: $product_id, per_funding: $per_funding, funding: $funding,unit_sold:$unit_sold,amount_spent:$amount_spent,revenue:$revenue}
+            );
+        });
+        $data = {
+            'data': {
+                'promotion_no':$promotion_no,
+                'promotion_type':$promotion_type,
+                'promotion_status':$promotion_status,
+                'channel_id': $channel_id,
+                'from_date':$from_date,
+                'to_date':$to_date,
+                'detail_input': $detail
+            },
+            '_token': CSRF_TOKEN
+        };
+        var $param = {
+            'type': 'POST',
+            'url': '/Promotion',
+            'data': $data,
+            'callback': function (data) {
+                if (data == '0') {
+                    $('.ajax-error-ct').html('KHông thể lưu').parent().fadeIn().delay(1000).fadeOut('slow');
+                } else {
+                        $('.ajax-success-ct').html('Đã lưu thành công .').parent().fadeIn().delay(1000).fadeOut('slow');
+                    }
+                   // $('.btn-save').removeAttr("disabled");
+                 
+                }
+
+        };
+        _ajax($param);
+    }
+}
+
+
+// Update
+function update_promotion($id = "") {
     if ($('tbody#list_promotion_dt tr').length == 0) {
         $('.ajax-error-ct').html('Xin vui lòng chọn ít nhất 1 sản phẩm. Xin cảm ơn!').parent().fadeIn().delay(2000).fadeOut('slow');
     } else {
@@ -209,24 +286,22 @@ function save_promotion() {
             '_token': CSRF_TOKEN
         };
         var $param = {
-            'type': 'POST',
-            'url': '/Promotion',
+            'type': 'PUT',
+            'url': '/Promotion/'+ $id,
             'data': $data,
             'callback': function (data) {
                 if (data == '0') {
-                    $('.ajax-error-ct').html(data).parent().fadeIn().delay(1000).fadeOut('slow');
+                    $('.ajax-error-ct').html('Oops! This system is errors! please try again.').parent().fadeIn().delay(1000).fadeOut('slow');
                 } else {
-                        $('.ajax-success-ct').html('Đã lưu thành công .').parent().fadeIn().delay(1000).fadeOut('slow');
+                        $('.ajax-success-ct').html('Đã cập nhật thành công phiếu nhập.').parent().fadeIn().delay(1000).fadeOut('slow');
                     }
-                    $('.btn-save').removeAttr("disabled");
+                    //$('.btn-save').removeAttr("disabled");
                 }
-               
-
         };
         _ajax($param);
     }
-    //console.log( $data );
 }
+
 
 $(document).ready(function () {
     "use strict";// Thiết lập chế độ dòng lệnh nghiêm ngặt

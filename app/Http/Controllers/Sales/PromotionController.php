@@ -13,7 +13,6 @@ use Validator;
 use DateTime;
 use GuzzleHttp\Client;
 
-
 class PromotionController extends SysController
 {
     /**
@@ -62,19 +61,20 @@ class PromotionController extends SysController
           $brand = $request->input('brand');
         else $brand = 0;
          
-      $sql = " select pro.id, prodt.asin, prodt.sku, p.title,protype.name as promotion_type,prostatus.name as status,
+      $sql = " select pro.id , GetAsin(p.id,c.id,cs.id) as asin, p.product_sku as sku, p.title,protype.name as promotion_type,prostatus.name as status,
       pro.promotion_no, pro.from_date,pro.to_date, prodt.unit_sold, prodt.amount_spent,prodt.revenue,c.name as channel
       from sal_promotions pro 
       left join sal_promotions_dt prodt on pro.id = prodt.promotion_id
-      left join  prd_product p  on p.product_sku = prodt.sku
+      left join  prd_product p  on p.id = prodt.product_id
       left join sal_promotion_types protype on pro.Promotion_type = protype.id
       left join sal_promotion_status prostatus on pro.promotion_status = prostatus.id
       left join prd_brands on p.brand_id = prd_brands.id
       left join sal_channels c on pro.channel_id = c.id
+      left join sal_channel_stores cs on c.id = cs.sales_channel 
       where (1 = 1)  ";
   
       if($sku <>'') {$sqlFilter =   $sqlFilter .  " and (prodt.sku like '%". $sku. "%')";}
-      if($asin <>'') {$sqlFilter =   $sqlFilter .  " and (prodt.asin like '%". $asin . "%') ";}
+      if($asin <>'') {$sqlFilter =   $sqlFilter .  " and (GetAsin(p.id,c.id,cs.id) like '%". $asin . "%') ";}
       if($title <>''){$sqlFilter =   $sqlFilter .  " and (p.title like '%". $title . "%') ";}
       if($promotion_no <>''){ $sqlFilter =   $sqlFilter .  " and (pro.promotion_no like'%". $promotion_no. "%') ";}
       if($promotion_type <> 0 ){ $sqlFilter =   $sqlFilter .  " and (pro.promotion_type = " . $promotion_type ." )";}
@@ -82,7 +82,7 @@ class PromotionController extends SysController
       if($channel <> 0){ $sqlFilter =   $sqlFilter .  " and (c.id = " . $channel .")";}
       if($brand <> 0){ $sqlFilter =   $sqlFilter .  " and (prd_brands.id = " . $brand .")";}
   
-      $sqlOrder = " order by pro.from_date, pro.promotion_no,  prodt.asin";
+      $sqlOrder = " order by pro.from_date, pro.promotion_no ";
     
       $sql = $sql . $sqlFilter . $sqlOrder;
      
@@ -121,11 +121,11 @@ class PromotionController extends SysController
       $sql = " select id, name from sal_channels ";
       $dsChannels = DB::connection('mysql')->select($sql);
 
-      $sql = " select id, product_sku as sku from prd_product where company_id <>1
-      order by product_sku ";
-      $dsSkus = DB::connection('mysql')->select($sql);
+     // $sql = " select id, product_sku as sku from prd_product where company_id <>1
+     //  order by product_sku ";
+     // $dsSkus = DB::connection('mysql')->select($sql);
 
-      return view('SAL.Promotions.add',compact(['dsTypes','dsStatuses','dsChannels','dsSkus']));
+      return view('SAL.Promotions.add',compact(['dsTypes','dsStatuses','dsChannels']));
       
     }
 
@@ -186,12 +186,10 @@ class PromotionController extends SysController
       }
       catch(Exception $ex)
       {
-          //dd($ex.message());
           DB::rollback();
-          //return $ex.message();
-          return = 0;
+          echo ("0");
       }
-      
+     
     }
 
     /**
@@ -213,8 +211,17 @@ class PromotionController extends SysController
      */
     public function edit($id)
     {
-      $dsPromotion = Promotion::find($id);
-      return view('SAL.promotion.edit',compact(['id','dsPromotion']));
+      $sql = " select id, name from sal_promotion_types ";
+      $dsTypes = DB::connection('mysql')->select($sql);
+
+      $sql = " select id, name from sal_promotion_status ";
+      $dsStatuses = DB::connection('mysql')->select($sql);
+
+      $sql = " select id, name from sal_channels ";
+      $dsChannels = DB::connection('mysql')->select($sql);
+
+      $dsProm = Promotion::find($id);
+      return view('SAL.promotions.edit',compact(['id','dsProm','dsTypes','dsStatuses','dsChannels']));
     }
     /**
      * Update the specified resource in storage.

@@ -442,21 +442,25 @@ class SalesProductInforController extends SysController
       $Brand  = $request->input('brand');
 
       
-      $sql= "  select  pa.id , p.title, pa.sku,trim(pa.amz_asin) as amz_asin , trim(pa.ebay_infidealz) as ebay_infidealz, trim(pa.ebay_inc) as ebay_inc,
-       trim(pa.ebay_fitness) as ebay_fitness,trim(pa.wm_item_id) as wm_item_id ,trim(pa.wayfair_asin) as wayfair_asin , pa.local, pa.di  from prd_product p 
-      left join sal_propduct_asins pa on p.product_sku  = pa.sku
-      inner join prd_brands br on p.brand_id = br.id
-      where company_id <> 1 ";
+      // $sql= "  select  pa.id , p.title, pa.sku,trim(pa.amz_asin) as amz_asin , trim(pa.ebay_infidealz) as ebay_infidealz, trim(pa.ebay_inc) as ebay_inc,
+      //  trim(pa.ebay_fitness) as ebay_fitness,trim(pa.wm_item_id) as wm_item_id ,trim(pa.wayfair_asin) as wayfair_asin , pa.local, pa.di  from prd_product p 
+      // left join sal_propduct_asins pa on p.product_sku  = pa.sku
+      // inner join prd_brands br on p.brand_id = br.id
+      // where company_id <> 1 ";
 
-      $sql = $sql .   $sqlFilter ;
-      $Asins = DB::connection('mysql')->select($sql);
-      
+    $sql= "  select  p.id , p.title, p.product_sku as sku ,GetAsin(p.id,1,0) as amz_asin ,GetAsin(p.id,3,1) as ebay_infidealz, GetAsin(p.id,3,2) as ebay_inc,
+    GetAsin(p.id,3,3) as ebay_fitness,GetAsin(p.id,2,0) as wm_item_id , GetAsin(p.id,6,0) as wayfair_asin from prd_product p 
+    inner join prd_brands br on p.brand_id = br.id
+    where company_id <> 1 ";
 
-      $sql = " select 0 as id, 'All' as name union select id, brand_name as name from  prd_brands ";
-      $Brands = DB::connection('mysql')->select($sql);
+     $sql = $sql .   $sqlFilter ;
+     $Asins = DB::connection('mysql')->select($sql);
+
+     $sql = " select 0 as id, 'All' as name union select id, brand_name as name from  prd_brands ";
+     $Brands = DB::connection('mysql')->select($sql);
 
      //dd($Asins);
-       return view('SAL.SalesProductInfor.listnew',compact(['SalesProductInfors','Brands','Sku','Title','Brand','Asins']));
+     return view('SAL.SalesProductInfor.listnew',compact(['SalesProductInfors','Brands','Sku','Title','Brand','Asins']));
 
   }
   //----------------------------------------------------
@@ -660,9 +664,8 @@ class SalesProductInforController extends SysController
         $Brand  = $request->input('brand');
   
         
-        $sql= "  select  pa.id , p.title, pa.sku, pa.amz_asin, pa.ebay_infidealz, pa.ebay_inc, pa.ebay_fitness,
-        pa.wm_item_id , pa.wayfair_asin , pa.local, pa.di  from prd_product p 
-        left join sal_propduct_asins pa on p.product_sku  = pa.sku
+        $sql= "  select  p.id , p.title, p.product_sku as sku ,GetAsin(p.id,1,0) as amz_asin ,GetAsin(p.id,3,1) as ebay_infidealz, GetAsin(p.id,3,2) as ebay_inc,
+        GetAsin(p.id,3,3) as ebay_fitness,GetAsin(p.id,2,0) as wm_item_id , GetAsin(p.id,6,0) as wayfair_asin from prd_product p 
         inner join prd_brands br on p.brand_id = br.id
         where company_id <> 1 ";
   
@@ -1212,6 +1215,10 @@ class SalesProductInforController extends SysController
          $RowEnd = $spreadsheet->getActiveSheet()->getHighestRow();
          print_r ('last record of asin '.$RowEnd );
          print_r ( '<br>');
+         $ProductID = 0;
+         $ChannelID = 0;
+         $StoreID = 0;
+
          for($i=$RowBegin; $i <= $RowEnd; $i++)
          {
           $sku = trim($spreadsheet->getActiveSheet()->getCellByColumnAndRow(2,$i)->getValue(),' ');
@@ -1223,25 +1230,31 @@ class SalesProductInforController extends SysController
           $ebay_fitness= trim($spreadsheet->getActiveSheet()->getCellByColumnAndRow(8,$i)->getValue(),' ');
           $wm_item_id = trim($spreadsheet->getActiveSheet()->getCellByColumnAndRow(9,$i)->getValue(),' ');
           $wayfair_asin= trim($spreadsheet->getActiveSheet()->getCellByColumnAndRow(11,$i)->getValue(),' ');
-          $local= trim($spreadsheet->getActiveSheet()->getCellByColumnAndRow(12,$i)->getValue(),' ');
-          $di= trim($spreadsheet->getActiveSheet()->getCellByColumnAndRow(13,$i)->getValue(),' ');
-          
-          if($local == 'x' || $local =='X' || $local =='')  $local='NO';
-          else  $local='YES';
-
-          if($di == 'x' || $di =='X' || $di =='')  $di='NO';
-          else  $di='YES';
             
             if($sku<>'')
             {
-              $sql = " select count(id)as MyCount from  sal_propduct_asins
-              where sku = '$sku' ";
-              if(!$this->IsExist('mysql', $sql)) 
-              {
-                $sql= " insert into sal_propduct_asins(sku,amz_asin,ebay_infidealz,ebay_inc,ebay_fitness,wm_item_id,wayfair_asin,local,	di)
-                values('$sku','$amz_asin','$ebay_infidealz','$ebay_inc','$ebay_fitness','$wm_item_id','$wayfair_asin','$local','$di')";
-                DB::connection('mysql')->select($sql);
-              }
+              $sql = " select id from prd_product where 	product_sku = '$sku'"; 
+              $ds = DB::connection('mysql')->select($sql);
+              foreach( $ds as $d ) { $ProductID= $d->id; }
+
+              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              ['product_id'=>$ProductID,'market_place'=>1,'store_id'=>0,'asin'=>$amz_asin]);
+
+              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              ['product_id'=>$ProductID,'market_place'=>3,'store_id'=>1,'asin'=>$ebay_infidealz]);
+
+              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              ['product_id'=>$ProductID,'market_place'=>3,'store_id'=>2,'asin'=>$ebay_inc]);
+
+              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              ['product_id'=>$ProductID,'market_place'=>3,'store_id'=>3,'asin'=>$ebay_fitness]);
+
+              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              ['product_id'=>$ProductID,'market_place'=>2,'store_id'=>0,'asin'=>$wm_item_id]);
+
+              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              ['product_id'=>$ProductID,'market_place'=>6,'store_id'=>0,'asin'=>$wayfair_asin]);
+              
             }
           }//For
 
@@ -1275,13 +1288,15 @@ class SalesProductInforController extends SysController
            
            $AmountSpent =   $Funding  * $UnitSold ;
 
-           $Sku = '';
+           $ProductID = 0;
            $PromotionTypeID = 0;
            $StatusID = 0;
            $Channel= 0;
-           $sql = " select sku from sal_propduct_asins where amz_asin = '$AmzAsin' ";
+           $sql = " select p.id from prd_product p inner join sal_propduct_asins pa on p.id = pa.product_id
+           where pa.market_place =1 and pa.asin ='$AmzAsin' ";
+
            $ds = DB::connection('mysql')->select($sql);
-           foreach( $ds as $d ){$Sku = $d->sku;}
+           foreach( $ds as $d ){$ProductID  = $d->id;}
            
            if($PromotionTypeName =='Best Deals'){$PromotionTypeID = 1;}
            else if($PromotionTypeName =='Price Discount'){$PromotionTypeID = 2;} 
@@ -1308,11 +1323,7 @@ class SalesProductInforController extends SysController
               'from_date'=>$StartDate, 'to_date'=>$EndDate,'channel' =>$Channel ]);
             
               DB::table('sal_promotions_dt')->insert(
-              ['promotion_id' =>$id,'asin'=>$AmzAsin,'sku'=>$Sku,
-              'per_funding'=>$PerFunding, 'funding'=>$Funding,'unit_sold' =>$UnitSold,'amount_spent'=>$AmountSpent,'revenue'=>$Revenue ]);
-
-              print_r ('Unit Sold '. $UnitSold . ' amount spent' . $AmountSpent . ' revenue ' . $Revenue );
-              print_r ( '<br>');
+              ['promotion_id' =>$id,'product_id'=>$ProductID,'per_funding'=>$PerFunding, 'funding'=>$Funding,'unit_sold' =>$UnitSold,'amount_spent'=>$AmountSpent,'revenue'=>$Revenue ]);
             }
             else// master đã tồn tại
             {
@@ -1321,8 +1332,7 @@ class SalesProductInforController extends SysController
               foreach( $ds as $d ){ $id = $d->id;}
                     
               DB::table('sal_promotions_dt')->insert(
-              ['promotion_id' =>$id,'asin'=>$AmzAsin,'sku'=>$Sku,
-              'per_funding'=>$PerFunding, 'funding'=>$Funding,'unit_sold' =>$UnitSold,'amount_spent'=>$AmountSpent,'revenue'=>$Revenue ]);
+              ['promotion_id' =>$id,'product_id'=>$ProductID,'per_funding'=>$PerFunding, 'funding'=>$Funding,'unit_sold' =>$UnitSold,'amount_spent'=>$AmountSpent,'revenue'=>$Revenue ]);
                
             }
           }
