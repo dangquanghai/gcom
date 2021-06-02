@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('content')
   
-    <div class="col-md-8" style="padding-right:0px">
+    <div class="col-md-10" style="padding-right:0px">
     <div class="alert alert-dange ajax-error" role="alert">
             <span style="font-weight: bold; font-size: 18px;">Thông báo!</span><br>
             <div class="ajax-error-ct"></div>
@@ -67,7 +67,7 @@
                 </div>
         </div>
     </div>
-    <div class="col-md-8"  style="padding-right:0px" >
+    <div class="col-md-10"  style="padding-right:0px" >
             <div class="card card-primary">
                 <div class="card-header">
                     <h3 class="card-title"> Promotion Detail </h3>
@@ -112,21 +112,23 @@
                             $total=0;
                             $seq=1;
                         @endphp
-                        @foreach ($dsProm->PromotionDetail as $prom_dt)
+                        @foreach ($dsPromotionDT as $prom_dt)
                             <tr role="row" data-id="{{$prom_dt->product_id}}">
                                 <td class="text-center seq">{{ $seq }}</td>
-                                <td class="text-center" style="display:none;">{{$prom_dt->id}}</td>
+                                <td class="text-center" style="display:none;" >
+                                <input class="form-control" type="number" id="id_detail"   name="id_detail"  value="{{$prom_dt->id}}">
+                                </td>
                                 <td class="text-center" style="display:none;">{{$prom_dt->promotion_id}}</td>
                                 <td class="text-center"style="display:none;">{{$prom_dt->product_id}}</td>
-                                <td class="serial"></td>
-                                <td class="product_name">{{$prom_dt->product->title}}</td>
-                                <td> <input class="form-control" type="number" id="per_funding"   value="{{ $prom_dt->per_funding }}"></td>
-                                <td> <input class="form-control" type="number" id="funding" value="{{ $prom_dt->funding }}"> </td>
-                                <td> <input class="form-control" type="number" id="unit_sold"   value="{{$prom_dt->unit_sold }}"></td>
-                                <td> <input class="form-control" type="number" id="amount_spent" value="{{ $prom_dt->amount_spent }}"> </td>
-                                <td> <input class="form-control" type="number" id="revenue" value="{{ $prom_dt->revenue }}"></td>
+                                <td class="serial">{{$prom_dt->asin}}</td>
+                                <td >{{$prom_dt->title}}</td>
+                                <td> <input class="form-control" type="number" id="per_funding"   name="per_funding"  value="{{ $prom_dt->per_funding }}"></td>
+                                <td> <input class="form-control" type="number" id="funding"  name="funding" value="{{ $prom_dt->funding }}"> </td>
+                                <td> <input class="form-control" type="number" id="unit_sold"  name="unit_sold"  value="{{$prom_dt->unit_sold }}"></td>
+                                <td> <input class="form-control" type="number" id="amount_spent"  name="amount_spent" value="{{ $prom_dt->amount_spent }}"> </td>
+                                <td> <input class="form-control" type="number" id="revenue" name="revenue"  value="{{ $prom_dt->revenue }}"></td>
 
-                                <td class="text-center"><i title="Xóa dòng này" class="fa fa-trash del-pro-order"></i></td>
+                                <td class="form-control"><i title="Xóa dòng này" class="fa fa-trash del-pro-order"></i></td>
                             </tr>
                             @php
                                 $seq +=1;
@@ -136,7 +138,7 @@
                         <tfoot>
                             <tr>
                                 <td colspan="7" style="text-align: right;font-weight: bold;">Total:</td>
-                                <td colspan="1"><span id="total" class="total">0</span></td>
+                                <td colspan="1"><span id="total_revenue" class="total">0</span></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -154,8 +156,6 @@
 <script src="{{asset('js/Sales/Promotions.js') }}"></script>
 
 <script>
-
-var x= {!! $prom_dt->product->asin !!}
 $(document).ready(function() {
     $('.promotion_type').select2({
     theme: 'bootstrap4'

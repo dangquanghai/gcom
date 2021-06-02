@@ -156,26 +156,54 @@ function select_product(id) {
 /**
  * Xóa 1 dòng sản phẩm khỏi List
  */
- function del_pro_tran() {
+ function del_pro_detail() {
     $(document).on('click', '.del-pro-order', function () {
+        var  $id_detail=0;
         var conf = confirm('Are you sure?');
         if(conf)
         {
-            $(this).parents('tr').remove();
-            //calc_infor_import();
+            var $ParentObj = this.parentElement.parentElement;
+           
+           
+            $id_detail = $($ParentObj).find("[name ='id_detail']").val();
+           // console.log($id_detail);
             var seq = 0;
             $('tbody#list_products tr').each(function () {
                 seq += 1;
                 value_input = $(this).find('td.seq').text(seq);
+                $id_detail = $(this).find("[name ='id_detail']").val();
+               
             });
+           
+      
+            var $param = {
+                'type': 'POST',
+                'url': '/promotion.destroy.detail/'+ $id_detail,
+                'data': {
+                    '_token': CSRF_TOKEN
+                },
+                'callback': function (data) {
+                    if (data == '0') {
+                        $('.ajax-error-ct').html('Không thể xoas').parent().fadeIn().delay(1000).fadeOut('slow');
+                    } else {
+                            
+                            $('.ajax-success-ct').html('Đã xóa thành công .').parent().fadeIn().delay(1000).fadeOut('slow');
+                        }
+                     
+                     
+                    }
+    
+            };
+            _ajax($param);
+            $(this).parents('tr').remove();
+            CalSumPromotionDetail();
+          
         }
     });
 }
 
 function save_promotion() {
-    var fd = new Date();
-    var td = new Date();
-    
+   
     if ($('tbody#list_promotion_dt tr').length == 0) {
         $('.ajax-error-ct').html('Xin vui lòng chọn ít nhất 1 sản phẩm. Xin cảm ơn!').parent().fadeIn().delay(2000).fadeOut('slow');
     }else if( $('#promotion_no').val() =='' ){
@@ -184,13 +212,10 @@ function save_promotion() {
             $('.ajax-error-ct').html('Xin vui lòng điền from date').parent().fadeIn().delay(2000).fadeOut('slow');
     }else if( $('#to_date').val()==''){
         $('.ajax-error-ct').html('Xin vui lòng điền to date').parent().fadeIn().delay(2000).fadeOut('slow');
-    }/*
-    else if( $('#from_date').val() != '' && $('#to_date').val() != '' ){
-      
-        fd = $('#from_date').val();
-        td = $('#to_date').val();
-        if( fd > td) {  $('.ajax-error-ct').html('From Date phải <= To date').parent().fadeIn().delay(2000).fadeOut('slow');  }
-    }*/
+    }
+    else if( $('#from_date').val() != '' && $('#to_date').val() != '' &&  $('#from_date').val() > $('#to_date').val() ){
+        $('.ajax-error-ct').html('From Date phải <= To date').parent().fadeIn().delay(2000).fadeOut('slow');  
+    }
     else {
         $('.btn-save').attr("disabled","disabled");
         $promotion_no = $('#promotion_no').val();
@@ -248,12 +273,23 @@ function save_promotion() {
     }
 }
 
-
 // Update
 function update_promotion($id = "") {
     if ($('tbody#list_promotion_dt tr').length == 0) {
         $('.ajax-error-ct').html('Xin vui lòng chọn ít nhất 1 sản phẩm. Xin cảm ơn!').parent().fadeIn().delay(2000).fadeOut('slow');
-    } else {
+    }else if( $('#promotion_no').val() =='' ){
+        $('.ajax-error-ct').html('Xin vui lòng điền Promotion id').parent().fadeIn().delay(2000).fadeOut('slow');
+    }else if( $('#from_date').val()==''){
+            $('.ajax-error-ct').html('Xin vui lòng điền from date').parent().fadeIn().delay(2000).fadeOut('slow');
+    }else if( $('#to_date').val()==''){
+        $('.ajax-error-ct').html('Xin vui lòng điền to date').parent().fadeIn().delay(2000).fadeOut('slow');
+    }
+    else if( $('#from_date').val() != '' && $('#to_date').val() != '' &&  $('#from_date').val() > $('#to_date').val() ){
+        $('.ajax-error-ct').html('From Date phải <= To date').parent().fadeIn().delay(2000).fadeOut('slow');  
+    }
+    
+    
+    else {
         $('.btn-save').attr("disabled","disabled");
         $promotion_no = $('#promotion_no').val();
         $promotion_type = $('#promotion_type').val();
@@ -263,14 +299,17 @@ function update_promotion($id = "") {
         $to_date = $('#to_date').val();
         $detail = [];
         $('tbody#list_promotion_dt tr').each(function () {
+           
             $product_id = $(this).attr('data-id');
+            $id_detail = $(this).find("[name ='id_detail']").val();
+            if($id_detail==''){$id_detail=0;}
             $per_funding = $(this).find("[name ='per_funding']").val();
             $funding =  $(this).find("[name ='funding']").val();
             $unit_sold =  $(this).find("[name ='unit_sold']").val();
             $amount_spent =  $(this).find("[name='amount_spent']").val();
             $revenue =$(this).find("[name='revenue']").val();
             $detail.push(
-                {product_id: $product_id, per_funding: $per_funding, funding: $funding,unit_sold:$unit_sold,amount_spent:$amount_spent,revenue:$revenue}
+                {id:$id_detail,product_id: $product_id, per_funding: $per_funding, funding: $funding,unit_sold:$unit_sold,amount_spent:$amount_spent,revenue:$revenue}
             );
         });
         $data = {
@@ -302,12 +341,35 @@ function update_promotion($id = "") {
     }
 }
 
+$(document).on('ready ajaxComplete', function () {
+    CalSumPromotionDetail();
+});
+function CalSumPromotionDetail() {
+    $total_revenue = 0;
+    $revenue =0;
+    $('tbody#list_promotion_dt tr').each(function () {
+        $product_id = $(this).attr('data-id');
+        $revenue = parseInt($(this).find("[name ='revenue']").val());
+        $total_revenue +=  $revenue;
+       
+    });
+   // console.log($total_revenue);
+    $('#total_revenue').text(encode_currency_format($total_revenue));
+}
+
+function encode_currency_format(obs) {
+    return obs.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+$(document).on('change', '.revenue', function() {
+    CalSumPromotionDetail();
+});
 
 $(document).ready(function () {
     "use strict";// Thiết lập chế độ dòng lệnh nghiêm ngặt
     var gChannelID = 2;
     search_pro_autocomplete();
-    del_pro_tran();
+    del_pro_detail();
     $(document).on('change','#channel_id',function(){
         gChannelID =   $(this).val();
         //console.log(gChannelID);

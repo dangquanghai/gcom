@@ -48,13 +48,13 @@ class TransactionControler extends SysController
         else
           $VendorID = 0;
 
-        $sql = " select t.id, t.no,t.the_date,v.vendor_name,t.description, sum(td.amount) as amount
+        $sql = " select t.id, t.no,t.the_date,v.name,t.description, sum(td.amount) as amount
         from inv_transactions t inner join inv_transaction_dt td
         on t.id = td.transaction_id
         left join pu_vendors v on t.vendor_id = v.id
         where date(t.the_date) >= '$FromDate' and date(t.the_date) <= '$ToDate' ";
 
-        $sqlGroupBy = " group by t.id,t.no,t.the_date,v.vendor_name,t.description ";
+        $sqlGroupBy = " group by t.id,t.no,t.the_date,v.name,t.description ";
 
         if( $No<>''){ $sql = $sql . " and t.no like '%$No%'" ;}
         if( $VendorID<> 0 ){ $sql = $sql . " and v.id = $VendorID " ;}

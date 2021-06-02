@@ -77,7 +77,7 @@
                        <a href="{{route('Transaction.show',$t->id)}}"> {{$t->no}} </a>
                     </td>
                     <td>{{$t->the_date}}</td>
-                    <td>{{$t->vendor_name}}</td>
+                    <td>{{$t->name}}</td>
                     <td>{{$t->description}}</td>
                     <td>{{$t->amount}}</td>
                     <td>

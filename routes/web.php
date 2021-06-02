@@ -139,6 +139,8 @@ Route::post('/SalesProductInforController.Sales.Promotion.Management','Sales\Pro
 
 
 Route::resource('/Promotion','Sales\PromotionController');
+Route::post('/promotion.destroy.detail/{DetailID}','Sales\PromotionController@destroyPromotionDetail')->name('promotion.destroy.detail');
+
 
 //Route::get('/sal.product.infor','Sales\SalesProductInforController@LoadSalesProductListDefault')->name('sal.product.infor');
 //Route::post('/sal.product.infor','Sales\SalesProductInforController@LoadSalesProductList')->name('sal.product.infor');

@@ -442,11 +442,7 @@ class SalesProductInforController extends SysController
       $Brand  = $request->input('brand');
 
       
-      // $sql= "  select  pa.id , p.title, pa.sku,trim(pa.amz_asin) as amz_asin , trim(pa.ebay_infidealz) as ebay_infidealz, trim(pa.ebay_inc) as ebay_inc,
-      //  trim(pa.ebay_fitness) as ebay_fitness,trim(pa.wm_item_id) as wm_item_id ,trim(pa.wayfair_asin) as wayfair_asin , pa.local, pa.di  from prd_product p 
-      // left join sal_propduct_asins pa on p.product_sku  = pa.sku
-      // inner join prd_brands br on p.brand_id = br.id
-      // where company_id <> 1 ";
+    
 
     $sql= "  select  p.id , p.title, p.product_sku as sku ,GetAsin(p.id,1,0) as amz_asin ,GetAsin(p.id,3,1) as ebay_infidealz, GetAsin(p.id,3,2) as ebay_inc,
     GetAsin(p.id,3,3) as ebay_fitness,GetAsin(p.id,2,0) as wm_item_id , GetAsin(p.id,6,0) as wayfair_asin from prd_product p 
@@ -917,7 +913,7 @@ class SalesProductInforController extends SysController
          $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
 
           $RowBegin = 5;
-          $reader->setLoadSheetsOnly(["produtcs", "produtcs"]);
+          $reader->setLoadSheetsOnly(["product", "product"]);
           $spreadsheet = $reader->load($file);
           $RowEnd = $spreadsheet->getActiveSheet()->getHighestRow();
           print_r ('last record of produtcs '.$RowEnd );
@@ -1237,32 +1233,32 @@ class SalesProductInforController extends SysController
               $ds = DB::connection('mysql')->select($sql);
               foreach( $ds as $d ) { $ProductID= $d->id; }
 
-              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              DB::connection('mysql')->table('sal_product_asins')->insert(
               ['product_id'=>$ProductID,'market_place'=>1,'store_id'=>0,'asin'=>$amz_asin]);
 
-              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              DB::connection('mysql')->table('sal_product_asins')->insert(
               ['product_id'=>$ProductID,'market_place'=>3,'store_id'=>1,'asin'=>$ebay_infidealz]);
 
-              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              DB::connection('mysql')->table('sal_product_asins')->insert(
               ['product_id'=>$ProductID,'market_place'=>3,'store_id'=>2,'asin'=>$ebay_inc]);
 
-              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              DB::connection('mysql')->table('sal_product_asins')->insert(
               ['product_id'=>$ProductID,'market_place'=>3,'store_id'=>3,'asin'=>$ebay_fitness]);
 
-              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              DB::connection('mysql')->table('sal_product_asins')->insert(
               ['product_id'=>$ProductID,'market_place'=>2,'store_id'=>0,'asin'=>$wm_item_id]);
 
-              DB::connection('mysql')->table('sal_propduct_asins')->insert(
+              DB::connection('mysql')->table('sal_product_asins')->insert(
               ['product_id'=>$ProductID,'market_place'=>6,'store_id'=>0,'asin'=>$wayfair_asin]);
               
             }
           }//For
 
           $RowBegin = 3;
-          $reader->setLoadSheetsOnly(["promotiontracking", "promotiontracking"]);
+          $reader->setLoadSheetsOnly(["promotion", "promotion"]);
           $spreadsheet = $reader->load($file);
           $RowEnd = $spreadsheet->getActiveSheet()->getHighestRow();
-          print_r ('last record of promotiontracking '.$RowEnd );
+          print_r ('last record of promotion '.$RowEnd );
           print_r ( '<br>');
           for($i=$RowBegin; $i <= $RowEnd; $i++)
           {
@@ -1292,7 +1288,7 @@ class SalesProductInforController extends SysController
            $PromotionTypeID = 0;
            $StatusID = 0;
            $Channel= 0;
-           $sql = " select p.id from prd_product p inner join sal_propduct_asins pa on p.id = pa.product_id
+           $sql = " select p.id from prd_product p inner join sal_product_asins pa on p.id = pa.product_id
            where pa.market_place =1 and pa.asin ='$AmzAsin' ";
 
            $ds = DB::connection('mysql')->select($sql);
@@ -1320,7 +1316,7 @@ class SalesProductInforController extends SysController
             {
               $id = DB::table('sal_promotions')->insertGetId(
               [ 'promotion_no' => $PromotionNo,'Promotion_type'=>$PromotionTypeID,'promotion_status'=>$StatusID,
-              'from_date'=>$StartDate, 'to_date'=>$EndDate,'channel' =>$Channel ]);
+              'from_date'=>$StartDate, 'to_date'=>$EndDate,'channel_id' =>$Channel ]);
             
               DB::table('sal_promotions_dt')->insert(
               ['promotion_id' =>$id,'product_id'=>$ProductID,'per_funding'=>$PerFunding, 'funding'=>$Funding,'unit_sold' =>$UnitSold,'amount_spent'=>$AmountSpent,'revenue'=>$Revenue ]);

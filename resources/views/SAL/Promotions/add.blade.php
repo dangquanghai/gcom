@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('content')
   
-    <div class="col-md-8" style="padding-right:0px">
+    <div class="col-md-10" style="padding-right:0px">
 
         <div class="card card-primary">
             <div class="card-header">
@@ -67,7 +67,7 @@
                 </div>
         </div>
     </div>
-    <div class="col-md-8"  style="padding-right:0px" >
+    <div class="col-md-10"  style="padding-right:0px" >
             <div class="card card-primary">
                 <div class="card-header">
                     <h3 class="card-title"> Promotion Detail </h3>
@@ -99,12 +99,12 @@
                                 <th style="display:none;">Product ID</th>
                                 <th  style="width:40px;">ASIN </th>
                                 <th style="width:150px;">Product Name </th>
-                                <th  style="width:40px;">%Funding</th>
-                                <th  style="width:40px;">Funding</th>
-                                <th  style="width:40px;">Unit Sold</th>
-                                <th style="width:40px;">Amoutn Spend</th>
-                                <th  style="width:40px;">Revenue</th>
-                                <th  style="width:20px;">Action</th>
+                                <th  style="width:50px;">%Funding</th>
+                                <th  style="width:50px;">Funding</th>
+                                <th  style="width:50px;">Unit Sold</th>
+                                <th style="width:50px;"> Spend</th>
+                                <th  style="width:50px;">Revenue</th>
+                                <th  style="width:40px;">Action</th>
                             </tr>
                         </thead>
                         <tbody class="list_promotion_dt" id="list_promotion_dt">
@@ -112,7 +112,7 @@
                         <tfoot>
                             <tr>
                                 <td colspan="7" style="text-align: right;font-weight: bold;">Total:</td>
-                                <td colspan="1"><span id="total" class="total">0</span></td>
+                                <td colspan="1"><span id="total_revenue" class="total">0</span></td>
                             </tr>
                         </tfoot>
                     </table>

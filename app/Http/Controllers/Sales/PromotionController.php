@@ -27,7 +27,7 @@ class PromotionController extends SysController
         $to_date  =  date("Y-m-d");
         if(date("d")==1 ){ $to_date = $this->MoveDate( $to_date,1);}
   
-        $sqlFilter =  " and (pro.from_date  <='". $to_date . "' and pro.to_date >= '" . $from_date . "') ";
+        // $sqlFilter =  " and (pro.from_date  <='". $to_date . "' and pro.to_date >= '" . $from_date . "') ";
       
         if($request->has('sku'))
           $sku = $request->input('sku');
@@ -61,8 +61,9 @@ class PromotionController extends SysController
           $brand = $request->input('brand');
         else $brand = 0;
          
-      $sql = " select pro.id , GetAsin(p.id,c.id,cs.id) as asin, p.product_sku as sku, p.title,protype.name as promotion_type,prostatus.name as status,
-      pro.promotion_no, pro.from_date,pro.to_date, prodt.unit_sold, prodt.amount_spent,prodt.revenue,c.name as channel
+      $sql = " select pro.id , GetAsin(p.id,c.id,cs.id) as asin, p.product_sku as sku, p.title, protype.name as promotion_type,
+      prostatus.name as status, pro.promotion_no, pro.from_date,pro.to_date, prodt.unit_sold, prodt.amount_spent,
+      prodt.revenue,c.name as channel
       from sal_promotions pro 
       left join sal_promotions_dt prodt on pro.id = prodt.promotion_id
       left join  prd_product p  on p.id = prodt.product_id
@@ -85,8 +86,10 @@ class PromotionController extends SysController
       $sqlOrder = " order by pro.from_date, pro.promotion_no ";
     
       $sql = $sql . $sqlFilter . $sqlOrder;
+     // dd($sql);
      
       $dsPromotions = DB::connection('mysql')->select($sql);
+      //dd($dsPromotions);
      
       $sql = " select 0 as id, 'All' as name union  select id, name from sal_promotion_status ";
       $PromotionStatuses = DB::connection('mysql')->select($sql);
@@ -137,7 +140,7 @@ class PromotionController extends SysController
      */
     public function store(Request $request)
     {
-      //dd($request->data);
+     
       $data = 0;
       try
       {
@@ -176,6 +179,7 @@ class PromotionController extends SysController
                   $pro_details->promotion_id =$pro->id;
                   $pro_details->product_id = $product_id;
                   $pro_details->per_funding = $per_funding ;
+                  $pro_details->funding = $funding ;
                   $pro_details->unit_sold = $unit_sold;
                   $pro_details->amount_spent = $amount_spent;
                   $pro_details->revenue = $revenue;
@@ -221,7 +225,18 @@ class PromotionController extends SysController
       $dsChannels = DB::connection('mysql')->select($sql);
 
       $dsProm = Promotion::find($id);
-      return view('SAL.promotions.edit',compact(['id','dsProm','dsTypes','dsStatuses','dsChannels']));
+
+      $sql = " select pdt.id, pdt.promotion_id,pdt.product_id, pas.asin, p.title,
+      per_funding, funding,	unit_sold,amount_spent,revenue
+      from sal_promotions_dt pdt 
+      inner join prd_product p on pdt.product_id = p.id
+      inner join sal_product_asins pas on p.id = pas.product_id
+      where pas.market_place = 1 and pas.store_id = 0  and  pdt.promotion_id = $id ";
+      
+      $dsPromotionDT = DB::connection('mysql')->select($sql);
+
+     
+      return view('SAL.promotions.edit',compact(['id','dsProm','dsTypes','dsStatuses','dsChannels','dsPromotionDT']));
     }
     /**
      * Update the specified resource in storage.
@@ -232,16 +247,97 @@ class PromotionController extends SysController
      */
     public function update(Request $request, $id)
     {
-        //
+     //dd($id);
+    
+     $data = $request->data;
+     $promotion_no = $data['promotion_no'];
+     $promotion_type = $data['promotion_type'];
+     $promotion_status = $data['promotion_status'];
+     $channel_id = $data['channel_id'];
+     $from_date = $data['from_date'];
+     $to_date = $data['to_date'];
+     $details = $data['detail_input'];
+
+     $pro = Promotion::find($id);
+   
+      try
+      {
+          DB::beginTransaction();
+        
+          $pro->promotion_no = $promotion_no;
+          $pro->promotion_type = $promotion_type;
+          $pro->promotion_status = $promotion_status;
+          $pro->channel_id =$channel_id;
+          $pro->from_date = $from_date;
+          $pro->to_date = $to_date;
+          $pro->save();
+
+          if(count($details)>0 && $pro->promotion_no)
+          {
+              foreach($details as $item)
+              {
+                $idDetail = 0;
+
+                $idDetail = $item['id']??0;
+                  
+                $product_id = $item['product_id'];
+                $per_funding = $item['per_funding'];
+                $funding = $item['funding'];
+                $unit_sold = $item['unit_sold'];
+                $amount_spent = $item['amount_spent'];
+                $revenue = $item['revenue'];
+
+                if($idDetail >0 )
+                  $pro_details =  PromotionDetail::find($idDetail);
+                else
+                  $pro_details =   new PromotionDetail();
+
+                //dd($idDetail);
+                $pro_details->promotion_id = $id;
+                $pro_details->product_id = $product_id;
+                $pro_details->per_funding = $per_funding ;
+                $pro_details->funding = $funding;
+                $pro_details->unit_sold = $unit_sold;
+                $pro_details->amount_spent = $amount_spent;
+                $pro_details->revenue = $revenue;
+                $pro_details->save();
+                
+              }
+          }
+          DB::commit();
+      }
+      catch(Exception $ex)
+      {
+          DB::rollback();
+          echo ("0");
+      }
+
     }
     /**
      * Remove the specified resource from storage.
-     *
+     *s
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
         //
+    }
+
+    public function destroyPromotionDetail($idDetail)
+    {
+   
+      try
+      {
+        DB::beginTransaction();
+        $sql = " delete from sal_promotions_DT where id =$idDetail  ";
+        DB::connection('mysql')->select($sql);
+        DB::commit();
+      }   
+      catch(Exception $ex)
+      {
+          DB::rollback();
+          echo ("0");
+      }
     }
 }

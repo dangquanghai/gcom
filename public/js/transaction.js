@@ -170,6 +170,7 @@ function calc_infor_import() {
 
     $('#total').text(encode_currency_format($total_money));
 }
+
 //khi thay doi số luong thi tinh lai tien
 $(document).on('change', '.quantity_product', function() {
     calc_infor_import();
