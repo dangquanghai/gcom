@@ -121,7 +121,7 @@ class PromotionController extends SysController
       $sql = " select id, name from sal_promotion_status ";
       $dsStatuses = DB::connection('mysql')->select($sql);
 
-      $sql = " select id, name from sal_channels ";
+      $sql = " select id, name from sal_channels where  market_place   = 1 ";
       $dsChannels = DB::connection('mysql')->select($sql);
 
      // $sql = " select id, product_sku as sku from prd_product where company_id <>1
@@ -221,7 +221,7 @@ class PromotionController extends SysController
       $sql = " select id, name from sal_promotion_status ";
       $dsStatuses = DB::connection('mysql')->select($sql);
 
-      $sql = " select id, name from sal_channels ";
+      $sql = " select id, name from sal_channels where  market_place   = 1 ";
       $dsChannels = DB::connection('mysql')->select($sql);
 
       $dsProm = Promotion::find($id);
