@@ -128,7 +128,7 @@
                                 <td> <input class="form-control" type="number" id="amount_spent"  name="amount_spent" value="{{ $prom_dt->amount_spent }}"> </td>
                                 <td> <input class="form-control" type="number" id="revenue" name="revenue"  value="{{ $prom_dt->revenue }}"></td>
 
-                                <td class="form-control"><i title="Xóa dòng này" class="fa fa-trash del-pro-order"></i></td>
+                                <td class="text-center"><i title="Xóa dòng này" class="fa fa-trash del-pro-order"></i></td>
                             </tr>
                             @php
                                 $seq +=1;

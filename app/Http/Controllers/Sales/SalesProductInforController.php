@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Sales;
 use Illuminate\Http\Request;
-use App\Http\Controllers\SysController;
+use App\Http\Controllers\SYS\SysController;
 use DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -11,6 +11,11 @@ use App\Models\Sales\SalesProductInfor;
 use Validator;
 use DateTime;
 use GuzzleHttp\Client;
+
+
+
+
+
 class SalesProductInforController extends SysController
 {
     /**
@@ -1268,7 +1273,9 @@ class SalesProductInforController extends SysController
            $StatusName = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(4,$i)->getValue();
            $PerFunding = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5,$i)->getValue();
            $StartDate = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(6,$i)->getFormattedValue();
+           $StartDate = date("Y-m-d", strtotime( $StartDate));  
            $EndDate = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(7,$i)->getFormattedValue();
+           $EndDate = date("Y-m-d", strtotime( $EndDate));  
            $Funding = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(8,$i)->getValue();
            $UnitSold = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(10,$i)->getValue();
            $AmountSpent= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(11,$i)->getFormattedValue();
@@ -1334,7 +1341,314 @@ class SalesProductInforController extends SysController
           }
           
         }//For
+
         
+        $RowBegin = 3;
+        $reader->setLoadSheetsOnly(["order", "order"]);
+        $spreadsheet = $reader->load($file);
+        $RowEnd = $spreadsheet->getActiveSheet()->getHighestRow();
+        print_r ('last record of order '.$RowEnd );
+        print_r ( '<br>');
+        $channel_id=0;
+        $store_id=0;
+        $product_id=0;
+        $id = 0;
+        for($i=$RowBegin; $i <= $RowEnd; $i++)
+        {
+          $order_date = date('Y-m-d', time());
+          $store_name = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1,$i)->getValue();
+          $store_order_id	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(3,$i)->getValue();
+          $order_status	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(4,$i)->getValue();
+          $order_date	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5,$i)->getFormattedValue();
+          //$order_date	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5,$i)->getValue();
+
+          $order_date = date("Y-m-d h:i:s", strtotime( $order_date));  
+         // print_r('The order date is: ' . $order_date	);
+         // print_r('<br>'	);
+
+        // $sql = " insert into test_ne(the_date) values('$order_date')";
+        // print_r('sql is ' .$sql 	);
+        // print_r('<br>'	);
+         DB::connection('mysql')->select ($sql);
+
+
+          $shipping_address	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(6,$i)->getValue();
+          $shipto_state	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(7,$i)->getValue();
+          $shipto_zipcode	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(8,$i)->getValue();
+          $product_sku =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(9,$i)->getValue();
+          $quantity= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(12,$i)->getValue();
+          if($quantity=='') $quantity = 0;
+          $revenue= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(13,$i)->getValue();
+          if($revenue=='') $revenue = 0;
+
+          $product_sku = $this->left($product_sku,4);
+
+          if($revenue== 0 ||  $quantity==0 )
+            $price =0;
+          elseif( $quantity>0)
+            $price = $revenue/ $quantity;
+          else
+            $price =0;
+
+          switch ( $store_name) {
+            case 'Amazon - Infideals - MFN':
+              $channel_id	= 9;
+              break;
+            case 'Amazon - Infideals - AFN':
+              $channel_id	= 10;
+              break;
+            case 'AVC DS':
+              $channel_id	= 2;
+              break;
+            case 'Walmart DSV':
+              $channel_id	= 4;
+              break;
+            case 'Walmart MKP':
+              $channel_id	= 5;
+              break;
+            case 'Wayfair':
+              $channel_id	= 12;
+              break;
+          }
+
+          $sql = "select id from prd_product where product_sku = '$product_sku' ";
+          $ds= DB::connection('mysql')->select($sql);
+          foreach($ds as $d)  { $product_id = $d->id;}
+          $id =0;
+          if($channel_id == 9 ||$channel_id ==10 ) // ghi vào sal_amz_seller_orders
+           {
+            // Kiểm tra xem đã có order đó trong database chưa
+            $sql = " select id  from sal_amz_seller_orders where order_no = '$store_order_id' 
+            and channel_id  = $channel_id  ";
+            $ds= DB::connection('mysql')->select($sql);
+
+            foreach($ds as $d)  {  $id = $this->iif(is_null($d->id),0,$d->id); }
+
+            if( $id == 0 ){// chua ton tai order nay trong database  
+             
+             // insert to master
+              $id = DB::connection('mysql')->table('sal_amz_seller_orders')->insertGetId(
+              ['order_no'=>$store_order_id,'order_date'=>$order_date,'channel_id'=>$channel_id,'status_name'=>$order_status, 
+              'ship_to_address'=>$shipping_address,'ship_to_state'=>$shipto_state,'ship_to_zip'=>$shipto_zipcode]);
+
+              // Kiem tra trong detail cua phieu nau da co hang nay chua
+              $sql = " select id as MyCount from sal_amz_seller_order_dt where amz_order_id  = $id and product_id = $product_id ";
+              if(!$this->IsExist('mysql',$sql)){// chua ton tai detail product nay
+                // insert to detail
+                DB::connection('mysql')->table('sal_amz_seller_order_dt')->insert(
+                ['amz_order_id'=>$id,'product_id'=>$product_id,'quantity'=>$quantity,
+                'price'=>$price,'amount'=>$revenue]);
+              }
+            }else{// da ton tai master
+               // Kiem tra trong detail cua phieu nau da co hang nay chua
+               $sql = " select id as MyCount from sal_amz_seller_order_dt where amz_order_id  = $id and product_id = $product_id ";
+               if(!$this->IsExist('mysql',$sql)){// chua ton tai detail product nay
+                 // insert to detail
+                 DB::connection('mysql')->table('sal_amz_seller_order_dt')->insertGetId(
+                 ['amz_order_id'=>$id,'product_id'=>$product_id,'quantity'=>$quantity,
+                 'price'=>$price,'amount'=>$revenue]);
+               }
+
+            }
+          }// end if channel = 9 or 10
+          elseif($channel_id<=3 ) // avc
+          {
+            // Kiểm tra xem đã có order đó trong database chưa
+            $id =0;
+            $sql = " select id  from sal_amz_vendor_orders where order_no = '$store_order_id' 
+            and channel_id  = $channel_id  ";
+            $ds= DB::connection('mysql')->select($sql);
+
+            foreach($ds as $d)  {  $id = $this->iif(is_null($d->id),0,$d->id); }
+
+            if( $id == 0 ){// chua ton tai order nay trong database  
+             
+             // insert to master
+              $id = DB::connection('mysql')->table('sal_amz_vendor_orders')->insertGetId(
+              ['order_no'=>$store_order_id,'order_date'=>$order_date,'channel_id'=>$channel_id,'status_name'=>$order_status, 
+              'ship_to_address'=>$shipping_address,'ship_to_state'=>$shipto_state,'ship_to_zip'=>$shipto_zipcode]);
+
+              // Kiem tra trong detail cua phieu nau da co hang nay chua
+              $sql = " select id as MyCount from sal_amz_vendor_order_dt where amz_order_id  = $id and product_id = $product_id ";
+              if(!$this->IsExist('mysql',$sql)){// chua ton tai detail product nay
+                // insert to detail
+                 DB::connection('mysql')->table('sal_amz_vendor_order_dt')->insert(
+                ['amz_order_id'=>$id ,'product_id'=>$product_id,'quantity'=>$quantity,
+                'price'=>$price,'amount'=>$revenue]);
+              }
+
+            }else{// da ton tai master
+               // Kiem tra trong detail cua phieu nau da co hang nay chua
+               $sql = " select id as MyCount from sal_amz_vendor_order_dt where amz_order_id  = $id and product_id = $product_id ";
+               if(!$this->IsExist('mysql',$sql)){// chua ton tai detail product nay
+                 // insert to detail
+                 DB::connection('mysql')->table('sal_amz_vendor_order_dt')->insert(
+                 ['amz_order_id'=>$id,'product_id'=>$product_id,'quantity'=>$quantity,
+                 'price'=>$price,'amount'=>$revenue]);
+               }
+
+            }
+          }
+          else// Các kênh còn lại không phải của amazon
+          {
+             // Kiểm tra xem đã có order đó trong database chưas
+             $sql = " select id  from sal_orders where order_no = '$store_order_id' 
+             and channel_id  = $channel_id  and store_id =$store_id ";
+             $ds= DB::connection('mysql')->select($sql);
+ 
+             foreach($ds as $d)  {  $id = $this->iif(is_null($d->id),0,$d->id); }
+ 
+             if( $id == 0 ){// chua ton tai order nay trong database  
+              
+              // insert to master
+               $id = DB::connection('mysql')->table('sal_orders')->insertGetId(
+               ['order_no'=>$store_order_id,'order_date'=>$order_date,'channel_id'=>$channel_id,'store_id'=>$store_id,
+               'status_name'=>$order_status, 
+               'ship_to_address'=>$shipping_address,'ship_to_state'=>$shipto_state,'ship_to_zip'=>$shipto_zipcode]);
+ 
+               // Kiem tra trong detail cua phieu nau da co hang nay chua
+               $sql = " select id as MyCount from sal_order_dt where order_id   = $id and product_id = $product_id  ";
+               if(!$this->IsExist('mysql',$sql)){// chua ton tai detail product nay
+                 // insert to detail
+                 DB::connection('mysql')->table('sal_order_dt')->insert(
+                 ['order_id'=>$id,'product_id'=>$product_id,'quantity'=>$quantity,
+                 'price'=>$price,'amount'=>$revenue]);
+               }
+ 
+             }else{// da ton tai master
+                // Kiem tra trong detail cua phieu nau da co hang nay chua
+                $sql = " select id as MyCount from sal_order_dt where order_id   = $id and product_id = $product_id ";
+                if(!$this->IsExist('mysql',$sql)){// chua ton tai detail product nay
+                  // insert to detail
+                  DB::connection('mysql')->table('sal_order_dt')->insert(
+                  ['order_id'=>$id,'product_id'=>$product_id,'quantity'=>$quantity,
+                  'price'=>$price,'amount'=>$revenue]);
+                }
+ 
+             }
+
+          }//end if Phân bổ vào các bảng dựa vào sales channel
+
+        }// for
+  
+        $RowBegin = 3;
+        $reader->setLoadSheetsOnly(["avcds_order", "avcds_order"]);
+        $spreadsheet = $reader->load($file);
+        $RowEnd = $spreadsheet->getActiveSheet()->getHighestRow();
+        print_r ('last record of avcds_order '.$RowEnd );
+        print_r ( '<br>');
+        $channel_id=2;
+        $store_id=0;
+        $product_id=0;
+        $id = 0;
+        for($i=$RowBegin; $i <= $RowEnd; $i++)
+        {
+          $store_order_id = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1,$i)->getValue();
+          $order_status	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(3,$i)->getValue();
+          $WarehouseCode = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(4,$i)->getValue();
+         // $order_date	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5,$i)->getFormattedValue();
+          $order_date	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5,$i)->getValue();
+          $order_date = date("Y-m-d h:i:s", strtotime($order_date));  
+
+          $RequiredShipDate = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(6,$i)->getValue();
+          $RequiredShipDate = date("Y-m-d h:i:s", strtotime($RequiredShipDate));  
+          $ShipMethod = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(7,$i)->getValue();
+          $ShipMethodCode= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(8,$i)->getValue();
+          $ShipToName= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(9,$i)->getValue();
+          $shipping_address= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(10,$i)->getValue();
+
+
+          $ship_to_city = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(13,$i)->getValue();
+          $shipto_state	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(14,$i)->getValue();
+          $shipto_zipcode= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(15,$i)->getValue();
+
+          $PhoneNumber= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(17,$i)->getValue();
+          $ItemCost	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(19,$i)->getValue();
+          $SKU	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(20,$i)->getValue();
+          $SKU = $this->left($SKU,4);
+          $product_id =$this->GetProductIdFromSku($SKU);
+          $ASIN	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(21,$i)->getValue();
+          $ItemQuantity	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(23,$i)->getValue();
+         // $Commission= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(25,$i)->getValue();
+          $TrackingID= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(26,$i)->getValue();
+          $ShippedDate= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(27,$i)->getValue();
+          $ShippedDate = date("Y-m-d h:i:s", strtotime($ShippedDate));  
+
+           // Kiểm tra xem đã có order đó trong database chưa
+           $id =0;
+           $sql = " select id  from sal_amz_vendor_orders where order_no = '$store_order_id' 
+           and channel_id  = $channel_id  ";
+           $ds= DB::connection('mysql')->select($sql);
+
+           foreach($ds as $d)  {  $id = $this->iif(is_null($d->id),0,$d->id); }
+
+           if( $id == 0 ){// chua ton tai order nay trong database  
+            
+            // insert to master
+             $id = DB::connection('mysql')->table('sal_amz_vendor_orders')->insertGetId(
+             ['order_no'=>$store_order_id,'order_date'=>$order_date,'channel_id'=>$channel_id,
+             'status_name'=>$order_status, 'wh_code'=>$WarehouseCode,'cus_name'=> $ShipToName,
+             'ship_to_phone'=> $PhoneNumber,'ship_to_city'=>$ship_to_city,
+             'ship_to_address'=>$shipping_address,'ship_to_state'=>$shipto_state,'ship_to_zip'=>$shipto_zipcode,
+             'must_ship_date'=>$RequiredShipDate,'shiped_date'=>$ShippedDate]);
+
+             // Kiem tra trong detail cua phieu nau da co hang nay chua
+             $sql = " select id as MyCount from sal_amz_vendor_order_dt where amz_order_id  = $id and product_id = $product_id ";
+             if(!$this->IsExist('mysql',$sql)){// chua ton tai detail product nay
+               // insert to detail
+                DB::connection('mysql')->table('sal_amz_vendor_order_dt')->insert(
+               ['amz_order_id'=>$id ,'product_id'=>$product_id,'quantity'=>$ItemQuantity,
+               'price'=>$ItemCost,'amount'=>$ItemCost * $ItemQuantity,'tracking_id'=> $TrackingID ]);
+             }
+
+           }else{// da ton tai master
+              // Kiem tra trong detail cua phieu nau da co hang nay chua
+              $sql = " select id as MyCount from sal_amz_vendor_order_dt where amz_order_id  = $id and product_id = $product_id ";
+              if(!$this->IsExist('mysql',$sql)){// chua ton tai detail product nay
+                // insert to detail
+                DB::connection('mysql')->table('sal_amz_vendor_order_dt')->insert(
+                ['amz_order_id'=>$id,'product_id'=>$product_id,'quantity'=>$ItemQuantity,
+                'price'=>$ItemCost,'amount'=>$ItemCost *$ItemQuantity,'tracking_id'=> $TrackingID ]);
+              }
+
+           }
+
+        }// for
+
+        $RowBegin = 4;
+        $reader->setLoadSheetsOnly(["SumSalesOnAVC", "SumSalesOnAVC"]);
+        $spreadsheet = $reader->load($file);
+        $RowEnd = $spreadsheet->getActiveSheet()->getHighestRow();
+        print_r ('last record of SumSalesOnAVC '.$RowEnd );
+        print_r ( '<br>');
+        
+        $product_id=0;
+        $id = 0;
+        for($i=$RowBegin; $i <= $RowEnd; $i++)
+        {
+          $Asin = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1,$i)->getValue();
+          $TotalOrder	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(7,$i)->getValue();
+          $TheMonth = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(22,$i)->getValue();
+          $TheYear = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(23,$i)->getValue();
+          $MarketPlace =1;// Amazon
+          $product_id = $this->GetProductIDFromAsin($Asin, $MarketPlace);
+          $id =0;
+          $sql = " select id  from sal_sum_vendor_order where product_id  = $product_id 
+          and the_month  = $TheMonth and the_year =  $TheYear  ";
+
+          $ds= DB::connection('mysql')->select($sql);
+          foreach($ds as $d)  {  $id = $this->iif(is_null($d->id),0,$d->id); }
+          if( $id ==0 && $product_id != 0)
+          {
+            DB::connection('mysql')->table('sal_sum_vendor_order')->insert(
+            ['product_id'=>$product_id ,'quantity'=>$TotalOrder,'the_month'=>$TheMonth,'the_year'=>$TheYear]);
+          }elseif($product_id == 0)
+          {
+            print_r('Asin'.$Asin );
+            print_r('<br>' );
+          }
+
+        }
        }//  if($validator->passes())
      }
 }

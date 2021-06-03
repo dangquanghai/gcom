@@ -23,11 +23,19 @@ class PromotionController extends SysController
     public function index(Request $request)
     {
         $sqlFilter = "";
-        $from_date = $this->GetFirstDateOfMonth(now()->year,now()->month);
-        $to_date  =  date("Y-m-d");
-        if(date("d")==1 ){ $to_date = $this->MoveDate( $to_date,1);}
-  
-        // $sqlFilter =  " and (pro.from_date  <='". $to_date . "' and pro.to_date >= '" . $from_date . "') ";
+        
+
+        if(!$request->has('from_date'))
+          $from_date = $this->GetFirstDateOfMonth(now()->year,now()->month);
+        else $from_date = $request->input('from_date'); 
+
+        if(!$request->has('to_date'))
+          $to_date  =  date("Y-m-d");
+        else $to_date = $request->input('to_date'); 
+
+        $sqlFilter =  " and (pro.from_date  <='". $to_date . "' and pro.to_date >= '" . $from_date . "') ";
+
+       
       
         if($request->has('sku'))
           $sku = $request->input('sku');
@@ -74,8 +82,8 @@ class PromotionController extends SysController
       left join sal_channel_stores cs on c.id = cs.sales_channel 
       where (1 = 1)  ";
   
-      if($sku <>'') {$sqlFilter =   $sqlFilter .  " and (prodt.sku like '%". $sku. "%')";}
-      if($asin <>'') {$sqlFilter =   $sqlFilter .  " and (GetAsin(p.id,c.id,cs.id) like '%". $asin . "%') ";}
+      if($sku <>'') {$sqlFilter =   $sqlFilter .  " and (p.product_sku like '%". $sku. "%')";}
+      if($asin <>'') {$sqlFilter =   $sqlFilter .  " and (GetAsin(p.id,c.id,cs.id) collate utf8mb4_unicode_ci like '%". $asin . "%') ";}
       if($title <>''){$sqlFilter =   $sqlFilter .  " and (p.title like '%". $title . "%') ";}
       if($promotion_no <>''){ $sqlFilter =   $sqlFilter .  " and (pro.promotion_no like'%". $promotion_no. "%') ";}
       if($promotion_type <> 0 ){ $sqlFilter =   $sqlFilter .  " and (pro.promotion_type = " . $promotion_type ." )";}
@@ -86,7 +94,7 @@ class PromotionController extends SysController
       $sqlOrder = " order by pro.from_date, pro.promotion_no ";
     
       $sql = $sql . $sqlFilter . $sqlOrder;
-     // dd($sql);
+      //dd($sql);
      
       $dsPromotions = DB::connection('mysql')->select($sql);
       //dd($dsPromotions);
@@ -105,7 +113,7 @@ class PromotionController extends SysController
   
       return view('SAL.Promotions.list',compact(['dsPromotions','PromotionStatuses','PromotionTypes','Channels','Brands','sku','asin',
       'title','promotion_no','promotion_type','promotion_status','channel','brand','from_date','to_date']));
-     
+      
     }
 
     /**
@@ -236,7 +244,7 @@ class PromotionController extends SysController
       $dsPromotionDT = DB::connection('mysql')->select($sql);
 
      
-      return view('SAL.promotions.edit',compact(['id','dsProm','dsTypes','dsStatuses','dsChannels','dsPromotionDT']));
+      return view('SAL.Promotions.edit',compact(['id','dsProm','dsTypes','dsStatuses','dsChannels','dsPromotionDT']));
     }
     /**
      * Update the specified resource in storage.
