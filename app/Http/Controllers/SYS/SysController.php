@@ -60,4 +60,30 @@ class SysController extends Controller
         return  $product_id;
   
        }
+      // --------------------------------------------------------------
+       public function GetPermissionOnFunction($UserID,$FunctionName)
+       {
+          $sResult='';
+          $sql = "select  ac.action_no
+          from sys_roles r inner join sys_role_members rmb on r.id = rmb.role_id
+          inner join sys_role_permissions rpmt on r.id = rpmt.role_id
+          inner join sys_actions ac on rpmt.action_id = ac.id
+          inner join sys_functions ft on ac.function_id = ft.id
+          inner join sys_modules mdl on ft.modulle_id = mdl.id
+          inner join ms_employees epl on rmb.emp_id = epl.id
+          where rmb.emp_id = $UserID and  ft.name = '$FunctionName' order by  ac.action_no ";
+
+          $ds= DB::connection('mysql')->select($sql);
+          // foreach($ds as $d)
+          //   {
+          //     if($sResult=='') 
+          //       $sResult = $d->action_no;
+          //     else
+          //       $sResult =  $sResult . ',' . $d->action_no;
+          //   }
+          //   if($sResult!='') 
+          //     $sResult = '('. $sResult  .')';
+        //dd( $sql);
+          return  $ds ;
+       }
 }

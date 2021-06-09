@@ -328,11 +328,6 @@ var TheSku =  document.getElementById("sku").value;
         }
         
     });
-  
-   
-
-
-
 
     $(document).on('input','#cost_price_list > tbody > tr > td',function()
     {

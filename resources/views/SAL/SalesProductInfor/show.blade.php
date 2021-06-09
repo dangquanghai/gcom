@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 @section('content')
 @if($dsProduct)
-<form role="form" method="post" action="{{route('SalesProductInforController.update',$id) }}">
+<form role="form" method="post" action="">
     {{ csrf_field() }}
     <input type="hidden" name ="_method" value ="PUT">
     <div class="row">
         <div class="col-md-6" style="padding-right:0px">
-            <div class="card card-primary">
+            <div id="divMaster" class="card card-primary">
                 <div class="card-header">
                     <h3 class="card-title"> Sales Product Informations </h3>
                 </div>
@@ -178,7 +178,7 @@
             </div>
         </div> <!-- end card bên trái  -->
         <div class="col-md-6"  style="padding-left:0px" >
-             <div class="card card-primary">
+             <div  id="divDetail" class="card card-primary">
                  <div class="card-header">
                      <h3 class="card-title"> Cost Price On Sales Channel</h3>
                  </div>
@@ -237,7 +237,6 @@ $(document).on('change','#channel_name_select',function(){
 });
 
 
-
 $(document).on('blur','.column_name',function()
     {
         var retail_price = 0;
@@ -284,7 +283,7 @@ $(document).on('blur','.column_name',function()
 
 $(document).on('click','#Addbtn',function(){
 var TheSku =  document.getElementById("sku").value;
-console.log(TheSku);
+//console.log(TheSku);
     if(gTheChannelID != 0)
     {
         $.ajax({    url:'{{route("SalesProductInforController.SaveNewChannelCostAndPrice")}}',
@@ -292,19 +291,19 @@ console.log(TheSku);
                     data: {sku:TheSku,channel_id:gTheChannelID, _token:_token},
                     success:function(data)
                     {
-                        $('#message').html("<div class='aleart aleart-success'>insert OK</div>");
+                        $('#message').html(data);
                     }
-                    else
-                    {
-                         $('#message').html("<div class='aleart aleart-success'>insert OK</div>"); 
-                    }
+                   
                 });
+    } else
+    {
+        $('#message').html("<div class='alert alert-danger'> Select a channel </div>");
     }
      LoadCostAndPriceOnAllChannel();
 });
 
 
-/*
+
 
  $(document).on('change','select',function(){
         var column_name = "channel_id";
@@ -329,11 +328,6 @@ console.log(TheSku);
         }
         
     });
-  
-   */
-
-
-
 
     $(document).on('input','#cost_price_list > tbody > tr > td',function()
     {
@@ -449,5 +443,13 @@ console.log(TheSku);
         
     });
 });
+
+$("#divMaster")
+  .css({"pointer-events" : "none" , "opacity" :  "0.7"})
+  .attr("tabindex" , "-1");
+
+  $("#divDetail")
+  .css({"pointer-events" : "none" , "opacity" :  "0.7"})
+  .attr("tabindex" , "-1");
 </script>
 @endsection

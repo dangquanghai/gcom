@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('content')
-<form action="{{route('Sales.Promotion.Management')}}" method="POST" >
+<form action="{{route('Promotion.index')}}" method="POST" >
 @csrf
 <div class ="row">
   <div class="col-md-2" style="padding-right:0px">

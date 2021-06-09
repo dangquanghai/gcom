@@ -209,7 +209,7 @@
             </ul>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="{{route('Sales.Promotion.Management')}}" class="nav-link">
+                <a href="{{route('Promotion.index')}}" class="nav-link">
                   <i class="nav-icon fas  fa-chart-pie"></i>
                   <p> Promotion Management </p>
                 </a>

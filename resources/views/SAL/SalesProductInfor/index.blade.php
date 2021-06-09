@@ -79,7 +79,7 @@
 
 <div class="card-footer">
     <div class="card-tools">
-        <a href="{{route('SalesProductInforController.create')}}"><i class="fa fa-plus-square"></i></a>
+        <a href="{{route('SalesProductInforController.create')}}" id="aCreate"> <i class="fa fa-plus-square" ></i> </a>
     </div>
 </div>
 
@@ -90,10 +90,46 @@
 @endsection
 @section('scripts')
 <script>
+
+
+var ThePermission = {!! json_encode($sPermission) !!};
+
+var CanViewDetail = 1;
+var CanEdit=1;
+
+function SetPermission(Permission)
+{
+  let myElement = document.querySelector("#aCreate");
+
+  var sPermission ='';
+  
+        //var res=[];
+        Permission.forEach(item=>
+        {
+           // res.push(item.action_no);
+          if(sPermission=='')
+            sPermission = item.action_no;
+          else
+            sPermission =  sPermission + ','+ item.action_no;   
+        });
+        console.log(sPermission);
+
+  if(sPermission.indexOf("2")== -1)// Nếu không tìm thấy action số 2 thì không cho xem chi tiết
+    CanViewDetail = 0;
+  if(sPermission.indexOf("3")== -1)// Nếu không tìm thấy action số 3 thì ẩn nút thêm mới
+    myElement.style="display:none;";
+  if(sPermission.indexOf("4")== -1)// Nếu không tìm thấy action số 4 thì không cho edit
+    CanEdit = 0; 
+   
+}
+
+SetPermission(ThePermission);
+
 var $table = $('#table')
 var $tableAsin = $('#tableAsin')
 var ds = {!! json_encode($SalesProductInfors) !!}
 var dsAsin = {!! json_encode($Asins) !!}
+
 
 var sAsinColums =[
   {field:'id',title:'id',visible:false},
@@ -135,8 +171,9 @@ var sColums =
           {title:'Unit Profit',colspan:11,align: 'center',visible:false}
         ],
         [
-          {field:'id',title:'id',visible:false},
-          {field:'title',title:'Product Name ------------------------------------',formatter:OpenSalesProductDetail},
+         
+          {field:'id',title:'edit',formatter:EditSalesProductDetail},
+          {field:'title',title:'Product Name ------------------------------------',formatter:ShowSalesProductDetail},
           {field:'sku',title:'sku'},
           {field:'brand_name',title:'Brand Name'},
           // paking
@@ -282,17 +319,40 @@ var sColums =
       showColumns: true,
       showToggle: true
     })
-
-function OpenSalesProductDetail(value,row,index)
+// ------------------------------------------------    
+function ShowSalesProductDetail(value,row,index)
 {
-  let url = "{{route('SalesProductInforController.edit', ':id') }}";
-  url = url.replace(':id', row.id);
-  url = '<a href="' + url + '">' + value +  '</a>';
-  
+ let url = "{{route('SalesProductInforController.show', ':id') }}";
+ if(CanViewDetail ==1 )
+ {
+    url = url.replace(':id', row.id);
+    url = '<a href="' + url + '">' + value +  '</a>';
+ }else
+ {
+  url =value;
+ } 
+  return[
+      url
+    ].join('')
+}
+// ------------------------------------------------  
+function EditSalesProductDetail(value,row,index)
+{
+ let url = "{{route('SalesProductInforController.edit', ':id') }}";
+ if(CanEdit ==1 )
+ {
+    url = url.replace(':id', row.id);
+    url = '<a href="' + url + '">' + value +  '</a>';
+ }else
+ {
+  url =value;
+ } 
   return[
     url
   ].join('')
 }
+
+
 
 function LinkToAmazonListing(value,row,index)
 {

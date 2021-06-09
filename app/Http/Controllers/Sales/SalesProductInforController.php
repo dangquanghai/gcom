@@ -11,7 +11,9 @@ use App\Models\Sales\SalesProductInfor;
 use Validator;
 use DateTime;
 use GuzzleHttp\Client;
-
+use App\Mail\SalNotifyChangeCostPrice;
+use Illuminate\Support\Facades\Mail;
+use Auth;
 
 
 
@@ -23,6 +25,8 @@ class SalesProductInforController extends SysController
      *
      * @return \Illuminate\Http\Response
      */
+
+    private $FunctionName ="Sales Product Infor";
   // --------------------------------------------------------------------
   public function UpdateCostPrice(Request $request)
   {
@@ -55,6 +59,11 @@ class SalesProductInforController extends SysController
       
         DB::table('sal_product_channel_price_his')->insert($dataForHis) ;
         //dd($dataForHis);
+        $Message='Thay đổi giá';
+        $TheLink= 'sdfgsdfg';
+        
+        
+        Mail::to('dangquanghai123@gmail.com')->send(new SalNotifyChangeCostPrice( $Message,$TheLink));
         echo '<div class = "alert  alert-success"> Data Updated </div>';
       } 
   }
@@ -460,8 +469,12 @@ class SalesProductInforController extends SysController
      $sql = " select 0 as id, 'All' as name union select id, brand_name as name from  prd_brands ";
      $Brands = DB::connection('mysql')->select($sql);
 
-     //dd($Asins);
-     return view('SAL.SalesProductInfor.listnew',compact(['SalesProductInfors','Brands','Sku','Title','Brand','Asins']));
+     $UserID = Auth::user()->id;
+
+     $sPermission = $this->GetPermissionOnFunction( $UserID,$this->FunctionName);
+  
+     //dd($sPermission);
+     return view('SAL.SalesProductInfor.index',compact(['SalesProductInfors','Brands','Sku','Title','Brand','Asins','sPermission']));
 
   }
   //----------------------------------------------------
@@ -737,27 +750,44 @@ class SalesProductInforController extends SysController
      */
     public function show($id)
     {
-      $SPIs = SalesProductInfor::find($id);
-      $ProductName ='';
-      $Sku = '';
-      $sql =" select 	p.title, spi.sku  from prd_product  p
-      inner join sal_product_informations  spi on p.product_sku = spi.sku
-      where spi.id = $id ";
-      $ds = DB::connection('mysql')->select($sql);
-      foreach( $ds as $d ){
-        $ProductName = $d->title;
-        $Sku = $d->sku;
-      }
+      // $SPIs = SalesProductInfor::find($id);
+      // $ProductName ='';
+      // $Sku = '';
+      // $sql =" select 	p.title, spi.sku  from prd_product  p
+      // inner join sal_product_informations  spi on p.product_sku = spi.sku
+      // where spi.id = $id ";
+      // $ds = DB::connection('mysql')->select($sql);
+      // foreach( $ds as $d ){
+      //   $ProductName = $d->title;
+      //   $Sku = $d->sku;
+      // }
 
+      // $sql = " select pp.id, channel_id,sc.name, cost,retail_price
+      // from sal_product_channel_price pp inner join sal_channels sc
+      // on pp.channel_id = sc.id
+      // where sku = '$Sku'";
+
+      // $ProductCostPrices = DB::connection('mysql')->select($sql);
+
+
+      // return view('SAL.SalesProductInfor.show',compact(['id','ProductName','SPIs','ProductCostPrices']));
+
+      
+      $dsProduct = SalesProductInfor::find($id);
+      $Sku  = $dsProduct->sku;
+      
+      
       $sql = " select pp.id, channel_id,sc.name, cost,retail_price
       from sal_product_channel_price pp inner join sal_channels sc
       on pp.channel_id = sc.id
       where sku = '$Sku'";
-
       $ProductCostPrices = DB::connection('mysql')->select($sql);
+      foreach($ProductCostPrices as $ProductCostPrice )
 
-
-      return view('SAL.SalesProductInfor.edit',compact(['id','ProductName','SPIs','ProductCostPrices']));
+      $sql = " select id, name from sal_channels " ;
+      $dsChannels = DB::connection('mysql')->select($sql);
+      
+      return view('SAL.SalesProductInfor.show',compact(['id','dsProduct','ProductCostPrice','dsChannels']));
     }
 
     /**
@@ -774,7 +804,7 @@ class SalesProductInforController extends SysController
        
         $dsProduct = SalesProductInfor::find($id);
         $Sku  = $dsProduct->sku;
-        //dd($dsProduct);
+        
         
         $sql = " select pp.id, channel_id,sc.name, cost,retail_price
         from sal_product_channel_price pp inner join sal_channels sc
@@ -1350,7 +1380,7 @@ class SalesProductInforController extends SysController
         print_r ('last record of order '.$RowEnd );
         print_r ( '<br>');
         $channel_id=0;
-        $store_id=0;
+        $store_id = 0;
         $product_id=0;
         $id = 0;
         for($i=$RowBegin; $i <= $RowEnd; $i++)
@@ -1392,20 +1422,53 @@ class SalesProductInforController extends SysController
 
           switch ( $store_name) {
             case 'Amazon - Infideals - MFN':
+              {
               $channel_id	= 9;
+              $store_id = 0;
               break;
+              }
             case 'Amazon - Infideals - AFN':
+              {
               $channel_id	= 10;
+              $store_id = 0;
               break;
+              }
             case 'AVC DS':
+              {
               $channel_id	= 2;
+              $store_id = 0;
               break;
+              }
             case 'Walmart DSV':
+              {
               $channel_id	= 4;
+              $store_id = 0;
               break;
+              }
             case 'Walmart MKP':
+              {
               $channel_id	= 5;
+              $store_id = 0;
               break;
+              }
+            case 'Ebay - Yes4All_ Fitness':
+              {
+               $channel_id	= 6;
+               $store_id = 1;
+               break;
+              }
+            case 'Ebay - Infideals':
+              {
+               $channel_id	= 6; 
+               $store_id = 3;
+               break;
+              }
+            case 'Ebay - Yes4All_ inc':
+              {
+               $channel_id	= 6;
+               $store_id = 2;
+               break;
+              }
             case 'Wayfair':
               $channel_id	= 12;
               break;
@@ -1553,6 +1616,7 @@ class SalesProductInforController extends SysController
           $RequiredShipDate = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(6,$i)->getValue();
           $RequiredShipDate = date("Y-m-d h:i:s", strtotime($RequiredShipDate));  
           $ShipMethod = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(7,$i)->getValue();
+
           $ShipMethodCode= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(8,$i)->getValue();
           $ShipToName= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(9,$i)->getValue();
           $shipping_address= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(10,$i)->getValue();
@@ -1589,6 +1653,7 @@ class SalesProductInforController extends SysController
              ['order_no'=>$store_order_id,'order_date'=>$order_date,'channel_id'=>$channel_id,
              'status_name'=>$order_status, 'wh_code'=>$WarehouseCode,'cus_name'=> $ShipToName,
              'ship_to_phone'=> $PhoneNumber,'ship_to_city'=>$ship_to_city,
+             'shiped_method'=>$ShipMethod,'ship_method_code'=>$ShipMethodCode,
              'ship_to_address'=>$shipping_address,'ship_to_state'=>$shipto_state,'ship_to_zip'=>$shipto_zipcode,
              'must_ship_date'=>$RequiredShipDate,'shiped_date'=>$ShippedDate]);
 
