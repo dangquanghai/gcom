@@ -1,87 +1,47 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.css" rel="stylesheet">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
-<script src="https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.js"></script>
-<script src="https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table-locale-all.min.js"></script>
-<script src="https://unpkg.com/bootstrap-table@1.18.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
-<style>
-    #toolbar {
-      margin: 0;
-    }
-    </style>
-</head>
-<body>
-  <div id="toolbar" class="select">
-    <select class="form-control">
-      <option value="">Export Basic</option>
-      <option value="all">Export All</option>
-      <option value="selected">Export Selected</option>
-    </select>
-  </div>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="col-md-12" style="padding-left:0px">
+      <div class="card card-primary">
+          <div class="card-header">
+              <h3 class="card-title"> Notification => Change Price and/or cost </h3>
+  
+              <div class="alert alert-dange ajax-error" role="alert">
+                  <div class="ajax-error-ct"></div>
+              </div>
+              <div class="alert ajax-success" role="alert" style="width: 250px;background: rgba(92,130,79,0.9); display:none; color: #fff;">
+                  <div class="ajax-success-ct"></div>
+              </div>
+              
+          </div>
+          <div class="card-body">
+              <div class="row">
+              The message:
+              
+              </div>
+              <div class="row">
+              The link:
+           
+              </div>
+          </div>
+          <div class="card-footer">
+            <a href="#" class="btn btn-primary">Go somewhere</a>
+          </div>
+      </div>
+  </div> 
 
-  <table id="table"
-    data-show-export="true"
-    data-pagination="true"
-    data-side-pagination="server"
-    data-click-to-select="true"
-    data-toolbar="#toolbar"
-    data-show-toggle="true"
-    data-show-columns="true">
-
-  </table>
-</body>
-<script>
-   $(function() {
-  var $table = $('#table');
-var $jsonData =
- {
-  "total": 2,
-  "totalNotFiltered": 2,
-  "rows":
-   [
-    { "id": 0,
-      "name": "Item 0",
-      "price": "$0"
-    },
-    {
-      "id": 1,
-      "name": "Item 1",
-      "price": "$1"
-    }
-   ]
-  };
-
-
-    $('#toolbar').find('select').change(function () {
-      $table.bootstrapTable('destroy').bootstrapTable({
-        exportDataType: $(this).val(),
-        data:$jsonData,
-        exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf'],
-        columns: [
-          {
-            field: 'state',
-            checkbox: true,
-            visible: $(this).val() === 'selected'
-          },
-          {
-            field: 'id',
-            title: 'ID'
-          }, {
-            field: 'name',
-            title: 'Item Name'
-          }, {
-            field: 'price',
-            title: 'Item Price'
-          }
-        ]
-      })
-    }).trigger('change')
-  })
-</script>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
 </html>

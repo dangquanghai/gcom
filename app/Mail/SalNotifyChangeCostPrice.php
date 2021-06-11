@@ -10,17 +10,31 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 class SalNotifyChangeCostPrice extends Mailable
 {
     use Queueable, SerializesModels;
-    public $ReceiveMessage;
-    public $ReceiveTheLink;
+    public $EffectFrom;
+    public $UserName;
+    public $Sku;
+    public $ProductName;
+    public $OldCost;
+    public $NewCost;
+    public $OldPrice;
+    public $NewPrice;
+    public $ChannelName;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct( $Message,$TheLink)
+    public function __construct( $EffectFrom, $UserName,$Sku, $ProductName,$OldCost,$NewCost,$OldPrice,$NewPrice,$ChannelName)
     {
-        $this->ReceiveMessage = $Message;
-        $this->ReceiveTheLink = $TheLink;
+        $this->EffectFrom = $EffectFrom;
+        $this->UserName = $UserName;
+        $this->Sku = $Sku;
+        $this->ProductName = $ProductName;
+        $this->OldCost = $OldCost;
+        $this->NewCost = $NewCost;
+        $this->OldPrice = $OldPrice;
+        $this->NewPrice = $NewPrice;
+        $this->ChannelName = $ChannelName;
     }
 
     /**
@@ -30,6 +44,7 @@ class SalNotifyChangeCostPrice extends Mailable
      */
     public function build()
     {
-        return $this->view('Emails.Sales.ChangeCostPrice');
+        return $this->markdown('Emails.Sales.ChangeCostPrice');
+       
     }
 }

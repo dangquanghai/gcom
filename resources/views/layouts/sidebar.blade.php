@@ -195,7 +195,7 @@
               <li class="nav-item">
                 <a href="sal.import.sales.product.infor" class="nav-link">
                   <i class="nav-icon fas  fa-chart-pie"></i>
-                  <p>Import Sales Product Infor </p>
+                  <p>Import Sales Product Infor</p>
                 </a>
               </li>
             </ul>
@@ -203,7 +203,7 @@
               <li class="nav-item">
                 <a href="{{route('SalesProductInforController.index')}}" class="nav-link">
                   <i class="nav-icon fas  fa-chart-pie"></i>
-                  <p> Sales Product Infor </p>
+                  <p>Sales Product Infor</p>
                 </a>
               </li>
             </ul>
@@ -211,7 +211,7 @@
               <li class="nav-item">
                 <a href="{{route('Promotion.index')}}" class="nav-link">
                   <i class="nav-icon fas  fa-chart-pie"></i>
-                  <p> Promotion Management </p>
+                  <p>Promotion Management</p>
                 </a>
               </li>
             </ul>

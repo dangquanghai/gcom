@@ -1,9 +1,9 @@
 @extends('layouts.email')
 @section('content')
-<div class="col-md-06" style="padding-right:0px">
+<div class="col-md-12" style="padding-left:0px">
     <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title"> Notification => Change Price and/or cost </h3>
+            <h3 class="card-title"> Notification => Change Cost and/or Price </h3>
 
             <div class="alert alert-dange ajax-error" role="alert">
                 <div class="ajax-error-ct"></div>
@@ -15,17 +15,22 @@
         </div>
         <div class="card-body">
             <div class="row">
-            The message:
-            {{ $ReceiveMessage}}
+            <h3> Dear Sir/Madam,<br> <br> 
+                At {{$EffectFrom }} Mr/Ms {{$UserName }} has update Cost/Price for the product <br>
+                SKU : {{$Sku}}  , Product Name : {{$ProductName}} <br>
+                Old Cost: {{$OldCost}} => New Cost : {{$NewCost}}<br>
+                Old Price:{{$OldPrice}} => New Price : {{$NewPrice}}<br>
+                on the Channel : {{$ChannelName}}<br><br>
+
+                Thank for  being awared ,<br>
+                {{ config('app.name') }}
+            </h3>
+
             </div>
-            <div class="row">
-            The link:
-            {{$ReceiveTheLink}}
-            </div>
+           
         </div>
         <div class="card-footer">
         </div>
     </div>
 </div> 
 @endsection
-

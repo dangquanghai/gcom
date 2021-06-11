@@ -18,10 +18,14 @@ Route::get('/', function () {
 
 Auth::routes();
 
+// Route::get('/mail', function () {
+//     return view('Emails.Sales.ChangeCostPrice');
+//  });
+ 
+
+
 // system
 Route::get('/home', 'HomeController@index')->name('home');
-
-
 
 Route::get('/register', function () {
     return view('auth.register');
@@ -32,6 +36,8 @@ Route::get('/resetPass', function () {
 });
 
 
+Route::get('/zalo/index', 'SYS\Social_ZaloController@index');
+Route::post('/zalo/auth','SYS\Social_ZaloController@auth');
 
 
 //PU Group

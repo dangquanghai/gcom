@@ -591,5 +591,35 @@
 @endsection
 @section('scripts')
 <script>
+var ds = {!! json_encode($ds) !!};
+
+
+function SetPermission(Permission)
+{
+ 
+  Permission.forEach(item=>
+  {
+    switch(item.name)
+    {
+      case "Sales Product Infor":
+        {
+          //$("p").filter(function(){return $(this).html()==item.name}).remove();
+          $("p").filter(function(){
+            if($(this).html()==item.name)
+
+            var obj =  this.parentNode.id;
+            //var obj1 = $(obj).parentNode.id;
+            obj.style="display:none;"
+
+          });
+
+          console.log(item.name);
+          break;
+        }
+    }
+  });//forEach
+}
+
+SetPermission(ds);
 </script>
 @endsection

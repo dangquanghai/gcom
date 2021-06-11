@@ -30,10 +30,28 @@ class SalesProductInforController extends SysController
   // --------------------------------------------------------------------
   public function UpdateCostPrice(Request $request)
   {
-      
-      $sql = " select id as MyCount from sal_product_channel_price where  id  = $request->id and retail_price = $request->retail_price and per_cost =  $request->per_cost " ;
-      if(!$this->IsExist('mysql',$sql))
+    $EffectFrom = date('Y-m-d H:i:s');
+    $UserName='';
+    $Sku='';
+    $ProductName ='';
+    $ChannelName='';
+    $OldCost= 0;
+    $OldPrice= 0;
+    $NewCost =0;
+    $NewPrice =0;
+
+      $sql = " select id as MyCount from sal_product_channel_price where  id  = $request->id 
+      and retail_price = $request->retail_price and per_cost =  $request->per_cost " ;
+      if(!$this->IsExist('mysql',$sql))// Có thay đổi khác mới lưu
       {
+        // Lưu lại giá cũ
+        $sql = " select cost,retail_price from sal_product_channel_price where  id  = $request->id ";
+        $ds=  DB::connection('mysql')->select($sql);
+        foreach($ds as $d){
+          $OldCost= $d->cost;
+          $OldPrice= $d->retail_price;
+        }
+     
         // Cập nhật lại giá trên bảng sal_product_channel_price khi có thay đổi giá
         $data = array(
         'retail_price'=>$request->retail_price,
@@ -43,27 +61,42 @@ class SalesProductInforController extends SysController
         //dd(  $data );
 
         DB::table('sal_product_channel_price')->where('id',$request->id)->update($data) ;
+
+        $NewCost = $request->retail_price * $request->per_cost /100;
+        $NewPrice =$request->retail_price;
         
         // Lưu lại historry khi có cập nhật giá ghi history lên bảng  bảng sal_product_channel_price_his
-        $effect_from = date('Y-m-d H:i:s');
+      
         $User = auth()->user();
         $UserID = $User->id;
+        $UserName= $User->name;
         
         $dataForHis = array(
           'prd_channel_price_id'=>$request->id,
           'price'=>$request->retail_price,
           'cost'=>$request->retail_price * $request->per_cost /100,
-          'effect_from'=> $effect_from,
-          'update_by'=> $UserID
+          'effect_from'=>$EffectFrom,
+          'update_by'=>$UserID
           );
       
-        DB::table('sal_product_channel_price_his')->insert($dataForHis) ;
+          
+          DB::table('sal_product_channel_price_his')->insert($dataForHis) ;
         //dd($dataForHis);
-        $Message='Thay đổi giá';
-        $TheLink= 'sdfgsdfg';
-        
-        
-        Mail::to('dangquanghai123@gmail.com')->send(new SalNotifyChangeCostPrice( $Message,$TheLink));
+      
+        $sql= " select p.product_sku as sku, p.title, sc.name as ChannelName from  prd_product p 
+        inner join sal_product_channel_price pp on p.id = pp.product_id
+        inner join sal_channels sc on pp.channel_id = sc.id
+        where pp.id = $request->id  ";
+
+        $ds=  DB::connection('mysql')->select($sql);
+        foreach($ds as $d){
+          $Sku= $d->sku;
+          $ProductName = $d->title;
+          $ChannelName = $d->ChannelName;
+        }
+        //Mail::to('dangquanghai123@gmail.com')
+        Mail::to('haidang@behmd.com')
+        ->send(new SalNotifyChangeCostPrice($EffectFrom, $UserName,$Sku, $ProductName,$OldCost,$NewCost,$OldPrice,$NewPrice,$ChannelName));
         echo '<div class = "alert  alert-success"> Data Updated </div>';
       } 
   }
@@ -957,6 +990,7 @@ class SalesProductInforController extends SysController
           {
            $title = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1,$i)->getValue();
            $sku = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(2,$i)->getValue();
+           $product_id = $this->GetProductIdFromSku( $sku );
            $the_length= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(4,$i)->getValue();
            if($the_length == ''){$the_length=0;}
            $the_width= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5,$i)->getValue();
@@ -1122,8 +1156,8 @@ class SalesProductInforController extends SysController
              $sql = " select count(id)as MyCount from  sal_product_channel_price
              where sku = '$sku' and channel_id = 1 ";
              if(!$this->IsExist('mysql', $sql)) {
-               $sql= " insert into sal_product_channel_price(sku,channel_id,cost,retail_price,per_cost)
-               values('$sku',1,$avc_wh_cost,$avcwh_retail_price,$per_avc_wh)";
+               $sql= " insert into sal_product_channel_price(product_id,sku,channel_id,cost,retail_price,per_cost)
+               values($product_id,'$sku',1,$avc_wh_cost,$avcwh_retail_price,$per_avc_wh)";
              }else{
                $sql= " update sal_product_channel_price set cost = $avc_wh_cost,
                retail_price = $avcwh_retail_price,per_cost = $per_avc_wh
@@ -1134,8 +1168,8 @@ class SalesProductInforController extends SysController
              $sql = " select count(id)as MyCount from  sal_product_channel_price
              where sku = '$sku' and channel_id = 2 ";
              if(!$this->IsExist('mysql', $sql)) {
-               $sql= " insert into sal_product_channel_price(sku,channel_id,cost,retail_price,per_cost)
-               values('$sku',2,$avc_ds_cost,$avcds_retail_price,$per_avc_ds)";
+               $sql= " insert into sal_product_channel_price(product_id,sku,channel_id,cost,retail_price,per_cost)
+               values($product_id,'$sku',2,$avc_ds_cost,$avcds_retail_price,$per_avc_ds)";
              }else{
                $sql= " update sal_product_channel_price set cost = $avc_ds_cost,
                retail_price = $avcds_retail_price,per_cost =$per_avc_ds
@@ -1146,8 +1180,8 @@ class SalesProductInforController extends SysController
              $sql = " select count(id)as MyCount from  sal_product_channel_price
              where sku = '$sku' and channel_id = 4 ";
              if(!$this->IsExist('mysql', $sql)) {
-               $sql= " insert into sal_product_channel_price(sku,channel_id,cost,retail_price,per_cost)
-               values('$sku',4, $wm_dsv_cost,$wmdsv_retail_price, $per_wm_dsv)";
+               $sql= " insert into sal_product_channel_price(product_id,sku,channel_id,cost,retail_price,per_cost)
+               values($product_id,'$sku',4, $wm_dsv_cost,$wmdsv_retail_price, $per_wm_dsv)";
              }else{
                $sql= " update sal_product_channel_price set cost = $wm_dsv_cost,
                retail_price = $wmdsv_retail_price, per_cost = $per_wm_dsv
@@ -1158,8 +1192,8 @@ class SalesProductInforController extends SysController
               $sql = " select count(id)as MyCount from  sal_product_channel_price
               where sku = '$sku' and channel_id = 5 ";
               if(!$this->IsExist('mysql', $sql)) {
-                $sql= " insert into sal_product_channel_price(sku,channel_id,cost,retail_price)
-                values('$sku',5,0,$wmmkp_retail_price)";
+                $sql= " insert into sal_product_channel_price(product_id,sku,channel_id,cost,retail_price)
+                values($product_id,'$sku',5,0,$wmmkp_retail_price)";
               }else{
                 $sql= " update sal_product_channel_price set cost = 0,
                 retail_price = $wmmkp_retail_price
@@ -1170,8 +1204,8 @@ class SalesProductInforController extends SysController
               $sql = " select count(id)as MyCount from  sal_product_channel_price
               where sku = '$sku' and channel_id = 6 ";
               if(!$this->IsExist('mysql', $sql)) {
-                $sql= " insert into sal_product_channel_price(sku,channel_id,cost,retail_price)
-                values('$sku',6,0,$ebay_retail_price)";
+                $sql= " insert into sal_product_channel_price(product_id,sku,channel_id,cost,retail_price)
+                values($product_id,'$sku',6,0,$ebay_retail_price)";
               }else{
                 $sql= " update sal_product_channel_price set cost = 0,
                 retail_price = $ebay_retail_price
@@ -1182,8 +1216,8 @@ class SalesProductInforController extends SysController
               $sql = " select count(id)as MyCount from  sal_product_channel_price
               where sku = '$sku' and channel_id = 7 ";
               if(!$this->IsExist('mysql', $sql)) {
-                $sql= " insert into sal_product_channel_price(sku,channel_id,cost,retail_price)
-                values('$sku',7,0,$local_retail_price)";
+                $sql= " insert into sal_product_channel_price(product_id,sku,channel_id,cost,retail_price)
+                values($product_id,'$sku',7,0,$local_retail_price)";
               }else{
                 $sql= " update sal_product_channel_price set cost = 0,
                 retail_price = $local_retail_price
@@ -1194,8 +1228,8 @@ class SalesProductInforController extends SysController
               $sql = " select count(id)as MyCount from  sal_product_channel_price
               where sku = '$sku' and channel_id = 8 ";
               if(!$this->IsExist('mysql', $sql)) {
-                $sql= " insert into sal_product_channel_price(sku,channel_id,cost,retail_price)
-                values('$sku',8,0,$website_retail_price)";
+                $sql= " insert into sal_product_channel_price(product_id,sku,channel_id,cost,retail_price)
+                values($product_id,'$sku',8,0,$website_retail_price)";
               }else{
                 $sql= " update sal_product_channel_price set cost = 0,
                 retail_price = $local_retail_price
@@ -1206,8 +1240,8 @@ class SalesProductInforController extends SysController
               $sql = " select count(id)as MyCount from  sal_product_channel_price
               where sku = '$sku' and channel_id = 9";
               if(!$this->IsExist('mysql', $sql)) {
-                $sql= " insert into sal_product_channel_price(sku,channel_id,cost,retail_price)
-                values('$sku',9,0,$fba_retail)";
+                $sql= " insert into sal_product_channel_price(product_id,sku,channel_id,cost,retail_price)
+                values($product_id,'$sku',9,0,$fba_retail)";
               }else{
                 $sql= " update sal_product_channel_price set cost = 0,
                 retail_price = $fba_retail
@@ -1218,8 +1252,8 @@ class SalesProductInforController extends SysController
               $sql = " select count(id)as MyCount from  sal_product_channel_price
               where sku = '$sku' and channel_id = 10 ";
               if(!$this->IsExist('mysql', $sql)) {
-                $sql= " insert into sal_product_channel_price(sku,channel_id,cost,retail_price)
-                values('$sku',10,0,$fbm_retail_price)";
+                $sql= " insert into sal_product_channel_price(product_id,sku,channel_id,cost,retail_price)
+                values($product_id,'$sku',10,0,$fbm_retail_price)";
               }else{
                 $sql= " update sal_product_channel_price set cost = 0,
                 retail_price = $fbm_retail_price
@@ -1229,8 +1263,8 @@ class SalesProductInforController extends SysController
               $sql = " select count(id)as MyCount from  sal_product_channel_price
               where sku = '$sku' and channel_id = 12 ";
               if(!$this->IsExist('mysql', $sql)) {
-                $sql= " insert into sal_product_channel_price(sku,channel_id,cost,retail_price,per_cost )
-                values('$sku',12, $way_fair_cost,$wayfair_retail_price,$per_wayfair)";
+                $sql= " insert into sal_product_channel_price(product_id,sku,channel_id,cost,retail_price,per_cost )
+                values($product_id,'$sku',12, $way_fair_cost,$wayfair_retail_price,$per_wayfair)";
               }else{
                 $sql= " update sal_product_channel_price set cost = $way_fair_cost,
                 retail_price = $wayfair_retail_price, per_cost  = $per_wayfair
