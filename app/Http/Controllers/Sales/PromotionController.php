@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Sales;
 use Illuminate\Http\Request;
-use App\Http\Controllers\SysController;
+use App\Http\Controllers\SYS\SysController;
 use DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -12,9 +12,11 @@ use App\Models\Sales\PromotionDetail;
 use Validator;
 use DateTime;
 use GuzzleHttp\Client;
+use Auth;
 
 class PromotionController extends SysController
 {
+  private $FunctionName ="Promotion Management";
     /**
      * Display a listing of the resource.
      *
@@ -110,9 +112,20 @@ class PromotionController extends SysController
   
       $sql = " select 0 as id, 'All' as name union select id, brand_name as name from prd_brands ";
       $Brands = DB::connection('mysql')->select($sql);
+
+      $UserID = Auth::user()->id;
+
+      $sPermission = $this->GetPermissionOnFunction( $UserID,$this->FunctionName);
+
+      
+      $sql = " select r.is_admin  from sys_roles r inner join sys_role_members rmb on r.id = rmb.role_id 
+      where rmb.emp_id = $UserID  ";
+      $dx=  DB::connection('mysql')->select($sql);
+      foreach($dx as $d) { $IsAdmin = $this->iif(is_null($d->is_admin),0,$d->is_admin ); }
+
   
-      return view('SAL.Promotions.list',compact(['dsPromotions','PromotionStatuses','PromotionTypes','Channels','Brands','sku','asin',
-      'title','promotion_no','promotion_type','promotion_status','channel','brand','from_date','to_date']));
+      return view('SAL.Promotions.index',compact(['dsPromotions','PromotionStatuses','PromotionTypes','Channels','Brands','sku','asin',
+      'title','promotion_no','promotion_type','promotion_status','channel','brand','from_date','to_date','sPermission','IsAdmin']));
       
     }
 
@@ -212,7 +225,27 @@ class PromotionController extends SysController
      */
     public function show($id)
     {
-        //
+      $sql = " select id, name from sal_promotion_types ";
+      $dsTypes = DB::connection('mysql')->select($sql);
+
+      $sql = " select id, name from sal_promotion_status ";
+      $dsStatuses = DB::connection('mysql')->select($sql);
+
+      $sql = " select id, name from sal_channels where  market_place   = 1 ";
+      $dsChannels = DB::connection('mysql')->select($sql);
+
+      $dsProm = Promotion::find($id);
+
+      $sql = " select pdt.id, pdt.promotion_id,pdt.product_id, pas.asin, p.title,
+      per_funding, funding,	unit_sold,amount_spent,revenue
+      from sal_promotions_dt pdt 
+      inner join prd_product p on pdt.product_id = p.id
+      inner join sal_product_asins pas on p.id = pas.product_id
+      where pas.market_place = 1 and pas.store_id = 0  and  pdt.promotion_id = $id ";
+      
+      $dsPromotionDT = DB::connection('mysql')->select($sql);
+
+      return view('SAL.Promotions.show',compact(['id','dsProm','dsTypes','dsStatuses','dsChannels','dsPromotionDT']));
     }
 
     /**
@@ -243,7 +276,6 @@ class PromotionController extends SysController
       
       $dsPromotionDT = DB::connection('mysql')->select($sql);
 
-     
       return view('SAL.Promotions.edit',compact(['id','dsProm','dsTypes','dsStatuses','dsChannels','dsPromotionDT']));
     }
     /**

@@ -3,7 +3,7 @@
 <div class="container-fluid">
     <div class="card bg-light mt-3">
         <div class="card-body">
-            <form action="{{ route('sal.import.sales.product.infor') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('sal.product.infor.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="col-lg-3" style="background-color:whitesmoke;">
                     <input type="file" name="file" id="file" class="form-control">

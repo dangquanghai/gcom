@@ -182,7 +182,7 @@
             </ul>
           </li>
 
-          <li class="nav-item has-treeview">
+          <li id ="menuSales" class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-chart-bar"></i>
               <p>
@@ -193,7 +193,7 @@
 
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="sal.import.sales.product.infor" class="nav-link">
+                <a href="{{route('sal.product.infor.import')}}" class="nav-link">
                   <i class="nav-icon fas  fa-chart-pie"></i>
                   <p>Import Sales Product Infor</p>
                 </a>
@@ -219,7 +219,7 @@
               <li class="nav-item">
                 <a href="sal.wm.item_mng.import" class="nav-link">
                   <i class="nav-icon fas  fa-chart-pie"></i>
-                  <p>Import WM Item MNG </p>
+                  <p>Import WM Item MNG</p>
                 </a>
               </li>
             </ul>
@@ -227,7 +227,7 @@
               <li class="nav-item">
                 <a href="sal.wm.item_mng" class="nav-link">
                   <i class="nav-icon fas  fa-chart-pie"></i>
-                  <p>WM Product Management  </p>
+                  <p>WM Product Management</p>
                 </a>
               </li>
             </ul>
@@ -284,6 +284,7 @@
                   <p>PL Report Monthly</p>
                 </a>
               </li>
+
               <li class="nav-item">
                 <a href="{{route('fa.plReport.detail')}}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
@@ -361,6 +362,33 @@
 
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-box"></i>
+              <p>
+                ADMIN
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+              <a href="{{route('admin.role.permission.load')}}" class="nav-link">
+                  <i class="nav-icon fas fa-list"></i>
+                  <p>Role Permission</p>
+                </a>
+              </li>
+            </ul>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="" class="nav-link">
+                  <i class="nav-icon fas fa-boxes"></i>
+                  <p>XX </p>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
               <i class="nav-icon fas fa fa-cog"></i>
               <p>
                 SYSTEM
@@ -381,6 +409,8 @@
               </li>
             </ul>
           </li>
+
+
         </ul>
       </nav>
       <!-- /.sidebar-menu -->

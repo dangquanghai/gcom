@@ -27,6 +27,11 @@ class SalesProductInforController extends SysController
      */
 
     private $FunctionName ="Sales Product Infor";
+      // --------------------------------------------------------------------
+    public function LoadFileProductSalesInfor()
+    {
+     return view('SAL.SalesProductInfor.LoadFileProductSalesInfor');
+    }
   // --------------------------------------------------------------------
   public function UpdateCostPrice(Request $request)
   {
@@ -275,11 +280,7 @@ class SalesProductInforController extends SysController
     'title','promotion_id','promotion_type','promotion_status','channel','brand','from_date','to_date']));
    
     }
-  // --------------------------------------------------------------------
-    public function LoadFileProductSalesInfor()
-    {
-     return view('SAL.SalesProductInfor.LoadFileProductSalesInfor');
-    }
+ 
     // --------------------------------------------------------------------
  
     public function LoadSalesProductInforDetail($id)
@@ -501,13 +502,16 @@ class SalesProductInforController extends SysController
 
      $sql = " select 0 as id, 'All' as name union select id, brand_name as name from  prd_brands ";
      $Brands = DB::connection('mysql')->select($sql);
-
      $UserID = Auth::user()->id;
-
      $sPermission = $this->GetPermissionOnFunction( $UserID,$this->FunctionName);
+
+     $sql = " select r.is_admin  from sys_roles r inner join sys_role_members rmb on r.id = rmb.role_id 
+     where rmb.emp_id = $UserID  ";
+     $dx=  DB::connection('mysql')->select($sql);
+     foreach($dx as $d) { $IsAdmin = $this->iif(is_null($d->is_admin),0,$d->is_admin ); }
   
      //dd($sPermission);
-     return view('SAL.SalesProductInfor.index',compact(['SalesProductInfors','Brands','Sku','Title','Brand','Asins','sPermission']));
+     return view('SAL.SalesProductInfor.index',compact(['SalesProductInfors','Brands','Sku','Title','Brand','Asins','sPermission','IsAdmin']));
 
   }
   //----------------------------------------------------
@@ -783,29 +787,6 @@ class SalesProductInforController extends SysController
      */
     public function show($id)
     {
-      // $SPIs = SalesProductInfor::find($id);
-      // $ProductName ='';
-      // $Sku = '';
-      // $sql =" select 	p.title, spi.sku  from prd_product  p
-      // inner join sal_product_informations  spi on p.product_sku = spi.sku
-      // where spi.id = $id ";
-      // $ds = DB::connection('mysql')->select($sql);
-      // foreach( $ds as $d ){
-      //   $ProductName = $d->title;
-      //   $Sku = $d->sku;
-      // }
-
-      // $sql = " select pp.id, channel_id,sc.name, cost,retail_price
-      // from sal_product_channel_price pp inner join sal_channels sc
-      // on pp.channel_id = sc.id
-      // where sku = '$Sku'";
-
-      // $ProductCostPrices = DB::connection('mysql')->select($sql);
-
-
-      // return view('SAL.SalesProductInfor.show',compact(['id','ProductName','SPIs','ProductCostPrices']));
-
-      
       $dsProduct = SalesProductInfor::find($id);
       $Sku  = $dsProduct->sku;
       

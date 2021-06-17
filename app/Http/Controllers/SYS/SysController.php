@@ -60,6 +60,11 @@ class SysController extends Controller
         return  $product_id;
   
        }
+        // --------------------------------------------------------------
+       public function MoveDate($TheDate, $Days)
+       {
+         return  date('Y-m-d',strtotime( $TheDate. '+'.  $Days  .'days'));
+       }
       // --------------------------------------------------------------
        public function GetPermissionOnFunction($UserID,$FunctionName)
        {
@@ -71,19 +76,10 @@ class SysController extends Controller
           inner join sys_functions ft on ac.function_id = ft.id
           inner join sys_modules mdl on ft.modulle_id = mdl.id
           inner join ms_employees epl on rmb.emp_id = epl.id
-          where rmb.emp_id = $UserID and  ft.name = '$FunctionName' order by  ac.action_no ";
+          where rpmt.is_active = 1 and rmb.emp_id = $UserID 
+          and  ft.name = '$FunctionName' order by  ac.action_no ";
 
           $ds= DB::connection('mysql')->select($sql);
-          // foreach($ds as $d)
-          //   {
-          //     if($sResult=='') 
-          //       $sResult = $d->action_no;
-          //     else
-          //       $sResult =  $sResult . ',' . $d->action_no;
-          //   }
-          //   if($sResult!='') 
-          //     $sResult = '('. $sResult  .')';
-        //dd( $sql);
           return  $ds ;
        }
 }

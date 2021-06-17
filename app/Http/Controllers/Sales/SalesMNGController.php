@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Sales;
 use Illuminate\Http\Request;
-use App\Http\Controllers\SysController;
+use App\Http\Controllers\SYS\SysController;
 use DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;

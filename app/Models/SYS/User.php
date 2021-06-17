@@ -7,7 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 use Illuminate\Database\Eloquent\Model;
-
+use DB;
 class User extends Authenticatable
 {
     //use Hasfactory;
@@ -17,5 +17,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function roles() 
+    {
+        return $this->belongsToMany(App\Models\SYS\Role::class);
+    }
+
+    
   
 }

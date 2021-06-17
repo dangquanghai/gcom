@@ -593,31 +593,23 @@
 <script>
 var ds = {!! json_encode($ds) !!};
 
+var IsAdmin = {!! json_encode($IsAdmin) !!};
 
-function SetPermission(Permission)
+function SetPermission(Permission)  
 {
- 
-  Permission.forEach(item=>
-  {
-    switch(item.name)
+ if(IsAdmin != 1)
+ {
+    Permission.forEach(item=>
     {
-      case "Sales Product Infor":
+      $("p").filter(function(){
+        if($(this).html() == item.name)
         {
-          //$("p").filter(function(){return $(this).html()==item.name}).remove();
-          $("p").filter(function(){
-            if($(this).html()==item.name)
-
-            var obj =  this.parentNode.id;
-            //var obj1 = $(obj).parentNode.id;
-            obj.style="display:none;"
-
-          });
-
-          console.log(item.name);
-          break;
+          grPrtObj= $(this).parent().parent();
+          grPrtObj.remove();
         }
-    }
-  });//forEach
+      });  
+    });//forEach
+ }
 }
 
 SetPermission(ds);

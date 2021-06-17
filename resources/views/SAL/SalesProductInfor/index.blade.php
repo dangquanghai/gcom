@@ -79,7 +79,7 @@
 
 <div class="card-footer">
     <div class="card-tools">
-        <a href="{{route('SalesProductInforController.create')}}" id="aCreate"> <i class="fa fa-plus-square" ></i> </a>
+        <a href="{{route('SalesProductInforController.create')}}" id="btnCreate"> <i class="fa fa-plus-square" ></i> </a>
     </div>
 </div>
 
@@ -93,36 +93,35 @@
 
 
 var ThePermission = {!! json_encode($sPermission) !!};
-
+var IsAdmin = {!! json_encode($IsAdmin) !!};
 var CanViewDetail = 1;
 var CanEdit=1;
-
+// ---------------------------------------------------------------------------------------
 function SetPermission(Permission)
 {
-  let myElement = document.querySelector("#aCreate");
+  if(IsAdmin !=1)
+  {
+    let myElement = document.querySelector("#btnCreate");
+    var sPermission ='';
 
-  var sPermission ='';
-  
-        //var res=[];
-        Permission.forEach(item=>
-        {
-           // res.push(item.action_no);
-          if(sPermission=='')
-            sPermission = item.action_no;
-          else
-            sPermission =  sPermission + ','+ item.action_no;   
-        });
-        console.log(sPermission);
-
-  if(sPermission.indexOf("2")== -1)// Nếu không tìm thấy action số 2 thì không cho xem chi tiết
-    CanViewDetail = 0;
-  if(sPermission.indexOf("3")== -1)// Nếu không tìm thấy action số 3 thì ẩn nút thêm mới
-    myElement.style="display:none;";
-  if(sPermission.indexOf("4")== -1)// Nếu không tìm thấy action số 4 thì không cho edit
-    CanEdit = 0; 
-   
+    Permission.forEach(item=>
+    {
+        // res.push(item.action_no);
+      if(sPermission=='')
+        sPermission = item.action_no;
+      else
+        sPermission =  sPermission + ','+ item.action_no;   
+    });
+        
+    if(sPermission.indexOf("2")== -1)// Nếu không tìm thấy action số 2 thì không cho xem chi tiết
+      CanViewDetail = 0;
+    if(sPermission.indexOf("3")== -1)// Nếu không tìm thấy action số 3 thì ẩn nút thêm mới
+      myElement.style="display:none;";
+    if(sPermission.indexOf("4")== -1)// Nếu không tìm thấy action số 4 thì không cho edit
+      CanEdit = 0; 
+  }
 }
-
+// ---------------------------------------------------------------------------------------
 SetPermission(ThePermission);
 
 var $table = $('#table')

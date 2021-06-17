@@ -3,7 +3,6 @@
 function getList($Items,$ItemDefault)
 {
     $Result = '';
-  // dd($ItemDefault);
     if($Items)
     {
         foreach($Items as $Item)

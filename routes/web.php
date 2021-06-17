@@ -35,9 +35,11 @@ Route::get('/resetPass', function () {
    return view('auth.passwords.reset');
 });
 
-
-Route::get('/zalo/index', 'SYS\Social_ZaloController@index');
-Route::post('/zalo/auth','SYS\Social_ZaloController@auth');
+//zalo Group
+Route::group(['prefix' => 'zalo'], function () {
+    Route::get('/index', 'SYS\Social_ZaloController@index');
+    Route::post('/auth','SYS\Social_ZaloController@auth');    
+});
 
 
 //PU Group
@@ -82,14 +84,16 @@ Route::group(['prefix' => 'fa'], function () {
 });
 
 //SAL Group
-Route::group(['prefix' => 'Sales'], function () {
+Route::group(['prefix' =>'Sales'], function () {
+    
+    Route::get('/product.infor.import','Sales\ImportSalesProductController@index')->name('sal.product.infor.import');
+    Route::post('/product.infor.import','Sales\ImportSalesProductController@ImportProductSalesInfor')->name('sal.product.infor.import');
+
     Route::get('/selling.daily','Fa\CashFlowController@GetSellingDataDefault')->name('sal.selling.daily');
     Route::post('/selling.daily','Fa\CashFlowController@GetSellingData')->name('sal.selling.daily');
 
     Route::resource('/SalesProductInforController','Sales\SalesProductInforController');
 
-    Route::get('/sal.import.sales.product.infor','Sales\SalesProductInforController@LoadFileProductSalesInfor')->name('sal.import.sales.product.infor');
-    Route::post('/sal.import.sales.product.infor','Sales\SalesProductInforController@ImportProductSalesInfor')->name('sal.import.sales.product.infor');
 
     Route::get('/SalesProductInforController.LoadCostAndPriceOnAllChannel/{sku}','Sales\SalesProductInforController@LoadCostAndPriceOnAllChannel')->name('SalesProductInforController.LoadCostAndPriceOnAllChannel');
 
@@ -144,7 +148,15 @@ Route::group(['prefix' => 'ajax_pro'], function () {
     Route::POST('/select','Inv\TransactionControler@selectProduct');
 });
 
-
+//ADMIN Group
+Route::group(['prefix' => 'Admin'], function () {
+    Route::get('/role/permission','Admin\RolePermissionController@LoadRolePermission')->name('admin.role.permission.load');
+    Route::get('/role/permission/LoadFunction/{ModuleID}','Admin\RolePermissionController@LoadFunction')->name('admin.role.permission.function.load');
+    Route::get('/role/permission/LoadMember/{RoleID}','Admin\RolePermissionController@LoadMember')->name('admin.role.permission.member.load');
+    Route::get('/role/permission/LoadActionsInRolePermissions/{ModuleID}/{RolID}/{FncID}','Admin\RolePermissionController@LoadActionsInRolePermissions')->name('admin.role.permission.action.load');
+    Route::get('/role/permission/update/{ID}/{Active}','Admin\RolePermissionController@UpdatePerMission')->name('admin.role.permission.update');
+   
+});
 
 
 

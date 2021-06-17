@@ -20,10 +20,7 @@ class SysController extends Controller
         return $Result;
     }
     //---------------------------------------------------
-    public function MoveDate($TheDate, $Days)
-    {
-      return  date('Y-m-d',strtotime( $TheDate. '+'.  $Days  .'days'));
-    }
+  
     //---------------------------------------------------
     public function GetFirstDateOfMonth($TheYear,$TheMonth)
     {

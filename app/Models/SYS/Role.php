@@ -15,7 +15,7 @@ class Group extends Model
     use HasFactory;
 
     protected $table = 'sys_roles';
-    protected $fillable = ['id','name'];
+    protected $fillable = ['id','name','is_admin'];
     public $timestamps = false;
 
     public function users()

@@ -214,7 +214,9 @@
 @endsection
 @section('scripts')
 <script type= "text/javascript">
+
 $(document).ready(function(){
+    
 var _token = $('input[name="_token"]').val();
 var gTheChannelID = 0;
 

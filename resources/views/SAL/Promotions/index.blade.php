@@ -78,7 +78,7 @@
       <div class="card card-primary">
               <div class="card-header">
               <div class="card-tools">
-                  <a href="{{route('Promotion.create')}}"><i class="fa fa-plus-square"></i></a>
+                  <a href="{{route('Promotion.create')}}"><i class="fa fa-plus-square" id="btnCreate"></i></a>
               </div>
                 <h3 class="card-title">Data</h3>
               </div>
@@ -116,8 +116,42 @@
 @section('scripts')
 <script>
 var $table = $('#table');
-
 var ds = {!! json_encode($dsPromotions) !!};
+var ThePermission = {!! json_encode($sPermission) !!};
+var IsAdmin = {!! json_encode($IsAdmin) !!};
+
+var CanViewDetail = 1;
+var CanEdit=1;
+
+function SetPermission(Permission)
+{
+  if(IsAdmin !=1 ) 
+  {
+    let myElement = document.querySelector("#btnCreate");
+
+    var sPermission ='';
+
+    //var res=[];
+    Permission.forEach(item=>
+    {
+        // res.push(item.action_no);
+      if(sPermission=='')
+        sPermission = item.action_no;
+      else
+        sPermission =  sPermission + ','+ item.action_no;   
+    });
+        
+    if(sPermission.indexOf("2")== -1)// Nếu không tìm thấy action số 2 thì không cho xem chi tiết
+      CanViewDetail = 0;
+    if(sPermission.indexOf("3")== -1)// Nếu không tìm thấy action số 3 thì ẩn nút thêm mới
+      myElement.style="display:none;";
+    if(sPermission.indexOf("4")== -1)// Nếu không tìm thấy action số 4 thì không cho edit
+      CanEdit = 0;
+  } 
+   
+}
+
+SetPermission(ThePermission);
 
 function SetTotalCaption(data) {
      return 'Total'
@@ -158,12 +192,51 @@ function totalUnitSold(data) {
     return num;
   }
   
-  function EditPromotion(value,row,index)
+function EditPromotion(value,row,index)
 {
   let url = "{{route('Promotion.edit', ':id') }}";
-  url = url.replace(':id', row.id);
-  url = '<a href="' + url + '">' + value +  '</a>';
-  
+  if(CanEdit ==1 )
+  {
+    url = url.replace(':id', row.id);
+    url = '<a href="' + url + '">' + value +  '</a>';
+  }else
+  {
+    url =value;
+  } 
+
+  return[
+    url
+  ].join('')
+}
+// ------------------------------------------------  
+function ShowPromotion(value,row,index)
+{
+  let url = "{{route('Promotion.show', ':id') }}";
+
+  if(CanViewDetail ==1 )
+ {
+    url = url.replace(':id', row.id);
+    url = '<a href="' + url + '">' + value +  '</a>';
+ }else
+ {
+  url =value;
+ } 
+  return[
+      url
+    ].join('')
+}
+// ------------------------------------------------  
+function EditSalesProductDetail(value,row,index)
+{
+ let url = "{{route('SalesProductInforController.edit', ':id') }}";
+ if(CanEdit ==1 )
+ {
+    url = url.replace(':id', row.id);
+    url = '<a href="' + url + '">' + value +  '</a>';
+ }else
+ {
+  url =value;
+ } 
   return[
     url
   ].join('')
@@ -183,10 +256,10 @@ $(function() {
           },
       columns: 
       [
-        {field:'id',title:'id',formatter: EditPromotion},
+        {field:'id',title:'Edit',formatter: EditPromotion},
         {field:'asin',title:'asin',footerFormatter: SetTotalCaption},
         {field:'sku',title:'sku' },
-        {field:'title',title:'Product Name ---------'},
+        {field:'title',title:'Product Name ---------',formatter: ShowPromotion},
         {field:'promotion_type',title:'promotion type'},
         {field:'channel',title:'channel'},
         {field:'status',title:'status'},
