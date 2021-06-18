@@ -78,9 +78,18 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
+                <a href="{{route('vendor.index')}}" class="nav-link">
+                  <i class="nav-icon fas fa-people-arrows"></i>
+                  <p>Vendor Management </p>
+                </a>
+              </li>
+            </ul>
+
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
                 <a href="{{route('fa.CashFlow.ImportFile')}}" class="nav-link">
                   <i class="nav-icon fas fa-people-arrows"></i>
-                  <p>Partner List </p>
+                  <p>Import cash file </p>
                 </a>
               </li>
             </ul>

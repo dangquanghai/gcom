@@ -159,9 +159,9 @@ Route::group(['prefix' => 'Admin'], function () {
 });
 
 
+Route::group(['prefix' => 'Pu'], function () {
+    Route::resource('/vendor','Pu\VendorController');
 
-
-
-
+});
 
 

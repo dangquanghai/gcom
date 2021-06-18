@@ -16,7 +16,6 @@ function getList($Items,$ItemDefault)
     return $Result ;
 } 
 
-
 function GetFirstDateOfMonth($TheYear,$TheMonth)
 {
     $t =  (string) $TheYear  . '-'. (string)$TheMonth. '-01';

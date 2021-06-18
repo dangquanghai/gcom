@@ -66,6 +66,7 @@
   <script src="https://unpkg.com/bootstrap-table@1.18.0/dist/extensions/export/bootstrap-table-export.min.js"></script>
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.24/datatables.min.css"/>
   <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.24/datatables.min.js"></script>
+
   <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body class="sidebar-mini layout-fixed sidebar-collapse" style="height: auto;" >
@@ -130,10 +131,18 @@
 <script src="{{asset('dist/js/demo.js')}}"></script>
 <script src="{{asset('js/main.js')}}"></script>
 <script src="{{asset('js/markcell/jquery-tabledit-1.2.3/jquery.tabledit.js')}}"></script>
+  <!-- selectize  -->
+  <link rel="stylesheet" href="{{asset('plugins/selectize/css/stylesheet.css')}}">
+  <link rel="stylesheet" href="{{asset('plugins/selectize/css/normalize.css')}}">
+  <link rel="stylesheet" href="{{asset('plugins/selectize/css/selectize.css')}}">
+  <link rel="stylesheet" href="{{asset('plugins/selectize/css/selectize.default.css')}}">
+  
+  
+  <script src="{{asset('plugins/selectize/js/index.js')}}"></script>
+  <script src="{{asset('plugins/selectize/js/selectize.js')}}"></script>
+  
+  
 
-<!-- selectize  -->
-<script src="{{asset('plugins/selectize/js/selectize.js')}}"></script>
-<link rel="stylesheet" href="{{asset('plugins/selectize/css/selectize.css')}}">
 
 @yield('styles')
 @yield('scripts')
