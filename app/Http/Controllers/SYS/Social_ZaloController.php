@@ -17,7 +17,7 @@ class Social_ZaloController extends Controller
             $auth_uri = "https://oauth.zaloapp.com/v3/auth?"
                     . http_build_query(array(
                             "app_id" => "785881563324472798", // <- App ID
-                            "redirect_uri" =>"https://61.28.238.166/zalo/auth",
+                            "redirect_uri" =>"https://jinod.com/zalo/auth",
                             'state' => "whatever"
                         ));
                        //redirect('$auth_uri');
@@ -56,7 +56,7 @@ class Social_ZaloController extends Controller
                 setcookie("user_access_token", $_REQUEST['access_token'], $expr, '/', '', true, true );
                 // Go back to index.php
                 dd($_REQUEST['access_token']);
-                redirect('https://61.28.238.166/zalo/index');
+                redirect('https://jinod.com/zalo/index');
                 //header("Location: /zalo/index.php");
                 exit;
             else :

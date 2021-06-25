@@ -2579,6 +2579,11 @@ public function GetSellingDataDefault(Request $request)
   $ToDate  =  date("Y-m-d");
   if(date("d")==1 ){$ToDate = $this->MoveDate($ToDate,1);}
 
+  $sql = " select * from ebay_product " ;
+  //$this->CollectSellingData($FromDate, $ToDate );
+   DB::connection('mysql_it')->select ($sql);
+
+/*
   $sql = " select sku,p.title,sal_channels.name,order_date,quantity,round(amount)as amount
   from tmp_orders  inner join sal_channels on tmp_orders.channel = sal_channels.id
   inner join prd_product p  on tmp_orders.sku = p.product_sku
@@ -2627,7 +2632,7 @@ public function GetSellingDataDefault(Request $request)
 
    return view('sal.sellingDailyNew',compact([
    'dx','ArrCols','dsTypes','Type','FromDate','ToDate','dsSalesHistoryWeekly','TheColumns']));
-
+*/
 }
 // =======================================================================================
 public function UpdateTheWeek()

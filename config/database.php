@@ -43,7 +43,6 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
-
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
@@ -66,11 +65,11 @@ return [
         'mysql_it' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST_IT', '45.117.168.207'),//backend3.yes4all.com
+            'host' => env('DB_HOST_IT', '45.117.168.207'),
             'port' => env('DB_PORT_IT', '3306'),
-            'database' => env('DB_DATABASE_IT', 'forge'),
-            'username' => env('DB_USERNAME_IT', 'forge'),
-            'password' => env('DB_PASSWORD_IT', ''),
+            'database' => env('DB_DATABASE_IT', 'hmd_behurav'),
+            'username' => env('DB_USERNAME_IT', 'hmd_bpd'),
+            'password' => env('DB_PASSWORD_IT', '6jcB7GM6'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
