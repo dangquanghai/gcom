@@ -38,7 +38,7 @@ Route::get('/resetPass', function () {
 //zalo Group
 Route::group(['prefix' => 'zalo'], function () {
     Route::get('/index', 'SYS\Social_ZaloController@index');
-    Route::post('/auth','SYS\Social_ZaloController@auth');    
+    Route::get('/auth','SYS\Social_ZaloController@auth');    
 });
 
 
