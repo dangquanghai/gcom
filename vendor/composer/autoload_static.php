@@ -90,6 +90,10 @@ class ComposerStaticInit5412e85faf1755f3ee51697a09b991cd
         array (
             'phpDocumentor\\Reflection\\' => 25,
         ),
+        'Z' => 
+        array (
+            'Zalo\\' => 5,
+        ),
         'X' => 
         array (
             'XdgBaseDir\\' => 11,
@@ -221,6 +225,10 @@ class ComposerStaticInit5412e85faf1755f3ee51697a09b991cd
             0 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
             1 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
             2 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
+        ),
+        'Zalo\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src',
         ),
         'XdgBaseDir\\' => 
         array (
@@ -4679,6 +4687,40 @@ class ComposerStaticInit5412e85faf1755f3ee51697a09b991cd
         'Whoops\\Util\\SystemFacade' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/SystemFacade.php',
         'Whoops\\Util\\TemplateHelper' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/TemplateHelper.php',
         'XdgBaseDir\\Xdg' => __DIR__ . '/..' . '/dnoegel/php-xdg-base-dir/src/Xdg.php',
+        'Zalo\\Authentication\\AccessToken' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Authentication/AccessToken.php',
+        'Zalo\\Authentication\\AccessTokenMetadata' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Authentication/AccessTokenMetadata.php',
+        'Zalo\\Authentication\\OAuth2Client' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Authentication/OAuth2Client.php',
+        'Zalo\\Authentication\\ZaloRedirectLoginHelper' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Authentication/ZaloRedirectLoginHelper.php',
+        'Zalo\\Builder\\MessageBuilder' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Builder/MessageBuilder.php',
+        'Zalo\\Exceptions\\ZaloAuthenticationException' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Exceptions/ZaloAuthenticationException.php',
+        'Zalo\\Exceptions\\ZaloAuthorizationException' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Exceptions/ZaloAuthorizationException.php',
+        'Zalo\\Exceptions\\ZaloClientException' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Exceptions/ZaloClientException.php',
+        'Zalo\\Exceptions\\ZaloOAException' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Exceptions/ZaloOAException.php',
+        'Zalo\\Exceptions\\ZaloOtherException' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Exceptions/ZaloOtherException.php',
+        'Zalo\\Exceptions\\ZaloResponseException' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Exceptions/ZaloResponseException.php',
+        'Zalo\\Exceptions\\ZaloResumableUploadException' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Exceptions/ZaloResumableUploadException.php',
+        'Zalo\\Exceptions\\ZaloSDKException' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Exceptions/ZaloSDKException.php',
+        'Zalo\\Exceptions\\ZaloServerException' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Exceptions/ZaloServerException.php',
+        'Zalo\\FileUpload\\Mimetypes' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/FileUpload/Mimetypes.php',
+        'Zalo\\FileUpload\\ZaloFile' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/FileUpload/ZaloFile.php',
+        'Zalo\\HttpClients\\HttpClientsFactory' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/HttpClients/HttpClientsFactory.php',
+        'Zalo\\HttpClients\\ZaloCurl' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/HttpClients/ZaloCurl.php',
+        'Zalo\\HttpClients\\ZaloCurlHttpClient' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/HttpClients/ZaloCurlHttpClient.php',
+        'Zalo\\HttpClients\\ZaloHttpClientInterface' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/HttpClients/ZaloHttpClientInterface.php',
+        'Zalo\\Http\\GraphRawResponse' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Http/GraphRawResponse.php',
+        'Zalo\\Http\\RequestBodyInterface' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Http/RequestBodyInterface.php',
+        'Zalo\\Http\\RequestBodyMultipart' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Http/RequestBodyMultipart.php',
+        'Zalo\\Http\\RequestBodyRaw' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Http/RequestBodyRaw.php',
+        'Zalo\\Http\\RequestBodyUrlEncoded' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Http/RequestBodyUrlEncoded.php',
+        'Zalo\\Url\\UrlDetectionInterface' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Url/UrlDetectionInterface.php',
+        'Zalo\\Url\\ZaloUrlDetectionHandler' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Url/ZaloUrlDetectionHandler.php',
+        'Zalo\\Url\\ZaloUrlManipulator' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Url/ZaloUrlManipulator.php',
+        'Zalo\\Zalo' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/Zalo.php',
+        'Zalo\\ZaloApp' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/ZaloApp.php',
+        'Zalo\\ZaloClient' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/ZaloClient.php',
+        'Zalo\\ZaloEndPoint' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/ZaloEndPoint.php',
+        'Zalo\\ZaloRequest' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/ZaloRequest.php',
+        'Zalo\\ZaloResponse' => __DIR__ . '/..' . '/zaloplatform/zalo-php-sdk/src/ZaloResponse.php',
         'phpDocumentor\\Reflection\\DocBlock' => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src/DocBlock.php',
         'phpDocumentor\\Reflection\\DocBlockFactory' => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src/DocBlockFactory.php',
         'phpDocumentor\\Reflection\\DocBlockFactoryInterface' => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src/DocBlockFactoryInterface.php',

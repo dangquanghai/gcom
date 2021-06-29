@@ -1506,7 +1506,7 @@ public function CreateTransactionIncomeFromSellingGoods($TheYear,$TheWeek,$CashA
  if($Amount1 ==0)
  {
   $sql = " select sum(amount) as amount from fa_selling_monthly_detail
-  inner join prd_hmd_products on  fa_selling_monthly_detail.sku = prd_hmd_products.sku
+  inner join prd_product on  fa_selling_monthly_detail.sku = prd_product.product_sku
   where sales_channel in (6,7,8) and date(invoice_date) >= '$FromDate'
   and date(invoice_date) <= '$ToDate' ";
   $ds= DB::connection('mysql')->select($sql);
@@ -1541,7 +1541,7 @@ foreach($ds as $d){$Amount2 =  $this->iif(is_null($d->amount),0,$d->amount) ;}
 if($Amount2 == 0)
 {
  $sql = " select sum(amount) as amount from fa_selling_monthly_detail
- inner join prd_hmd_products on  fa_selling_monthly_detail.sku = prd_hmd_products.sku
+ inner join prd_product on  fa_selling_monthly_detail.sku = prd_product.product_sku
  where sales_channel in (4) and date(invoice_date) >= '$FromDate'
  and date(invoice_date) <= '$ToDate' ";
  $ds= DB::connection('mysql')->select($sql);
@@ -1575,7 +1575,7 @@ if($Amount2 ==0)
     if($Amount3 ==0)
     {
      $sql = " select sum(amount) as amount from fa_selling_monthly_detail
-     inner join prd_hmd_products on  fa_selling_monthly_detail.sku = prd_hmd_products.sku
+     inner join prd_product on  fa_selling_monthly_detail.sku = prd_product.product_sku
      where sales_channel in (5,9,10) and date(invoice_date) >= '$FromDate'
      and date(invoice_date) <= '$ToDate' ";
      $ds= DB::connection('mysql')->select($sql);
@@ -1607,18 +1607,17 @@ if($Amount2 ==0)
     $ds= DB::connection('mysql')->select($sql);
     foreach($ds as $d){$Amount4 =  $this->iif(is_null($d->amount),0,$d->amount) ;}
     // 2. Tìm trong PL report
-    if($Amount4 ==0)
+    if($Amount4 == 0)
     {
         $sql = " select sum(amount) as amount from fa_selling_monthly_detail
-        inner join prd_hmd_products on  fa_selling_monthly_detail.sku = prd_hmd_products.sku
+        inner join prd_product on  fa_selling_monthly_detail.sku = prd_product.product_sku
         where sales_channel in (1,2) and date(invoice_date) >= '$FromDate'
         and date(invoice_date) <= '$ToDate' ";
         $ds= DB::connection('mysql')->select($sql);
         foreach($ds as $d){$Amount4 =  $this->iif(is_null($d->amount),0,$d->amount) ;}
     }
-
      // 3. Tìm trong data FC
-     if($Amount4 ==0)
+     if($Amount4 == 0)
      {
         $sChannel="(1,2)";
         //$Amount4 =  $this->GetEstimateRevenue($sChannel,$FromDate,$ToDate);

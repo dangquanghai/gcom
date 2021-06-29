@@ -3,7 +3,7 @@
 <form action="{{ route('fa.CashFlow.Chart') }}" method="POST" >
  @csrf
     <div class="row">
-        <div class="col-lg-1"  style="padding-right:0px">
+        <div class="col-lg-2"  style="padding-right:0px">
             <div class="card card-primary">
                 <div class="card-header">
                     <h3 class="card-title">Search</h3>
@@ -40,7 +40,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-11" style="padding-right:0px">
+        <div class="col-lg-10" style="padding-right:0px">
             <div class="card card-primary">
                 <div class="card-header">
                     <h3 class="card-title">Chart</h3>

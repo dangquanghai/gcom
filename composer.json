@@ -14,7 +14,8 @@
         "laravel/tinker": "^1.0",
         "laravel/ui": "^1.2",
         "phpoffice/phpspreadsheet": "^1.11",
-        "unisharp/laravel-filemanager": "~1.8"
+        "unisharp/laravel-filemanager": "~1.8",
+        "zaloplatform/zalo-php-sdk": "^2.0"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

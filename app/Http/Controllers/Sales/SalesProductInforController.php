@@ -15,9 +15,6 @@ use App\Mail\SalNotifyChangeCostPrice;
 use Illuminate\Support\Facades\Mail;
 use Auth;
 
-
-
-
 class SalesProductInforController extends SysController
 {
     /**

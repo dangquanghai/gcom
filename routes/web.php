@@ -35,11 +35,20 @@ Route::get('/resetPass', function () {
    return view('auth.passwords.reset');
 });
 
+//zalo Groups
+// Route::group(['prefix' => 'zalo'], function () {
+//     Route::get('/index', 'SYS\Social_ZaloController@index');
+//     Route::get('/auth','SYS\Social_ZaloController@auth');    
+// });
+
 //zalo Group
 Route::group(['prefix' => 'zalo'], function () {
-    Route::get('/index', 'SYS\Social_ZaloController@index');
-    Route::get('/auth','SYS\Social_ZaloController@auth');    
+    Route::get('/index', 'SYS\ZaloController@index');
+    Route::get('/auth','SYS\ZaloController@auth');    
 });
+
+//Route::post('https://graph.zalo.me/v2.0/me/message', 'SYS\Social_ZaloController@index');
+
 
 
 //PU Group
@@ -47,7 +56,6 @@ Route::group(['prefix' => 'pu'], function () {
     Route::get('/LoadPOList', 'PU\CaculatePOController@LoadPOList');
     Route::get('/LoadPODetail/{POID}', 'PU\CaculatePOController@LoadPODetail');
 });
-
 
 //FA Group
 Route::group(['prefix' => 'fa'], function () {

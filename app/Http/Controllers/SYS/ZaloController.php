@@ -4,176 +4,138 @@ namespace App\Http\Controllers\SYS;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Zalo\Zalo;
+use Zalo\ZaloEndPoint;
 
 class ZaloController extends Controller
 {
-    /*
-    zalo id: 785881563324472798
-    zalo access: V2E6nJ3I8i6ENB4qKYLf
-    Home URL:https://example.com
-    callback URL: https://example.com/zalo
-    */
-    
-    public $api_url ="https://example.com";
-    public $access_token ="V2E6nJ3I8i6ENB4qKYLf";
-
-    
-
-    // Perform a GET request to Zalo
-    function zalo_get( $api_url, $access_token, $params = array(), &$res_hdr = null ) 
-    {
-        $cli_hdr = getallheaders();
-        $req_hdr = array(
-            'Accept: application/json',
-            'Content-Type: application/json',
-        );
-        $res_hdr = array();
-        $url = $api_url . "?access_token=" . $access_token;
-        if ( !empty($params) )
-            $url .= '&'. http_build_query($params);
-        $curl = curl_init();
-        $curl_params = array(
-            CURLOPT_URL => $url,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => $req_hdr,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_SSL_VERIFYPEER => true,
-        );
-        curl_setopt_array($curl, $curl_params);
-        curl_setopt( $curl, CURLOPT_HEADERFUNCTION,
-            function( $curl, $header ) use(&$res_hdr) {
-                $parts = explode( ": ", $header, 2 );
-                if ( count($parts) > 1 )
-                    $res_hdr[$parts[0]] = $parts[1];
-                return strlen( $header );
-            }
-        );
-        $output = curl_exec($curl);
-        curl_close($curl);
-        return $output;
-    }
-
-//----------------------------------------------------------------------------
-// Perform a POST request to Zalo
-function zalo_post( $api_url, $access_token, $data, &$res_hdr = null ) 
-{
-    $cli_hdr = getallheaders();
-    $req_hdr = array(
-        'Accept: application/json',
-        'Content-Type: application/json',
-    );
-    $res_hdr = array();
-    $url = $api_url . "?access_token=" . $access_token;
-    $curl = curl_init();
-    $curl_params = array(
-        CURLOPT_URL => $url,
-        CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_HTTPHEADER => $req_hdr,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_POSTFIELDS => $data,
-        CURLOPT_SSL_VERIFYPEER => true,
-    );
-    curl_setopt_array($curl, $curl_params);
-    curl_setopt( $curl, CURLOPT_HEADERFUNCTION,
-        function( $curl, $header ) use(&$res_hdr) {
-            $parts = explode( ": ", $header, 2 );
-            if ( count($parts) > 1 )
-                $res_hdr[$parts[0]] = $parts[1];
-            return strlen( $header );
-        }
-    );
-    $output = curl_exec($curl);
-    curl_close($curl);
-    return $output;
-}
-//----------------------------------------------------------------------------
-// Upload a file to Zalo
-    function zalo_upload( $api_url, $access_token, $path, &$res_hdr = null ) 
-    {
-        $cli_hdr = getallheaders();
-        $req_hdr = array(
-            'Accept: application/json',
-            'Content-Type: multipart/form-data',
-        );
-        $res_hdr = array();
-        $url = $api_url . "?access_token=" . $access_token;
-        $type = mime_content_type($path); // MIME type
-        $size = filesize($path);
-        $name = basename($path);
-        $curl = curl_init();
-        $curl_params = array(
-            CURLOPT_URL => $url,
-            CURLOPT_HTTPHEADER => $req_hdr,
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => array(
-                'file' => new \CurlFile($path, $type, $name)
-            ),
-            CURLOPT_INFILESIZE => $size,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_SSL_VERIFYPEER => true,
-        );
-        curl_setopt_array($curl, $curl_params);
-        curl_setopt( $curl, CURLOPT_HEADERFUNCTION,
-            function( $curl, $header ) use(&$res_hdr) {
-                $parts = explode( ": ", $header, 2 );
-                if ( count($parts) > 1 )
-                    $res_hdr[$parts[0]] = $parts[1];
-                return strlen( $header );
-            }
-        );
-        $output = curl_exec($curl);
-        curl_close($curl);
-        return $output;
-    }
-//----------------------------------------------------------------------------
-// Zalo Rest API
-function zalo_rest_api()
-{
-    if( !is_callable('curl_init') )
-        die("CURL extension is not enabled");
-    if ( isset($_GET['zapi_uri']) ) {
-        $api_url = $_GET['zapi_uri'];
-        unset( $_GET['zapi_uri'] );
-    } else {
-        die('No Zalo API');
-    }
+    protected static $instance;
+    protected $zalo;
+    public $ZaloAppId= "785881563324472798";
+    public $AppSecret="V2E6nJ3I8i6ENB4qKYLf";
    
-    if ( isset($_COOKIE["oa_access_token"]) ) {
-        $access_token = $_COOKIE["oa_access_token"];
-        if ( $_SERVER['REQUEST_METHOD'] === 'GET' ) {
-            $response = zalo_get( $api_url, $access_token, $_GET, $res_hdr );
-        } else if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
-            if ( isset($_FILES['media']) ) { // Assume the file <input> name is 'media'
-                $response = zalo_upload( $api_url, $access_token, $_FILES['media']['tmp_name'], $res_hdr );
-            } else {
-                $data = file_get_contents("php://input");
-                $response = zalo_post( $api_url, $access_token, $data, $res_hdr );
-            }
+    protected $cookie_name = "thuan_zalo";
+    protected $link_default = "https://jinod.com/zalo/index";
+    protected $callBackUrl = "https://jinod.com/zalo/auth";
+
+    protected $config = array(
+        'app_id' => '785881563324472798',
+        'app_secret' => 'V2E6nJ3I8i6ENB4qKYLf',
+        'callback_url' => 'https://jinod.com/zalo/auth'
+    );
+
+    public function __construct() {
+        $this->zalo = new Zalo($this->config);
+    }
+    
+    // ----------------gọi tới link login zalo + xin cap phép -----------------
+    function index() {
+        if (!isset($_COOKIE[$this->cookie_name])) {
+            $helper = $this->zalo->getRedirectLoginHelper();
+            $loginUrl = $helper->getLoginUrl($this->callBackUrl); // This is login ur
+            header("Location: {$loginUrl}");
         }
-        // Some useful response headers from Zalo
-        $response_headers = array(
-            'Content-Type',
-            'X-RateLimit-Limit',
-            'X-RateLimit-Remain',
-        );
-        foreach ( $response_headers as $header )
-            if ( isset($res_hdr[$header]) )
-                header($header . ": " . $res_hdr[$header]);
-        echo $response;
+        else
+        {
+            echo("Login Thành Công </br>");
+            $this->getMe();
+            $this- auth();// lấy access token ghi vào cookie
+        }
+    }
+
+    // ----------------lấy access_token, được gọi từ route với link callback /zalo/auth
+    function auth() {
+    try {
+        $helper = $this->zalo -> getRedirectLoginHelper();
+        $oauthCode = isset($_GET['code']) ? $_GET['code'] : "THIS NOT CALLBACK PAGE !!!"; // get oauthoauth code from url params
+        $accessToken = $helper->getAccessToken($this->callBackUrl); // get access token
+        if ($accessToken != null) {
+            $expr = $accessToken->getExpiresAt(); // get expires time
+            // store the Access Token as a HTTP only cookie
+            setcookie($this->cookie_name, $accessToken, time()+3600, '/', '', true, true );
+            //xin cấp quyền thành công, bước tiếp theo chy về đâu đó
+            $this->getMe();
+        }
+        } catch (ZaloResponseException $e) {
+            // When Graph returns an error
+            echo 'Graph returned an error: ' . $e->getMessage();
+            exit;
+        } catch (ZaloSDKException $e) {
+            // When validation fails or other local issues
+            echo 'Zalo SDK returned an error: ' . $e->getMessage();
+            exit;
+        }
+    }
+
+    //-------- goi tin nhắn cho bạn bè
+    function sendMessage($id_friend) 
+    {
+        if (!isset($_COOKIE[$this->cookie_name])) {
+            echo "Cookie named '" . $this->cookie_name . "' is not set!";
+            header("Location: {$this->link_default}");
+        } else {
+            $accessToken = $_COOKIE[$this->cookie_name];
+            $params = ['message' => 'Test function gui tin qua OA', 'to' => $id_friend, 'link' => 'https://link_web_gi_do.com'];
+            $response = $this->zalo->post(ZaloEndPoint::API_GRAPH_MESSAGE, $accessToken, $params);
+            echo '<br><br>';
+            print_r($response->getDecodedBody());
+            echo '<br><br>';
+        }
+    }
+//---------- lấy thông tin của người dùng app
+function getMe() {
+        
+    if (!isset($_COOKIE[$this->cookie_name])) {
+        echo "Cookie named '" . $this->cookie_name . "' is not set!";
+        header("Location: {$this->link_default}");
     } else {
-        echo json_encode( array(
-            'error' => -10000,
-            'message' => 'Unauthorized access'
-        ) );
+        $accessToken = $_COOKIE[$this->cookie_name];
+        $response = $this->zalo->get(ZaloEndPoint::API_GRAPH_ME, $accessToken, ['fields' => 'id,name,birthday,gender,picture']);
+        echo '<br><br>';
+        print_r($response->getDecodedBody());
+        echo '<br><br>';
+    }
+}
+//----------get list friend dang su dung app
+function getFriendsUsedApp() {
+    if (!isset($_COOKIE[$this->cookie_name])) {
+        echo "Cookie named '" . $this->cookie_name . "' is not set!";
+        header("Location: {$this->link_default}");
+    } else {
+        $accessToken = $_COOKIE[$this->cookie_name];
+        $params = ['offset' => 0, 'limit' => 100, 'fields' => "id, name"];
+        $response = $this->zalo->get(ZaloEndPoint::API_GRAPH_FRIENDS, $accessToken, $params);
+        echo '<br><br>';
+        print_r($response->getDecodedBody());
+        echo '<br><br>';
+    }
+}
+//----------get list all friends chua dung app
+function getAllFriends() {
+    if (!isset($_COOKIE[$this->cookie_name])) {
+        echo "Cookie named '" . $this->cookie_name . "' is not set!";
+        header("Location: {$this->link_default}");
+    } else {
+        $accessToken = $_COOKIE[$this->cookie_name];
+        $params = ['offset' => 0, 'limit' => 100, 'fields' => "id, name"];
+        $response = $this->zalo->get(ZaloEndPoint::API_GRAPH_INVITABLE_FRIENDS, $accessToken, $params);
+        echo '<br><br>';
+        print_r($response->getDecodedBody());
+        echo '<br><br>';
+    }
+}
+//----------mời bạn bè xài app, phi xài app thì mới gủi tin nhắn được.
+function sendAppRequest($id_friend) {
+    if (!isset($_COOKIE[$this->cookie_name])) {
+        echo "Cookie named '" . $this->cookie_name . "' is not set!";
+         header("Location: {$this->link_default}");
+    } else {
+        $accessToken = $_COOKIE[$this->cookie_name];
+        $params = ['message' => 'Test function moi su dung ung dung https://jinod.com/zalo/index', 'to' => $id_friend];
+        $response = $this->zalo->post(ZaloEndPoint::API_GRAPH_APP_REQUESTS, $accessToken, $params);
+        echo '<br><br>';
+        print_r($response->getDecodedBody());
+        echo '<br><br>';
     }
 }
 }
