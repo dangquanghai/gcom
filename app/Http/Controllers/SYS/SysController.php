@@ -46,6 +46,11 @@ class SysController extends Controller
     {
       return substr($str, 0, $length);
     }
+    // --------------------------------------------------------------
+    public function right($str, $length)
+    {
+      return substr($str, 0, -$length);
+    }
      // --------------------------------------------------------------
      public function GetProductIdFromSku($Sku)
      {
