@@ -49,8 +49,6 @@ Route::group(['prefix' => 'zalo'], function () {
 
 //Route::post('https://graph.zalo.me/v2.0/me/message', 'SYS\Social_ZaloController@index');
 
-
-
 //PU Group
 Route::group(['prefix' => 'pu'], function () {
     Route::get('/LoadPOList', 'PU\CaculatePOController@LoadPOList');

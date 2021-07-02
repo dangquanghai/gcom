@@ -14,7 +14,7 @@ class ZaloController extends Controller
     public $ZaloAppId= "785881563324472798";
     public $AppSecret="V2E6nJ3I8i6ENB4qKYLf";
    
-    protected $cookie_name = "thuan_zalo";
+    protected $cookie_name = "zalo_cookie";
     protected $link_default = "https://jinod.com/zalo/index";
     protected $callBackUrl = "https://jinod.com/zalo/auth";
 
@@ -33,13 +33,14 @@ class ZaloController extends Controller
         if (!isset($_COOKIE[$this->cookie_name])) {
             $helper = $this->zalo->getRedirectLoginHelper();
             $loginUrl = $helper->getLoginUrl($this->callBackUrl); // This is login ur
+            echo("Dang login </br>");
             header("Location: {$loginUrl}");
         }
         else
         {
             echo("Login Thành Công </br>");
-            $this->getMe();
-            $this- auth();// lấy access token ghi vào cookie
+            //$this->auth();// lấy access token ghi vào cookie
+            $this->getAllFriends();
         }
     }
 
@@ -49,6 +50,7 @@ class ZaloController extends Controller
         $helper = $this->zalo -> getRedirectLoginHelper();
         $oauthCode = isset($_GET['code']) ? $_GET['code'] : "THIS NOT CALLBACK PAGE !!!"; // get oauthoauth code from url params
         $accessToken = $helper->getAccessToken($this->callBackUrl); // get access token
+        dd($accessToken);
         if ($accessToken != null) {
             $expr = $accessToken->getExpiresAt(); // get expires time
             // store the Access Token as a HTTP only cookie
@@ -96,7 +98,7 @@ function getMe() {
         echo '<br><br>';
     }
 }
-//----------get list friend dang su dung app
+//----------get list friend dang su dung app 
 function getFriendsUsedApp() {
     if (!isset($_COOKIE[$this->cookie_name])) {
         echo "Cookie named '" . $this->cookie_name . "' is not set!";

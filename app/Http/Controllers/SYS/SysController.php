@@ -23,6 +23,17 @@ class SysController extends Controller
 
         return $Result;
     }
+
+    public function IsExistNew($sConnection,$sql)
+    {
+       
+        $MyCount = 0;
+        $ds= DB::connection($sConnection)->select($sql);
+        foreach($ds as $d) {$MyCount  = $this->iif(is_null($d->MyCount),0,$d->MyCount);    }
+      
+        return $MyCount;
+    }
+
     // --------------------------------------------------------------
     public function GetFirstDateOfMonth($TheYear,$TheMonth)
     {
@@ -46,40 +57,40 @@ class SysController extends Controller
       return  $product_id;
 
      }
-       // --------------------------------------------------------------
-       public function GetProductIdFromAsin($Asin,$MarketPlace)
-       {
-        $product_id = 0;
-        $sql = "select p.id from prd_product p
-        inner join sal_product_asins pas on p.id = pas.product_id
-        where pas.market_place  = $MarketPlace
-        and pas.asin = '$Asin' ";
-        $ds= DB::connection('mysql')->select($sql);
-        foreach($ds as $d)  { $product_id = $this->iif(is_null($d->id),0,$d->id); }
-  
-        return  $product_id;
-  
-       }
-        // --------------------------------------------------------------
-       public function MoveDate($TheDate, $Days)
-       {
-         return  date('Y-m-d',strtotime( $TheDate. '+'.  $Days  .'days'));
-       }
       // --------------------------------------------------------------
-       public function GetPermissionOnFunction($UserID,$FunctionName)
-       {
-          $sResult='';
-          $sql = "select  ac.action_no
-          from sys_roles r inner join sys_role_members rmb on r.id = rmb.role_id
-          inner join sys_role_permissions rpmt on r.id = rpmt.role_id
-          inner join sys_actions ac on rpmt.action_id = ac.id
-          inner join sys_functions ft on ac.function_id = ft.id
-          inner join sys_modules mdl on ft.modulle_id = mdl.id
-          inner join ms_employees epl on rmb.emp_id = epl.id
-          where rpmt.is_active = 1 and rmb.emp_id = $UserID 
-          and  ft.name = '$FunctionName' order by  ac.action_no ";
+      public function GetProductIdFromAsin($Asin,$MarketPlace)
+      {
+      $product_id = 0;
+      $sql = "select p.id from prd_product p
+      inner join sal_product_asins pas on p.id = pas.product_id
+      where pas.market_place  = $MarketPlace
+      and pas.asin = '$Asin' ";
+      $ds= DB::connection('mysql')->select($sql);
+      foreach($ds as $d)  { $product_id = $this->iif(is_null($d->id),0,$d->id); }
 
-          $ds= DB::connection('mysql')->select($sql);
-          return  $ds ;
-       }
+      return  $product_id;
+
+      }
+    // --------------------------------------------------------------
+      public function MoveDate($TheDate, $Days)
+      {
+        return  date('Y-m-d',strtotime( $TheDate. '+'.  $Days  .'days'));
+      }
+    // --------------------------------------------------------------
+      public function GetPermissionOnFunction($UserID,$FunctionName)
+      {
+        $sResult='';
+        $sql = "select  ac.action_no
+        from sys_roles r inner join sys_role_members rmb on r.id = rmb.role_id
+        inner join sys_role_permissions rpmt on r.id = rpmt.role_id
+        inner join sys_actions ac on rpmt.action_id = ac.id
+        inner join sys_functions ft on ac.function_id = ft.id
+        inner join sys_modules mdl on ft.modulle_id = mdl.id
+        inner join ms_employees epl on rmb.emp_id = epl.id
+        where rpmt.is_active = 1 and rmb.emp_id = $UserID 
+        and  ft.name = '$FunctionName' order by  ac.action_no ";
+
+        $ds= DB::connection('mysql')->select($sql);
+        return  $ds ;
+      }
 }

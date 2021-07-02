@@ -13,8 +13,6 @@ class Social_ZaloController extends Controller
     // If the User Access Token is not available perform an authorization request
     public function index()
     {
-     
-
         if ( !isset($_COOKIE["user_access_token"]) ) 
         {
             $auth_uri = "https://oauth.zaloapp.com/v3/auth?"
@@ -26,7 +24,7 @@ class Social_ZaloController extends Controller
                         //redirect('$auth_uri');
                         // dd($auth_uri);
             header("Location: {$auth_uri}");
-        exit;
+            exit;
         }
         else 
         {
@@ -43,7 +41,6 @@ class Social_ZaloController extends Controller
             ));
             header("Location: {$friend_uri}");
             // List danh sách bạn bè
-            
             //echo "Authentication Success!";
         }
     }
@@ -70,7 +67,7 @@ class Social_ZaloController extends Controller
                 header('Location: ' . $url );
                 exit;
             }
-            elseif ( isset($_REQUEST['access_token']) && isset($_REQUEST['expires_in']) ) 
+            elseif (isset($_REQUEST['access_token']) && isset($_REQUEST['expires_in']) ) 
             {
                 $expr = time() + $_REQUEST['expires_in'];
                 // store the Access Token as a HTTP only cookie
