@@ -468,6 +468,7 @@ class ImportSalesProductController extends SysController
        }//For promotion
 
        */
+      /*
        //Suppied by IT
        $RowBegin = 2;
        $reader->setLoadSheetsOnly(["Suppied by IT", "Suppied by IT"]);
@@ -682,7 +683,7 @@ class ImportSalesProductController extends SysController
          }//end if Phân bổ vào các bảng dựa vào sales channel
         }//
        }// for IT suply
- /*
+ 
        $RowBegin = 3;
        $reader->setLoadSheetsOnly(["Real Sales (WH+DI+DS)", "Real Sales (WH+DI+DS)"]);
        $spreadsheet = $reader->load($file);
@@ -808,7 +809,7 @@ class ImportSalesProductController extends SysController
         }
 
       }// for AVC DS
-/*
+
        // FBA FBM
        $RowBegin = 2;
        $reader->setLoadSheetsOnly(["FBA-FBM", "FBA-FBM"]);
@@ -920,7 +921,7 @@ class ImportSalesProductController extends SysController
           }
         } // type = order, refund, cancel
       }// for fbafbm
-*/
+
        // WM DSV
        $RowBegin = 2;
        $reader->setLoadSheetsOnly(["WM-DSV", "WM-DSV"]);
@@ -938,64 +939,410 @@ class ImportSalesProductController extends SysController
         $distribution_center_id=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(2,$i)->getValue();
         $distribution_center=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(3,$i)->getValue();
         $date_marked_shipped =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(4,$i)->getValue();
+        
         $sYear = $this->left( $date_marked_shipped,4);
         $sDay = $this->left( $date_marked_shipped,-2);
         $sMonth = $this->left( $date_marked_shipped,-4);
         $sMonth = $this->left( $sMonth,2);
-
         $date_marked_shipped =  $sYear . '-' . $sMonth . '-' .  $sDay;
         $date_marked_shipped = date("Y-m-d", strtotime( $date_marked_shipped));  
 
         $amount_paid_to_vendor=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5,$i)->getValue();
         $report_date=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(6,$i)->getValue();
 
-        $sql = " select id as myCount from sal_wm_dsv_orders_z where order_id = '$order_id' ";
-        $id = $this->IsExistNew('mysq',$sql);
+        $sql = " select id as MyCount from sal_wm_dsv_orders_z where order_no = '$order_id' ";
+        $id = $this->IsExistNew('mysql',$sql);
         if($id == 0)// chưa có master
         {
           // Lưu thông tin master
-          $sql  = " insert into  sal_wm_dsv_orders_z(
-          order_id, status, order_processing_date, ship_by,requested_carrier_method ,
-          requested_carrier_method_code, ship_to_state,ship_to_address1,ship_to_zip,
-          date_marked_shipped,customer_shipping_info,distribution_center_id, distribution_center,
-          date_marked_shipped, amount_paid_to_vendor, report_date
-          )
-          select  order_no,status_name,order_date, required_ship_date , ship_method, ship_method_code,
-          ship_to_state,  ship_to_address,  ship_to_zip, shipped_date,  cus_name ,
-          $distribution_center_id,$distribution_center, $date_marked_shipped,   $report_date
+          $sql  = " select id, order_no,status_name,order_date, required_ship_date , ship_method, ship_method_code,
+          ship_to_state,  ship_to_address,  ship_to_zip, shipped_date,  cus_name 
           from sal_orders where order_no  = '$order_id' and channel_id = 4  ";
+          $ds = DB::connection('mysql')->select($sql);
+          foreach($ds as $d) {
+            $masterID = $d->id;
+            $order_no = $d->order_no;
+            $order_date = $d->order_date;
+            $status_name = $d->status_name;
+            $required_ship_date = $d->required_ship_date;
+            $ship_method = $d->ship_method;
+            $ship_method_code = $d->ship_method_code;
+            $ship_to_state = $d->ship_to_state;
+            $ship_to_address = $d->ship_to_address;
+            $ship_to_zip = $d->ship_to_zip;
+            $shipped_date = $d->shipped_date;
+            $cus_name  = $d->cus_name;
+          
+            $NewID =DB::connection('mysql')->table('sal_wm_dsv_orders_z')->insertGetID(
+            ['order_no'=>$order_no,'order_date'=>$order_date,'status_name'=>$status_name ,
+            'required_ship_date'=>$required_ship_date ,'ship_method'=> $ship_method ,
+            'ship_method_code'=>$ship_method_code ,'ship_to_state'=>$ship_to_state,
+            'ship_to_address'=> $ship_to_address,'cus_name'=>$cus_name]);
 
-          DB::connection('mysql')->select($sql);
-
-          $sql = "select max(id) from "
-          // Lưu thông tin detail
-
-          `id` 
-          `order_id` 
-          `type` 
-       
-          `product_id` int(11) NOT NULL,
-         
-          `sku` varchar(10) NOT NULL,
-          `sub_by_sku` varchar(10) DEFAULT NULL,
-          `ordered_quantity` int(11) NOT NULL COMMENT 'Số lượng khách hàng đặt',
-          `quantity` int(11) NOT NULL COMMENT 'Số lượng sản phẩm đã ship cho khách hàng',
-          `price_to_walmart` float DEFAULT NULL COMMENT 'Giá của 1 item',
-          `cost` float NOT NULL DEFAULT 0,
-          `product_price` float DEFAULT NULL,
-          `carrier` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-          `carrier_method_code` int(10) NOT NULL DEFAULT 0,
-          `tracking_number` varchar(50) NOT NULL,
-          `description` text DEFAULT NULL,
-          `insert_pickup_list` tinyint(1) NOT NULL DEFAULT 0,
-          `subtract_inventory_status` int(1) DEFAULT 0,
-          `process_profit` tinyint(1) DEFAULT 0,
-          `add_reserved` tinyint(4) NOT NULL DEFAULT 0
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
+            // Lưu thông tin detail
+            $sql =  " insert into  sal_wm_dsv_order_dt_z(order_id, product_id, sku, asin,  quantity, price, 
+            amount,commission, tracking_id ) 
+            select $NewID , product_id, sku, asin,  quantity, price, amount,commission, tracking_id 
+            from sal_order_dt where order_id =  $masterID ";
+            DB::connection('mysql')->select($sql);
         }
-      }
+        }
+      }// For
+
+       // WM-MKP
+       $RowBegin = 3;
+       $reader->setLoadSheetsOnly(["WM-MKP", "WM-MKP"]);
+       $spreadsheet = $reader->load($file);
+       $RowEnd = $spreadsheet->getActiveSheet()->getHighestRow();
+       print_r ('WM-MKP '.$RowEnd );
+       print_r ( '<br>');
+     
+       for($i=$RowBegin; $i <= $RowEnd; $i++)
+       {
+        $order_no =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1,$i)->getValue();
+        $order_line  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(2,$i)->getValue();
+        $po_no =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(3,$i)->getValue();
+        $po_line  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(4,$i)->getValue();
+        $partner_order =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5,$i)->getValue();
+
+        $ship_to_state =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(15,$i)->getValue();
+        $ship_to_county =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(16,$i)->getValue();
+        $county_code =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(17,$i)->getValue();
+        $ship_to_city =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(18,$i)->getValue();
+        $zip_code =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(19,$i)->getValue();
+        $shipping_method =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(20,$i)->getValue();
+
+       
+        $sku  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(9,$i)->getValue();
+        $gtin  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(10,$i)->getValue();
+        $item_name =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(11,$i)->getValue();
+        $product_tax_code =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(12,$i)->getValue();
+
+        $transaction_type =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(6,$i)->getValue();
+        $transaction_date_time  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(7,$i)->getValue();
+        $transaction_date_time = date("Y-m-d", strtotime( $transaction_date_time));  
+        $shipped_qty  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(8,$i)->getValue();
+       
+        $shipping_tax_code  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(13,$i)->getValue();
+        $gift_wrap_tax_code =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(14,$i)->getValue();
+
+
+        $total_tender =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(21,$i)->getValue();
+        $payable_to_partner_from_sale =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(22,$i)->getValue();
+        $commission_from_sale =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(23,$i)->getValue();
+        $commission_rate =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(24,$i)->getValue();
+        $gross_sales_revenue =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(25,$i)->getValue();
+        $refunded_retail_sales =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(26,$i)->getValue();
+        $sales_refund_for_escalation =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(27,$i)->getValue();
+        $gross_shipping_revenue =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(28,$i)->getValue();
+        $gross_shipping_refunded =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(29,$i)->getValue();
+        $shipping_refund_for_escalation =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(30,$i)->getValue();
+
+
+        $net_shipping_revenue =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(31,$i)->getValue();
+        $gross_fee_revenue =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(32,$i)->getValue();
+        $gross_fee_refunded =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(33,$i)->getValue();
+        $fee_refund_for_escalation =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(34,$i)->getValue();
+        $net_fee_revenue =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(35,$i)->getValue();
+        $gift_wrap_quantity =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(36,$i)->getValue();
+        $gross_gift_wrap_revenue =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(37,$i)->getValue();
+        $gross_gift_wrap_refunded  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(38,$i)->getValue();
+        $gift_wrap_refund_for_escalation =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(39,$i)->getValue();
+        $net_gift_wrap_revenue =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(40,$i)->getValue();
+        $tax_on_sales_revenue =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(41,$i)->getValue();
+        $tax_on_shipping_revenue =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(42,$i)->getValue();
+        $tax_on_gift_wrap_revenue =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(43,$i)->getValue();
+        $tax_on_fee_revenue =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(44,$i)->getValue();
+        $effective_tax_rate =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(45,$i)->getValue();
+        $tax_on_refunded_sales =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(46,$i)->getValue();
+        $tax_on_shipping_refund =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(47,$i)->getValue();
+        $tax_on_gift_wrap_refund =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(48,$i)->getValue();
+        $tax_on_fee_refund  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(49,$i)->getValue();
+        $tax_on_sales_refund_for_escalation  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(50,$i)->getValue();
+        $tax_on_shipping_refund_for_escalation =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(51,$i)->getValue();
+        $tax_on_gift_wrap_refund_for_escalation =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(52,$i)->getValue();
+        $tax_on_fee_refund_for_escalation =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(53,$i)->getValue();
+        $total_net_tax_collected =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(54,$i)->getValue();
+        $tax_withheld =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(55,$i)->getValue();
+        $adjustment_description =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(56,$i)->getValue();
+        $adjustment =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(57,$i)->getValue();
+        $code_original =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(58,$i)->getValue();
+        $item_price =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(59,$i)->getValue();
+        $original_commission_amount =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(60,$i)->getValue();
+        $spec_category =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(61,$i)->getValue();
+        $contract_category  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(62,$i)->getValue();
+        $product_type =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(63,$i)->getValue();
+        $flex_commission_rule =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(64,$i)->getValue();
+        $return_reason_code =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(65,$i)->getValue();
+        $return_reason_description  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(66,$i)->getValue();
+        $fee_withheld_flag =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(67,$i)->getValue();
+        $fulfillment_type =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(68,$i)->getValue();
+
+
+        $sql = " select id as MyCount from sal_wm_mkp_orders_z where order_no = '$order_no' ";
+        $id = $this->IsExistNew('mysql',$sql);
+        if($id == 0)// chưa có master
+        {
+          // Insert Master
+          $NewID =DB::connection('mysql')->table('sal_wm_mkp_orders_z')->insertGetID(
+          ['order_no'=>$order_no,'order_line'=>$order_line,'po_no'=>$po_no ,
+          'po_line'=>$po_line,'partner_order'=> $partner_order ,
+          'ship_to_state'=>$ship_to_state ,'ship_to_county'=>$ship_to_county,
+          'county_code'=> $county_code,'ship_to_city'=>$ship_to_city,'shipping_method'=> $shipping_method ]);
+
+          // Insert Detail
+          DB::connection('mysql')->table('sal_wm_mkp_order_dt_z')->insertGetID(
+          [
+            'sku'=>$sku  ,'gtin'=>$gtin,'item_name'=>$item_name ,'product_tax_code'=>$product_tax_code ,
+            'transaction_type'=>$transaction_type ,'transaction_date_time'=> $transaction_date_time,
+            'shipped_qty'=> $shipped_qty,'shipping_tax_code'=>$shipping_tax_code,
+            'gift_wrap_tax_code'=>$gift_wrap_tax_code, 'total_tender'=>$total_tender ,
+            'total_tender'=>$payable_to_partner_from_sale ,'commission_from_sale'=>$commission_from_sale,
+            'commission_rate'=>$commission_rate , 'gross_sales_revenue'=>$gross_sales_revenue ,
+            'refunded_retail_sales'=>$refunded_retail_sales , 'sales_refund_for_escalation'=>$sales_refund_for_escalation ,
+            'gross_shipping_revenue'=> $gross_shipping_revenue ,'gross_shipping_refunded'=>$gross_shipping_refunded ,
+            'shipping_refund_for_escalation'=>$shipping_refund_for_escalation,'net_shipping_revenue'=>$net_shipping_revenue,      
+            'gross_fee_revenue'=>$gross_fee_revenue ,'gross_fee_refunded'=>$gross_fee_refunded, 
+            'fee_refund_for_escalation'=>$fee_refund_for_escalation , 'net_fee_revenue'=>$net_fee_revenue ,
+            'gift_wrap_quantity'=>$gift_wrap_quantity , 'gross_gift_wrap_revenue'=>$gross_gift_wrap_revenue ,
+            'gross_gift_wrap_refunded'=>$gross_gift_wrap_refunded , 'gift_wrap_refund_for_escalation'=>$gift_wrap_refund_for_escalation ,
+            'net_gift_wrap_revenue'=>$net_gift_wrap_revenue, 'tax_on_sales_revenue'=> $tax_on_sales_revenue,
+            'tax_on_shipping_revenue'=> $tax_on_shipping_revenue ,'tax_on_gift_wrap_revenue'=> $tax_on_gift_wrap_revenue ,
+            'tax_on_fee_revenue'=> $tax_on_fee_revenue, 'effective_tax_rate'=>$effective_tax_rate ,
+            'tax_on_refunded_sales'=>$tax_on_refunded_sales ,'tax_on_shipping_refund'=>$tax_on_shipping_refund ,
+            'tax_on_gift_wrap_refund'=>$tax_on_gift_wrap_refund, 'tax_on_fee_refund'=> $tax_on_fee_refund  ,
+            'tax_on_sales_refund_for_escalation'=>$tax_on_sales_refund_for_escalation  , 
+            'tax_on_shipping_refund_for_escalation'=>$tax_on_shipping_refund_for_escalation ,
+            'tax_on_gift_wrap_refund_for_escalation'=> $tax_on_gift_wrap_refund_for_escalation ,
+            'tax_on_fee_refund_for_escalation'=>$tax_on_fee_refund_for_escalation ,
+            'total_net_tax_collected'=>$total_net_tax_collected ,
+            'tax_withheld'=>$tax_withheld ,'adjustment_description'=>$adjustment_description,
+            'adjustment'=> $adjustment , 'code_original'=> $code_original ,'item_price'=>$item_price ,
+            'original_commission_amount'=>$original_commission_amount ,'spec_category'=>$spec_category ,
+            'contract_category'=> $contract_category  , 'product_type'=>$product_type ,
+            'flex_commission_rule'=>$flex_commission_rule , 'return_reason_code'=>$return_reason_code,
+            'return_reason_description'=>$return_reason_description , 'fee_withheld_flag' => $fee_withheld_flag ,
+            'fulfillment_type'=>$fulfillment_type ,'order_id'=>$NewID
+           ]);
+        }else// đã tồn tại master
+        {
+          $sql = " select id as MyCount from sal_wm_mkp_order_dt_z where order_id = $id and transaction_type = '$transaction_type' ";
+          if($this->IsExistNew('mysql',$sql) == 0)
+          {
+            // inssert Detail
+            DB::connection('mysql')->table('sal_wm_mkp_order_dt_z')->insertGetID(
+              [
+                'sku'=>$sku  ,'gtin'=>$gtin,'item_name'=>$item_name ,'product_tax_code'=>$product_tax_code ,
+                'transaction_type'=>$transaction_type ,'transaction_date_time'=> $transaction_date_time,
+                'shipped_qty'=> $shipped_qty,'shipping_tax_code'=>$shipping_tax_code,
+                'gift_wrap_tax_code'=>$gift_wrap_tax_code, 'total_tender'=>$total_tender ,
+                'total_tender'=>$payable_to_partner_from_sale ,'commission_from_sale'=>$commission_from_sale,
+                'commission_rate'=>$commission_rate , 'gross_sales_revenue'=>$gross_sales_revenue ,
+                'refunded_retail_sales'=>$refunded_retail_sales , 'sales_refund_for_escalation'=>$sales_refund_for_escalation ,
+                'gross_shipping_revenue'=> $gross_shipping_revenue ,'gross_shipping_refunded'=>$gross_shipping_refunded ,
+                'shipping_refund_for_escalation'=>$shipping_refund_for_escalation,'net_shipping_revenue'=>$net_shipping_revenue,      
+                'gross_fee_revenue'=>$gross_fee_revenue ,'gross_fee_refunded'=>$gross_fee_refunded, 
+                'fee_refund_for_escalation'=>$fee_refund_for_escalation , 'net_fee_revenue'=>$net_fee_revenue ,
+                'gift_wrap_quantity'=>$gift_wrap_quantity , 'gross_gift_wrap_revenue'=>$gross_gift_wrap_revenue ,
+                'gross_gift_wrap_refunded'=>$gross_gift_wrap_refunded , 'gift_wrap_refund_for_escalation'=>$gift_wrap_refund_for_escalation ,
+                'net_gift_wrap_revenue'=>$net_gift_wrap_revenue, 'tax_on_sales_revenue'=> $tax_on_sales_revenue,
+                'tax_on_shipping_revenue'=> $tax_on_shipping_revenue ,'tax_on_gift_wrap_revenue'=> $tax_on_gift_wrap_revenue ,
+                'tax_on_fee_revenue'=> $tax_on_fee_revenue, 'effective_tax_rate'=>$effective_tax_rate ,
+                'tax_on_refunded_sales'=>$tax_on_refunded_sales ,'tax_on_shipping_refund'=>$tax_on_shipping_refund ,
+                'tax_on_gift_wrap_refund'=>$tax_on_gift_wrap_refund, 'tax_on_fee_refund'=> $tax_on_fee_refund  ,
+                'tax_on_sales_refund_for_escalation'=>$tax_on_sales_refund_for_escalation  , 
+                'tax_on_shipping_refund_for_escalation'=>$tax_on_shipping_refund_for_escalation ,
+                'tax_on_gift_wrap_refund_for_escalation'=> $tax_on_gift_wrap_refund_for_escalation ,
+                'tax_on_fee_refund_for_escalation'=>$tax_on_fee_refund_for_escalation ,
+                'total_net_tax_collected'=>$total_net_tax_collected ,
+                'tax_withheld'=>$tax_withheld ,'adjustment_description'=>$adjustment_description,
+                'adjustment'=> $adjustment , 'code_original'=> $code_original ,'item_price'=>$item_price ,
+                'original_commission_amount'=>$original_commission_amount ,'spec_category'=>$spec_category ,
+                'contract_category'=> $contract_category  , 'product_type'=>$product_type ,
+                'flex_commission_rule'=>$flex_commission_rule , 'return_reason_code'=>$return_reason_code,
+                'return_reason_description'=>$return_reason_description , 'fee_withheld_flag' => $fee_withheld_flag ,
+                'fulfillment_type'=>$fulfillment_type ,'order_id'=>$NewID
+               ]);
+          }
+          
+        }
+      }// For
+
+        // Wayfair
+        $RowBegin = 3;
+        $reader->setLoadSheetsOnly(["Wayfair", "Wayfair"]);
+        $spreadsheet = $reader->load($file);
+        $RowEnd = $spreadsheet->getActiveSheet()->getHighestRow();
+        print_r ('Wayfair '.$RowEnd );
+        print_r ( '<br>');
+
+        for($i=$RowBegin; $i <= $RowEnd; $i++)
+        {
+          $po_number =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(3,$i)->getValue();
+          $warehouse_name  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1,$i)->getValue();
+          $store_name  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(2,$i)->getValue();
+
+          $po_date	  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(4,$i)->getValue();
+          $po_date = date("Y-m-d", strtotime( $po_date));  
+          $must_ship_by	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5,$i)->getValue();
+          $must_ship_by = date("Y-m-d", strtotime( $must_ship_by));  
+          $back_order_date =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(6,$i)->getValue();
+          if( $back_order_date <>'' ) { $back_order_date = date("Y-m-d", strtotime( $back_order_date));  }
+
+          $order_status =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(7,$i)->getValue();
+
+          $ship_method	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(12,$i)->getValue();
+          $carrier_name	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(13,$i)->getValue();
+          $shipping_account_number	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(14,$i)->getValue();
+          $ship_to_name	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(15,$i)->getValue();
+          $ship_to_address	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(16,$i)->getValue();
+          $ship_to_address2 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(17,$i)->getValue();
+          $ship_to_city	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(18,$i)->getValue();
+          $ship_to_state	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(19,$i)->getValue();
+          $ship_to_zip	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(20,$i)->getValue();
+          $ship_to_phone =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(21,$i)->getValue();
+
+          $ship_speed		 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(24,$i)->getValue();
+          $po_date_time =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(25,$i)->getValue();
+          $po_date_time = date("Y-m-d", strtotime( $po_date_time));  
+          $registered_timestamp	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(26,$i)->getValue();
+          $registered_timestamp = date("Y-m-d", strtotime( $registered_timestamp));  
+          $customization_text	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(27,$i)->getValue();
+
+        
+          $item_number =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(8,$i)->getValue();
+          $item_name	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(9,$i)->getValue();
+          $quantity	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(10,$i)->getValue();
+          $wholesale_price	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(11,$i)->getValue();
+
+          $inventory_at_po_time =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(22,$i)->getValue();
+          $inventory_send_date =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(23,$i)->getValue();
+
+          $event_name	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(28,$i)->getValue();
+          $event_id	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(29,$i)->getValue();
+          $event_start_date =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(30,$i)->getValue();
+          $event_end_date	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(31,$i)->getValue();
+          $event_type  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(32,$i)->getValue();
+          $backorder_reason =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(33,$i)->getValue();
+         
+          $original_product_id  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(34,$i)->getValue();
+          $original_product_name  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(35,$i)->getValue();
+          $event_inventory_source  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(36,$i)->getValue();
+          $packing_slip_url  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(37,$i)->getValue();
+          $tracking_number	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(38,$i)->getValue();
+          $ready_for_pickup_date	  =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(39,$i)->getValue();
+          $wm_sku =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(40,$i)->getValue();
+          $destination_country =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(41,$i)->getValue();
+
+          $depot_id	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(42,$i)->getValue();
+          $depot_name =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(43,$i)->getValue();
+          $wholesale_event_source	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(44,$i)->getValue();
+          $wholesale_event_store_source =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(45,$i)->getValue();
+          $b2b_order =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(46,$i)->getValue();
+          $composite_wood_product =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(47,$i)->getValue();
+          $create_at =   $EndDate = date('Y-m-d H:i:s');
+
+           // inssert 
+           DB::connection('mysql')->table('sal_wf_orders_z')->insert(
+            ['warehouse_name'=>$warehouse_name , 'store_name'=>$store_name ,    
+            'po_number'=>$po_number,'po_date'=>$po_date	, 'must_ship_by'=>$must_ship_by	,
+            'back_order_date'=> $back_order_date, 'ship_method'=>$ship_method	,'carrier_name'=> $carrier_name	,
+            'shipping_account_number'=> $shipping_account_number	, 'ship_to_name'=>$ship_to_name	,
+            'ship_to_address'=>$ship_to_address	, 'ship_to_address2'=> $ship_to_address2,
+            'ship_to_city'=>$ship_to_city	, 'ship_to_state'=>$ship_to_state	,
+            'ship_to_zip'=> $ship_to_zip	, 'ship_to_phone'=>  $ship_to_phone,'ship_speed'=>$ship_speed,
+            'registered_timestamp'=>$registered_timestamp	, 'customization_text'=>  $customization_text	,
+          	'destination_country'=>$destination_country, 'depot_id'=>$depot_id	,'depot_name'=> $depot_name,
+            'wholesale_event_source'=>$wholesale_event_source	, 'wholesale_event_store_source'=> $wholesale_event_store_source,
+            'b2b_order'=>$b2b_order, 'order_status'=>$order_status, 'item_number'=>$item_number, 'item_name'=>$item_name	,
+            'quantity'=>$quantity	, 'wholesale_price'=>$wholesale_price	,'inventory_at_po_time'=>$inventory_at_po_time,
+            'inventory_send_date'=> $inventory_send_date, 'wm_sku'=>$wm_sku, 'event_name'=> $event_name	,
+            'event_id'=>$event_id	, 'event_start_date'=>$event_start_date,'event_end_date'=>$event_end_date, 'event_type'=>$event_type,
+            'backorder_reason'=> $backorder_reason, 'tracking_number'=>$tracking_number	, 'original_product_id'=>$original_product_id,
+            'original_product_name'=>$original_product_name,'event_inventory_source'=>$event_inventory_source,
+            'packing_slip_url'=>$packing_slip_url, 'ready_for_pickup_date'=> $ready_for_pickup_date	, 
+            'composite_wood_product'=> $composite_wood_product, 'create_at'=>$create_at
+            ]);
+        }
+*/
+        // EBAY
+        $RowBegin = 13;
+        $reader->setLoadSheetsOnly(["ebay infildeal", "ebay infildeal"]);
+        $store_id = 3;
+        $spreadsheet = $reader->load($file);
+        $RowEnd = $spreadsheet->getActiveSheet()->getHighestRow();
+        print_r ('ebay infildeal '.$RowEnd );
+        print_r ( '<br>');
+
+        for($i=$RowBegin; $i <= $RowEnd; $i++)
+        {
+          $transaction_date =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1,$i)->getFormattedValue();
+         // print_r('Tracsation date: '. $transaction_date );
+         // print_r('<br>' );
+          $transaction_date = date("Y-m-d", strtotime( $transaction_date));  
+         // print_r('Tracsation date: '. $transaction_date );
+         // print_r('<br>' );
+          
+          $type	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(2,$i)->getValue();
+          $order_number	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(3,$i)->getValue();
+          $legacy_order_id=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(4,$i)->getValue();
+          $buyer_username	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5,$i)->getValue();
+          $buyer_name	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(6,$i)->getValue();
+          $ship_to_city	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(7,$i)->getValue();
+          $ship_to_state=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(8,$i)->getValue();
+          $ship_to_zip	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(9,$i)->getValue();
+          $ship_to_country=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(10,$i)->getValue();
+          $net_amount=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(11,$i)->getValue();
+          $payout_currency=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(12,$i)->getValue();
+          $payout_date =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(13,$i)->getFormattedValue();
+          $payout_date = date("Y-m-d", strtotime( $payout_date));  
+
+          $payout_id =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(14,$i)->getValue();
+          $payout_method	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(15,$i)->getValue();
+          $status =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(16,$i)->getValue();
+          $reason_for_hold =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(17,$i)->getValue();
+          $item_id	 =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(18,$i)->getValue();
+          $transaction_id	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(19,$i)->getValue();
+          $item_title	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(20,$i)->getValue();
+          $item_title= str_replace("'", "",  $item_title);
+          $custom_label=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(21,$i)->getValue(); 
+          $sku = $this->left($custom_label,4);
+          $quantity	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(22,$i)->getValue(); 
+          $item_subtotal	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(23,$i)->getValue(); 
+          $shipping_handling	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(24,$i)->getValue(); 
+          $seller_collected_tax=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(25,$i)->getValue(); 
+          $ebay_collected_tax	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(26,$i)->getValue(); 
+          $final_value_fee_fixed	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(27,$i)->getValue(); 
+          $final_value_fee_variable=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(28,$i)->getValue(); 
+          $very_high_item =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(29,$i)->getValue(); 
+          $below_standard_performance =  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(30,$i)->getValue(); 
+          $international_fee	=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(31,$i)->getValue(); 
+          $gross_transaction_amount=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(32,$i)->getValue(); 
+          $transaction_currency=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(33,$i)->getValue(); 
+          $exchange_rate=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(34,$i)->getValue(); 
+          $reference_id=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(35,$i)->getValue(); 
+          $description=  $spreadsheet->getActiveSheet()->getCellByColumnAndRow(36,$i)->getValue(); 
+
+          DB::connection('mysql')->table('sal_ebay_orders_z')->insert(
+            [
+              'transaction_date'=>$transaction_date, 'type'=>$type,
+              'order_number'=>$order_number, 'legacy_order_id'=>$legacy_order_id, 'buyer_username'=>$buyer_username,
+              'buyer_name'=>$buyer_name, 'ship_to_city'=>$ship_to_city, 'ship_to_state'=>$ship_to_state,
+              'ship_to_state'=>$ship_to_state, 'ship_to_zip'=>$ship_to_zip, 'ship_to_country'=>$ship_to_country,
+              'net_amount'=>$net_amount,'payout_currency'=>$payout_currency, 'payout_date'=>$payout_date,
+	            'payout_id'=>$payout_id, 'payout_method'=>$payout_method, 'payout_method'=>$payout_method,
+              'status'=>$status, 'reason_for_hold'=>$reason_for_hold, 'item_id'=>$item_id, 'transaction_id'=>$transaction_id,
+              'item_title'=>$item_title, 'custom_label'=>$custom_label, 'sku'=>$sku, 'quantity'=>$quantity,
+              'item_subtotal'=>$item_subtotal, 'shipping_handling'=>$shipping_handling, 
+              'seller_collected_tax'=>$seller_collected_tax , 'ebay_collected_tax'=>$ebay_collected_tax,
+              'final_value_fee_fixed'=>$final_value_fee_fixed, 'final_value_fee_variable'=>$final_value_fee_variable,
+              'very_high_item'=>$very_high_item, 'very_high_item'=>$very_high_item,
+              'below_standard_performance'=>$below_standard_performance, 'international_fee'=>$international_fee,
+              'gross_transaction_amount'=>$gross_transaction_amount, 'transaction_currency'=>$transaction_currency,
+              'exchange_rate'=>$exchange_rate, 'reference_id'=>$reference_id, 'description'=> $description,'store_id'=> $store_id
+            ]);
+            
+        }
 
 
       }//  if($validator->passes())

@@ -29,6 +29,7 @@ class SysController extends Controller
        
         $MyCount = 0;
         $ds= DB::connection($sConnection)->select($sql);
+      
         foreach($ds as $d) {$MyCount  = $this->iif(is_null($d->MyCount),0,$d->MyCount);    }
       
         return $MyCount;
