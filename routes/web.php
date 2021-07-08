@@ -45,6 +45,9 @@ Route::get('/resetPass', function () {
 Route::group(['prefix' => 'zalo'], function () {
     Route::get('/index', 'SYS\ZaloController@index');
     Route::get('/auth','SYS\ZaloController@auth');    
+
+    Route::get('/friends', 'SYS\ZaloController@getAllFriends');
+   
 });
 
 //Route::post('https://graph.zalo.me/v2.0/me/message', 'SYS\Social_ZaloController@index');

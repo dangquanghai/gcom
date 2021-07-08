@@ -486,12 +486,12 @@ class SalesProductInforController extends SysController
       $Title  = $request->input('title');
       $Brand  = $request->input('brand');
 
-      
     
 
-    $sql= "  select  p.id , p.title, p.product_sku as sku ,GetAsin(p.id,1,0) as amz_asin ,GetAsin(p.id,3,1) as ebay_infidealz, GetAsin(p.id,3,2) as ebay_inc,
-    GetAsin(p.id,3,3) as ebay_fitness,GetAsin(p.id,2,0) as wm_item_id , GetAsin(p.id,6,0) as wayfair_asin from prd_product p 
-    inner join prd_brands br on p.brand_id = br.id
+    $sql= "  select  p.id , p.title, p.product_sku as sku ,GetAsin(p.id,1,0) as amz_asin ,
+    GetAsin(p.id,3,1) as ebay_infidealz, GetAsin(p.id,3,2) as ebay_inc,
+    GetAsin(p.product_sku,3,3) as ebay_fitness,GetAsin(p.product_sku,2,0) as wm_item_id , GetAsin(p.product_sku,6,0) as wayfair_asin 
+    from prd_product p inner join prd_brands br on p.brand_id = br.id
     where company_id <> 1 ";
 
      $sql = $sql .   $sqlFilter ;

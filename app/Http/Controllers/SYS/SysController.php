@@ -52,7 +52,18 @@ class SysController extends Controller
     {
       return substr($str, 0, -$length);
     }
-     // --------------------------------------------------------------
+    // --------------------------------------------------------------
+    public function GetSkuFromAsin($Asin, $MakePlaceID,$StoreID)
+    {
+      $Sku = 0; 
+      $sql = "select sku from sal_product_asins where market_place = $MakePlaceID and asin = '$Asin'  and store_id = $StoreID";
+      $ds= DB::connection('mysql')->select($sql);
+      foreach($ds as $d)  { $Sku = $this->iif(is_null($d->sku),'',$d->sku); }
+
+      return   $Sku;
+
+    }
+    // --------------------------------------------------------------
      public function GetProductIdFromSku($Sku)
      {
       $product_id = 0;

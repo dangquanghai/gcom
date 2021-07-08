@@ -50,7 +50,6 @@ class Social_ZaloController extends Controller
     { 
         $headers = getallheaders();
         // Just to ensure this is a request from Zalo!
-   
             // Received callback data from oauth.zaloapp.com/v3/auth
             if ( isset($_REQUEST['uid']) && isset($_REQUEST['code']) && isset($_REQUEST['scope']) ) 
             {

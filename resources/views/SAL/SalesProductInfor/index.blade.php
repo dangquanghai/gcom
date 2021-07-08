@@ -2,7 +2,7 @@
 @section('content')
 <form role="form">
 <div class ="row">
-  <div class="col-md-1" style="padding-right:0px">
+  <div class="col-md-2" style="padding-right:0px">
     <!-- general form elements -->
     <div class="card card-primary">
       <div class="card-header">
@@ -39,7 +39,7 @@
     <!-- /.card-body -->
   </div>
     <!-- /.card -->
-    <div class="col-md-11" style="padding-left:0px">
+    <div class="col-md-10" style="padding-left:0px">
     <div class="card card-primary card-tabs">
     
 
@@ -50,9 +50,6 @@
     </li>
     <li class="nav-item">
       <a class="nav-link" id="custom-tabs-one-asin-tab" data-toggle="pill" href="#custom-tabs-one-asin" role="tab" aria-controls="custom-tabs-one-asin" aria-selected="false">Asin Management </a>
-      <div class="card-tools">
-        <a href="{{route('Promotion.create')}}"><i class="fa fa-plus-square" id="btnCreate"></i></a>
-      </div>
     </li>
    
   </ul>
@@ -83,7 +80,7 @@
 
 <div class="card-footer">
     <div class="card-tools">
-        <a href="{{route('SalesProductInforController.create')}}"id="btnCreate"> <i class="fa fa-plus-square"></i>xxx </a>
+        <a href="{{route('SalesProductInforController.create')}}"id="btnCreate"> <i class="fa fa-plus-square"></i></a>
     </div>
 </div>
 

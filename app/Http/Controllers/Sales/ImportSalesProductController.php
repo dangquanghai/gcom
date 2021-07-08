@@ -334,7 +334,7 @@ class ImportSalesProductController extends SysController
              }DB::connection('mysql')->select($sql);
           }// end if sku <>''
         }// End for
-
+*/
         // Insert ASIN
         $RowBegin = 3;
         $reader->setLoadSheetsOnly(["asin", "asin"]);
@@ -365,26 +365,26 @@ class ImportSalesProductController extends SysController
              foreach( $ds as $d ) { $ProductID= $d->id; }
 
              DB::connection('mysql')->table('sal_product_asins')->insert(
-             ['product_id'=>$ProductID,'market_place'=>1,'store_id'=>0,'asin'=>$amz_asin]);
+             ['sku'=>$sku,'market_place'=>1,'store_id'=>0,'asin'=>$amz_asin]);
 
              DB::connection('mysql')->table('sal_product_asins')->insert(
-             ['product_id'=>$ProductID,'market_place'=>3,'store_id'=>1,'asin'=>$ebay_infidealz]);
+             ['sku'=>$sku,'market_place'=>3,'store_id'=>1,'asin'=>$ebay_infidealz]);
 
              DB::connection('mysql')->table('sal_product_asins')->insert(
-             ['product_id'=>$ProductID,'market_place'=>3,'store_id'=>2,'asin'=>$ebay_inc]);
+             ['sku'=>$sku,'market_place'=>3,'store_id'=>2,'asin'=>$ebay_inc]);
 
              DB::connection('mysql')->table('sal_product_asins')->insert(
-             ['product_id'=>$ProductID,'market_place'=>3,'store_id'=>3,'asin'=>$ebay_fitness]);
+             ['sku'=>$sku,'market_place'=>3,'store_id'=>3,'asin'=>$ebay_fitness]);
 
              DB::connection('mysql')->table('sal_product_asins')->insert(
-             ['product_id'=>$ProductID,'market_place'=>2,'store_id'=>0,'asin'=>$wm_item_id]);
+             ['sku'=>$sku,'market_place'=>2,'store_id'=>0,'asin'=>$wm_item_id]);
 
              DB::connection('mysql')->table('sal_product_asins')->insert(
-             ['product_id'=>$ProductID,'market_place'=>6,'store_id'=>0,'asin'=>$wayfair_asin]);
+             ['sku'=>$sku,'market_place'=>6,'store_id'=>0,'asin'=>$wayfair_asin]);
              
            }
          }//For
-
+/*
          $RowBegin = 3;
          $reader->setLoadSheetsOnly(["promotion", "promotion"]);
          $spreadsheet = $reader->load($file);
@@ -468,7 +468,7 @@ class ImportSalesProductController extends SysController
        }//For promotion
 
        */
-      /*
+      
        //Suppied by IT
        $RowBegin = 2;
        $reader->setLoadSheetsOnly(["Suppied by IT", "Suppied by IT"]);
@@ -700,7 +700,7 @@ class ImportSalesProductController extends SysController
          $TheWeek = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(22,$i)->getValue();
          $TheYear = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(23,$i)->getValue();
          $MarketPlace =1;// Amazon
-         $product_id = $this->GetProductIDFromAsin($Asin, $MarketPlace);
+         $product_id = $this->GetSkuFromAsin($Asin, $MarketPlace);
          $id =0;
          $sql = " select id  from sal_sum_vendor_order where product_id  = $product_id 
          and the_week  = $TheWeek and the_year =  $TheYear  ";
@@ -1264,7 +1264,7 @@ class ImportSalesProductController extends SysController
             'composite_wood_product'=> $composite_wood_product, 'create_at'=>$create_at
             ]);
         }
-*/
+
         // EBAY
         $RowBegin = 13;
         $reader->setLoadSheetsOnly(["ebay infildeal", "ebay infildeal"]);
@@ -1343,7 +1343,6 @@ class ImportSalesProductController extends SysController
             ]);
             
         }
-
 
       }//  if($validator->passes())
     }

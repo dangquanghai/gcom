@@ -17,6 +17,7 @@ class ZaloController extends Controller
     protected $cookie_name = "zalo_cookie";
     protected $link_default = "https://jinod.com/zalo/index";
     protected $callBackUrl = "https://jinod.com/zalo/auth";
+    protected $urlGetZaloFriends = "https://jinod.com/zalo/friends";
 
     protected $config = array(
         'app_id' => '785881563324472798',
@@ -27,18 +28,20 @@ class ZaloController extends Controller
     public function __construct() {
         $this->zalo = new Zalo($this->config);
     }
-    
+
+
     // ----------------gọi tới link login zalo + xin cap phép -----------------
     function index() {
         if (!isset($_COOKIE[$this->cookie_name])) {
             $helper = $this->zalo->getRedirectLoginHelper();
             $loginUrl = $helper->getLoginUrl($this->callBackUrl); // This is login ur
-            echo("Dang login </br>");
-            header("Location: {$loginUrl}");
+            //echo("Dang login </br>");
+           // header("Location: {$loginUrl}");
+            return redirect($loginUrl);
         }
         else
         {
-            echo("Login Thành Công </br>");
+           // echo("Login Thành Công </br>");
             //$this->auth();// lấy access token ghi vào cookie
             $this->getAllFriends();
         }
@@ -50,13 +53,14 @@ class ZaloController extends Controller
         $helper = $this->zalo -> getRedirectLoginHelper();
         $oauthCode = isset($_GET['code']) ? $_GET['code'] : "THIS NOT CALLBACK PAGE !!!"; // get oauthoauth code from url params
         $accessToken = $helper->getAccessToken($this->callBackUrl); // get access token
-        dd($accessToken);
         if ($accessToken != null) {
             $expr = $accessToken->getExpiresAt(); // get expires time
             // store the Access Token as a HTTP only cookie
             setcookie($this->cookie_name, $accessToken, time()+3600, '/', '', true, true );
-            //xin cấp quyền thành công, bước tiếp theo chy về đâu đó
-            $this->getMe();
+
+            return redirect($this->urlGetZaloFriends);
+            //xin cấp quyền thành công, bước tiếp theo chy về đâu đós
+            //$this->getMe();
         }
         } catch (ZaloResponseException $e) {
             // When Graph returns an error
@@ -114,6 +118,7 @@ function getFriendsUsedApp() {
 }
 //----------get list all friends chua dung app
 function getAllFriends() {
+    $data;
     if (!isset($_COOKIE[$this->cookie_name])) {
         echo "Cookie named '" . $this->cookie_name . "' is not set!";
         header("Location: {$this->link_default}");
@@ -121,9 +126,13 @@ function getAllFriends() {
         $accessToken = $_COOKIE[$this->cookie_name];
         $params = ['offset' => 0, 'limit' => 100, 'fields' => "id, name"];
         $response = $this->zalo->get(ZaloEndPoint::API_GRAPH_INVITABLE_FRIENDS, $accessToken, $params);
-        echo '<br><br>';
-        print_r($response->getDecodedBody());
-        echo '<br><br>';
+        $data =$response->getDecodedBody();
+        // echo '<br><br>';
+        // print_r($response->getDecodedBody());
+        // echo '<br><br>';
+        return view('SYS.zalo',compact(['data']));
+        
+   
     }
 }
 //----------mời bạn bè xài app, phi xài app thì mới gủi tin nhắn được.
