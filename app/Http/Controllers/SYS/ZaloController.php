@@ -3,11 +3,17 @@
 namespace App\Http\Controllers\SYS;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\SYS\SysController;
 use Zalo\Zalo;
 use Zalo\ZaloEndPoint;
 
-class ZaloController extends Controller
+use Validator;
+use DateTime;
+use GuzzleHttp\Client;
+
+
+
+class ZaloController extends SysController
 {
     protected static $instance;
     protected $zalo;
@@ -17,6 +23,7 @@ class ZaloController extends Controller
     protected $cookie_name = "zalo_cookie";
     protected $link_default = "https://jinod.com/zalo/index";
     protected $callBackUrl = "https://jinod.com/zalo/auth";
+
     protected $urlGetZaloFriends = "https://jinod.com/zalo/friends";
 
     protected $config = array(
@@ -41,7 +48,7 @@ class ZaloController extends Controller
         }
         else
         {
-           // echo("Login Thành Công </br>");
+            // echo("Login Thành Công </br>");
             //$this->auth();// lấy access token ghi vào cookie
             $this->getAllFriends();
         }
@@ -131,18 +138,20 @@ function getAllFriends() {
         // print_r($response->getDecodedBody());
         // echo '<br><br>';
         return view('SYS.zalo',compact(['data']));
+       
+        
         
    
     }
 }
 //----------mời bạn bè xài app, phi xài app thì mới gủi tin nhắn được.
-function sendAppRequest($id_friend) {
+function sendAppRequest($FriendID) {
     if (!isset($_COOKIE[$this->cookie_name])) {
         echo "Cookie named '" . $this->cookie_name . "' is not set!";
          header("Location: {$this->link_default}");
     } else {
         $accessToken = $_COOKIE[$this->cookie_name];
-        $params = ['message' => 'Test function moi su dung ung dung https://jinod.com/zalo/index', 'to' => $id_friend];
+        $params = ['message' => 'Test function moi su dung ung dung https://jinod.com/zalo/index', 'to' => $FriendID];
         $response = $this->zalo->post(ZaloEndPoint::API_GRAPH_APP_REQUESTS, $accessToken, $params);
         echo '<br><br>';
         print_r($response->getDecodedBody());

@@ -92,7 +92,7 @@ class ProductControllerNew extends SysController
         {
           $sql = "  select p.id, pas.asin, p.title 
           from prd_product p  inner join sal_product_asins pas 
-          on p.id = pas.product_id   
+          on p.product_sku = pas.sku   
           where  (p.company_id <> 1) and (pas.market_place = 1) and (pas.asin is not null ) and (pas.asin <> '' )
           and (pas.asin like '%$key%' or p.title  like '%$key%' )  order by  pas.asin ";
 
@@ -108,7 +108,7 @@ class ProductControllerNew extends SysController
         if($Asin)
         {
             $sql = "  select p.id  from  prd_product p   inner join sal_product_asins a
-            on p.id =a.product_id  where  (p.company_id <> 1)  and (a.asin  = '$Asin') and (market_place =1) " ;
+            on p.product_sku = a.sku  where  (p.company_id <> 1)  and (a.asin  = '$Asin') and (market_place =1) " ;
             $prs = DB::connection('mysql')->select($sql);
             if($prs)
                 return json_encode($prs->id) ;
@@ -124,8 +124,8 @@ class ProductControllerNew extends SysController
         $product_id = $request->id;
         
         $sql = "  select p.id,  a.asin, p.title 
-        from  prd_product p  inner join sal_product_asins a
-        where a.market_place =1 and  p.id =  $product_id ";
+        from  prd_product p  inner join sal_product_asins a on p.product_sku = a.sku
+        where a.market_place = 1 and  p.id =  $product_id ";
 
         $products = DB::connection('mysql')->select($sql);
         foreach($products as $product )

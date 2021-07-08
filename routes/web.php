@@ -47,7 +47,10 @@ Route::group(['prefix' => 'zalo'], function () {
     Route::get('/auth','SYS\ZaloController@auth');    
 
     Route::get('/friends', 'SYS\ZaloController@getAllFriends');
-   
+    Route::post('/send.app.request/{FriendID}', 'SYS\ZaloController@sendAppRequest');
+
+    Route::get('/app.friends', 'SYS\ZaloController@getFriendsUsedApp');
+    
 });
 
 //Route::post('https://graph.zalo.me/v2.0/me/message', 'SYS\Social_ZaloController@index');
