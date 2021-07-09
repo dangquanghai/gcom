@@ -700,7 +700,7 @@ class ImportSalesProductController extends SysController
          $TheWeek = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(22,$i)->getValue();
          $TheYear = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(23,$i)->getValue();
          $MarketPlace =1;// Amazon
-         $product_id = $this->GetSkuFromAsin($Asin, $MarketPlace);
+         $product_id = $this->GetProductIdFromAsin($Asin, $MarketPlace);
          $id =0;
          $sql = " select id  from sal_sum_vendor_order where product_id  = $product_id 
          and the_week  = $TheWeek and the_year =  $TheYear  ";

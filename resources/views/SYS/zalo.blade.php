@@ -46,8 +46,7 @@
 @section('scripts')
 <script>
 var $table = $('#table');
-var ds = {!! json_encode($data) !!};
-
+var ds = {!! json_encode($data['data']) !!};
 
 $(function() {
   $('#toolbar').find('select').change(function () {
@@ -63,7 +62,7 @@ $(function() {
       columns: 
       [
         {field:'name',title:'name'},
-        {field:'id',title:'Edit'}
+        {field:'id',title:'ID'}
       ]
     })
   }).trigger('change')

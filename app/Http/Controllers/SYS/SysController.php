@@ -79,7 +79,7 @@ class SysController extends Controller
       {
       $product_id = 0;
       $sql = "select p.id from prd_product p
-      inner join sal_product_asins pas on p.id = pas.product_id
+      inner join sal_product_asins pas on p.product_sku = pas.sku
       where pas.market_place  = $MarketPlace
       and pas.asin = '$Asin' ";
       $ds= DB::connection('mysql')->select($sql);

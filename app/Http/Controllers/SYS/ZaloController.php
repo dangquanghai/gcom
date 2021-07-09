@@ -134,13 +134,12 @@ function getAllFriends() {
         $params = ['offset' => 0, 'limit' => 100, 'fields' => "id, name"];
         $response = $this->zalo->get(ZaloEndPoint::API_GRAPH_INVITABLE_FRIENDS, $accessToken, $params);
         $data =$response->getDecodedBody();
+        
         // echo '<br><br>';
         // print_r($response->getDecodedBody());
         // echo '<br><br>';
         return view('SYS.zalo',compact(['data']));
-       
-        
-        
+
    
     }
 }
