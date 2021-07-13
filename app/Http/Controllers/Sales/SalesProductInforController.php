@@ -8,6 +8,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 use App\Models\Sales\SalesProductInfor;
+use App\Http\Controllers\SYS\ZaloController;
 use Validator;
 use DateTime;
 use GuzzleHttp\Client;
@@ -97,6 +98,7 @@ class SalesProductInforController extends SysController
           $ChannelName = $d->ChannelName;
         }
         //Mail::to('dangquanghai123@gmail.com')
+       $z = new ZaloController();
         Mail::to('haidang@behmd.com')
         ->send(new SalNotifyChangeCostPrice($EffectFrom, $UserName,$Sku, $ProductName,$OldCost,$NewCost,$OldPrice,$NewPrice,$ChannelName));
         echo '<div class = "alert  alert-success"> Data Updated </div>';
@@ -488,9 +490,10 @@ class SalesProductInforController extends SysController
 
     
 
-    $sql= "  select  p.id , p.title, p.product_sku as sku ,GetAsin(p.id,1,0) as amz_asin ,
-    GetAsin(p.id,3,1) as ebay_infidealz, GetAsin(p.id,3,2) as ebay_inc,
-    GetAsin(p.product_sku,3,3) as ebay_fitness,GetAsin(p.product_sku,2,0) as wm_item_id , GetAsin(p.product_sku,6,0) as wayfair_asin 
+    $sql= "  select  p.id , p.title, p.product_sku as sku ,GetAsin(p.product_sku,1,0) as amz_asin ,
+    GetAsin(product_sku,3,1) as ebay_infidealz, GetAsin(product_sku,3,2) as ebay_inc,
+    GetAsin(p.product_sku,3,3) as ebay_fitness,GetAsin(p.product_sku,2,0) as wm_item_id ,
+    GetAsin(p.product_sku,6,0) as wayfair_asin 
     from prd_product p inner join prd_brands br on p.brand_id = br.id
     where company_id <> 1 ";
 
@@ -712,8 +715,10 @@ class SalesProductInforController extends SysController
         $Brand  = $request->input('brand');
   
         
-        $sql= "  select  p.id , p.title, p.product_sku as sku ,GetAsin(p.id,1,0) as amz_asin ,GetAsin(p.id,3,1) as ebay_infidealz, GetAsin(p.id,3,2) as ebay_inc,
-        GetAsin(p.id,3,3) as ebay_fitness,GetAsin(p.id,2,0) as wm_item_id , GetAsin(p.id,6,0) as wayfair_asin from prd_product p 
+        $sql= "  select  p.id , p.title, p.product_sku as sku ,GetAsin(p.product_sku,1,0) as amz_asin ,
+        GetAsin(p.product_sku,3,1) as ebay_infidealz, GetAsin(p.product_sku,3,2) as ebay_inc,
+        GetAsin(p.product_sku,3,3) as ebay_fitness,GetAsin(p.product_sku,2,0) as wm_item_id ,
+         GetAsin(p.id,6,0) as wayfair_asin from prd_product p 
         inner join prd_brands br on p.brand_id = br.id
         where company_id <> 1 ";
   

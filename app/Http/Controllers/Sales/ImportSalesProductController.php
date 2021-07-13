@@ -334,7 +334,7 @@ class ImportSalesProductController extends SysController
              }DB::connection('mysql')->select($sql);
           }// end if sku <>''
         }// End for
-*/
+
         // Insert ASIN
         $RowBegin = 3;
         $reader->setLoadSheetsOnly(["asin", "asin"]);
@@ -384,7 +384,7 @@ class ImportSalesProductController extends SysController
              
            }
          }//For
-/*
+
          $RowBegin = 3;
          $reader->setLoadSheetsOnly(["promotion", "promotion"]);
          $spreadsheet = $reader->load($file);
@@ -467,7 +467,7 @@ class ImportSalesProductController extends SysController
          }   
        }//For promotion
 
-       */
+       
       
        //Suppied by IT
        $RowBegin = 2;
@@ -683,7 +683,7 @@ class ImportSalesProductController extends SysController
          }//end if Phân bổ vào các bảng dựa vào sales channel
         }//
        }// for IT suply
- 
+ */
        $RowBegin = 3;
        $reader->setLoadSheetsOnly(["Real Sales (WH+DI+DS)", "Real Sales (WH+DI+DS)"]);
        $spreadsheet = $reader->load($file);
@@ -696,6 +696,7 @@ class ImportSalesProductController extends SysController
        for($i=$RowBegin; $i <= $RowEnd; $i++)
        {
          $Asin = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1,$i)->getValue();
+         $Revenue = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(3,$i)->getValue();
          $TotalOrder	= $spreadsheet->getActiveSheet()->getCellByColumnAndRow(7,$i)->getValue();
          $TheWeek = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(22,$i)->getValue();
          $TheYear = $spreadsheet->getActiveSheet()->getCellByColumnAndRow(23,$i)->getValue();
@@ -710,7 +711,7 @@ class ImportSalesProductController extends SysController
          if( $id ==0 && $product_id != 0)
          {
            DB::connection('mysql')->table('sal_sum_vendor_order')->insert(
-           ['product_id'=>$product_id ,'quantity'=>$TotalOrder,'the_week'=>$TheWeek,'the_year'=>$TheYear]);
+           ['product_id'=>$product_id ,'quantity'=>$TotalOrder,'revenue'=>$Revenue,'the_week'=>$TheWeek,'the_year'=>$TheYear]);
          }elseif($product_id == 0)
          {
            print_r('Asin'.$Asin );
@@ -718,7 +719,7 @@ class ImportSalesProductController extends SysController
          }
 
        }
-
+/*
 
       $RowBegin = 2;
       $reader->setLoadSheetsOnly(["AVC DS", "AVC DS"]);
@@ -1343,7 +1344,7 @@ class ImportSalesProductController extends SysController
             ]);
             
         }
-
+*/
       }//  if($validator->passes())
     }
 }

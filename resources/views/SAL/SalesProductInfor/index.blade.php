@@ -142,7 +142,7 @@ var dsAsin = {!! json_encode($Asins) !!}
 
 
 var sAsinColums =[
-  {field:'id',title:'id',visible:false},
+  {field:'id',title:'edit'},
   {field:'title',title:'Product Name ---------'},
   {field:'sku',title:'sku'},
   {field:'amz_asin',title:'amz_asin',formatter:LinkToAmazonListing},

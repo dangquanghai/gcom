@@ -38,7 +38,7 @@ class ZaloController extends SysController
 
 
     // ----------------gọi tới link login zalo + xin cap phép -----------------
-    function index() {
+    public function index() {
         if (!isset($_COOKIE[$this->cookie_name])) {
             $helper = $this->zalo->getRedirectLoginHelper();
             $loginUrl = $helper->getLoginUrl($this->callBackUrl); // This is login ur
@@ -55,7 +55,7 @@ class ZaloController extends SysController
     }
 
     // ----------------lấy access_token, được gọi từ route với link callback /zalo/auth
-    function auth() {
+    public function auth() {
     try {
         $helper = $this->zalo -> getRedirectLoginHelper();
         $oauthCode = isset($_GET['code']) ? $_GET['code'] : "THIS NOT CALLBACK PAGE !!!"; // get oauthoauth code from url params
@@ -81,14 +81,18 @@ class ZaloController extends SysController
     }
 
     //-------- goi tin nhắn cho bạn bè
-    function sendMessage($id_friend) 
+    public function sendMessage($id_friend,$Message) 
     {
+        //$Message ="Dear Sir/Madam, Mr Dang Quang Hai has change price of sku KGWK from  115 usd to 150 usd on channel WM MKP at 8h45 13/07/2021"  ;
+        
         if (!isset($_COOKIE[$this->cookie_name])) {
             echo "Cookie named '" . $this->cookie_name . "' is not set!";
             header("Location: {$this->link_default}");
         } else {
             $accessToken = $_COOKIE[$this->cookie_name];
-            $params = ['message' => 'Test function gui tin qua OA', 'to' => $id_friend, 'link' => 'https://link_web_gi_do.com'];
+            //$params = ['message' => $Message, 'to' => $id_friend, 'link' => 'https://jinod.com/Sales/SalesProductInforController/4171/edit'];
+
+            $params = ['message' => $Message, 'to' => $id_friend, 'link' => 'https://jinod.com/Sales/SalesProductInforController/4171/edit'];
             $response = $this->zalo->post(ZaloEndPoint::API_GRAPH_MESSAGE, $accessToken, $params);
             echo '<br><br>';
             print_r($response->getDecodedBody());
@@ -96,7 +100,7 @@ class ZaloController extends SysController
         }
     }
 //---------- lấy thông tin của người dùng app
-function getMe() {
+public function getMe() {
         
     if (!isset($_COOKIE[$this->cookie_name])) {
         echo "Cookie named '" . $this->cookie_name . "' is not set!";
@@ -110,7 +114,7 @@ function getMe() {
     }
 }
 //----------get list friend dang su dung app 
-function getFriendsUsedApp() {
+public function getFriendsUsedApp() {
     if (!isset($_COOKIE[$this->cookie_name])) {
         echo "Cookie named '" . $this->cookie_name . "' is not set!";
         header("Location: {$this->link_default}");
@@ -124,7 +128,7 @@ function getFriendsUsedApp() {
     }
 }
 //----------get list all friends chua dung app
-function getAllFriends() {
+public function getAllFriends() {
     $data;
     if (!isset($_COOKIE[$this->cookie_name])) {
         echo "Cookie named '" . $this->cookie_name . "' is not set!";
@@ -133,18 +137,16 @@ function getAllFriends() {
         $accessToken = $_COOKIE[$this->cookie_name];
         $params = ['offset' => 0, 'limit' => 100, 'fields' => "id, name"];
         $response = $this->zalo->get(ZaloEndPoint::API_GRAPH_INVITABLE_FRIENDS, $accessToken, $params);
-        $data =$response->getDecodedBody();
+        $data = $response->getDecodedBody();
         
         // echo '<br><br>';
         // print_r($response->getDecodedBody());
         // echo '<br><br>';
         return view('SYS.zalo',compact(['data']));
-
-   
     }
 }
 //----------mời bạn bè xài app, phi xài app thì mới gủi tin nhắn được.
-function sendAppRequest($FriendID) {
+public function sendAppRequest($FriendID) {
     if (!isset($_COOKIE[$this->cookie_name])) {
         echo "Cookie named '" . $this->cookie_name . "' is not set!";
          header("Location: {$this->link_default}");

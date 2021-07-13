@@ -141,9 +141,6 @@
   <script src="{{asset('plugins/selectize/js/index.js')}}"></script>
   <script src="{{asset('plugins/selectize/js/selectize.js')}}"></script>
   
-  
-
-
 @yield('styles')
 @yield('scripts')
 </body>
